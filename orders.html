@@ -40,7 +40,7 @@
 .ostat-label{font-size:10px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}
 .ostat-val{font-size:24px;font-weight:700;letter-spacing:-.04em;font-family:var(--mono);line-height:1}
 .ostat-sub{font-size:10.5px;color:var(--text-3);margin-top:5px;font-weight:500}
-.ostat-val.loading{color:var(--surface-4);animation:kpiPulse 1.4s ease-in-out infinite}
+@keyframes kpiPulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── Toolbar ─────────────────────────────────────────────────── */
 .ord-toolbar{
@@ -66,12 +66,6 @@
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23878BAA' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 9px center;transition:var(--t);
 }
-[data-theme="dark"] .ord-filter{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23878BAA' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-}
-:root:not([data-theme="dark"]) .ord-filter{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239EA3BB' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-}
 .ord-filter:focus{border-color:var(--accent)}
 .ord-filter option{background:var(--surface);color:var(--text)}
 .ord-count{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--text-3);background:var(--surface-2);border:1px solid var(--border);padding:4px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0}
@@ -83,7 +77,12 @@
 .ord-table thead th:first-child{padding-left:20px}.ord-table thead th:last-child{padding-right:20px}
 .ord-table tbody td{padding:13px 16px;font-size:13.5px;border-bottom:1px solid var(--border);vertical-align:middle;transition:background .12s}
 .ord-table tbody tr:last-child td{border-bottom:none}
-.ord-table tbody tr:hover td{background:rgba(124,111,255,.03)}
+/* Zebra striping */
+.ord-table tbody tr:nth-child(even) td{background:rgba(0,0,0,.018)}
+[data-theme="dark"] .ord-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+/* Hover wins — accent tint */
+.ord-table tbody tr:hover td{background:rgba(124,111,255,.055)!important}
+[data-theme="dark"] .ord-table tbody tr:hover td{background:rgba(124,111,255,.07)!important}
 .ord-table tbody td:first-child{padding-left:20px}.ord-table tbody td:last-child{padding-right:20px}
 
 @keyframes rowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
@@ -116,9 +115,16 @@
 .s-delivered {background:var(--green-dim); color:var(--green); border:1px solid var(--green-border)}
 .s-cancelled {background:var(--red-dim);   color:var(--red);   border:1px solid rgba(242,107,107,.2)}
 
-/* Update button */
-.btn-upd{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--border-md);color:var(--text-2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:var(--t)}
-.btn-upd:hover{background:var(--accent-dim);border-color:rgba(124,111,255,.35);color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px var(--accent-glow)}
+/* ── Update button — green edit style matching merchant ──────── */
+.btn-upd{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:var(--r-sm);
+  background:var(--green-dim);border:1px solid var(--green-border);
+  color:var(--green);font-size:12px;font-weight:700;
+  cursor:pointer;font-family:var(--font);transition:var(--t);white-space:nowrap;
+}
+.btn-upd:hover{background:rgba(25,163,122,.18);border-color:var(--green);transform:translateY(-1px);box-shadow:0 4px 10px var(--green-dim)}
+[data-theme="dark"] .btn-upd:hover{background:rgba(45,212,160,.18)}
 .btn-upd:active{transform:scale(.96)}
 
 /* ── Mobile order cards ──────────────────────────────────────── */
@@ -126,6 +132,8 @@
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .ord-mobile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);animation:cardIn .3s var(--ease) both;cursor:pointer;transition:var(--t)}
 .ord-mobile-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--sh)}
+/* Mobile card zebra */
+.ord-mobile-card:nth-child(even){background:var(--surface-2)}
 .omc-stripe{height:3px;width:100%}
 .omc-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;gap:10px}
 .omc-left{display:flex;align-items:center;gap:10px;min-width:0}
@@ -148,16 +156,38 @@
 .ord-empty h3{font-size:15px;font-weight:800;color:var(--text-2);margin-bottom:4px}
 .ord-empty p{font-size:13px;color:var(--text-3);max-width:260px;line-height:1.6}
 
-/* ── Modal ───────────────────────────────────────────────────── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:300;align-items:center;justify-content:center;padding:20px}
+/* ── Modal — exactly matches home.html .modal-overlay pattern ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  z-index:300;align-items:center;justify-content:center;
+  padding:20px;box-sizing:border-box;
+}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);box-shadow:0 24px 64px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.3);color:var(--text);font-family:var(--font);padding:28px;width:100%;max-width:560px;max-height:calc(100vh - 40px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent}
-:root:not([data-theme="dark"]) .modal{box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08)}
+[data-theme="dark"] .modal-overlay{background:rgba(0,0,0,.55)}
+.modal{
+  background:var(--surface);border:1px solid var(--border-md);
+  border-radius:var(--r-xl);
+  box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);
+  color:var(--text);font-family:var(--font);
+  padding:28px;width:100%;max-width:560px;
+  max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);
+  overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent;
+  box-sizing:border-box;overscroll-behavior:contain;
+}
+[data-theme="dark"] .modal{box-shadow:0 24px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3)}
 .modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--surface-4);border-radius:2px}
+
+/* Modal header row */
 .modal-hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border)}
-.modal-hdr-icon{width:40px;height:40px;border-radius:var(--r-sm);background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.modal-hdr-icon{width:40px;height:40px;border-radius:var(--r-sm);background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)}
+.modal-hdr-info{flex:1;min-width:0}
 .modal-hdr-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.02em}
 .modal-hdr-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
+.modal-hdr-close{width:32px;height:32px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:var(--t);flex-shrink:0}
+.modal-hdr-close:hover{background:var(--red-dim);border-color:rgba(242,107,107,.3);color:var(--red)}
+
+/* Order detail box */
 .od-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px 18px;margin-bottom:18px}
 .od-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .od-key{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:3px}
@@ -165,9 +195,14 @@
 .od-items{background:var(--surface-3);border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border)}
 .od-item-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12.5px}
 .od-item-row:last-child{border-bottom:none}
+/* Item list zebra */
+.od-item-row:nth-child(even){background:rgba(0,0,0,.018)}
+[data-theme="dark"] .od-item-row:nth-child(even){background:rgba(255,255,255,.025)}
 .od-total-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-top:1px solid var(--border-md);font-size:13px;font-weight:800;background:var(--surface-2)}
+
+/* Form fields inside modal */
 .field{margin-bottom:14px}
-.field label{font-size:12px;font-weight:600;color:var(--text-2);display:block;margin-bottom:6px;letter-spacing:.01em}
+.field label{font-size:12px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:5px;margin-bottom:6px;letter-spacing:.01em}
 .field input,.field textarea,.field select{width:100%;font-family:var(--font);font-size:13px;height:40px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border-md);background:var(--surface-2);color:var(--text);outline:none;transition:var(--t)}
 .field textarea{height:80px;padding:10px 12px;resize:vertical}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);background:var(--surface-3)}
@@ -178,6 +213,7 @@
 /* ── Page entrance ───────────────────────────────────────────── */
 @keyframes pgIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .pg-enter{animation:pgIn .28s cubic-bezier(.22,1,.36,1) both}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media(max-width:1100px){.order-stats{grid-template-columns:repeat(2,1fr)}.skel-stats-row{grid-template-columns:repeat(2,1fr)}}
@@ -193,16 +229,31 @@
   .ord-divider{display:none}
   .ord-card{display:none}
   .ord-mobile-list{display:flex}
-  .modal{padding:20px;border-radius:var(--r-lg);max-height:calc(100vh - 20px)}
+  /* Modal → true bottom sheet, exactly like home.html */
+  .modal-overlay{padding:0!important;align-items:flex-end!important}
+  .modal{
+    width:100%!important;max-width:100%!important;
+    max-height:90vh!important;max-height:90dvh!important;
+    border-radius:var(--r-xl) var(--r-xl) 0 0!important;
+    border-bottom:none!important;
+    padding:0 20px calc(20px + env(safe-area-inset-bottom,0px))!important;
+  }
+  /* Drag handle pill */
+  .modal::before{
+    content:'';display:block;width:40px;height:4px;
+    background:var(--border-md);border-radius:2px;
+    margin:14px auto 20px;
+  }
+  .modal-hdr{margin-top:0}
   .modal-hdr-title{font-size:14px}
   .od-grid{grid-template-columns:1fr;gap:8px}
-  .modal-overlay{padding:10px}
-  .modal-footer{flex-wrap:wrap}
+  .modal-footer{flex-wrap:wrap;padding-bottom:0}
   .modal-footer .btn{flex:1;justify-content:center}
 }
 @media(max-width:380px){
   .order-stats{grid-template-columns:1fr 1fr}
   .ostat{padding:12px;gap:8px}.ostat-val{font-size:18px}
+  .modal{max-height:95vh!important;max-height:95dvh!important}
 }
 </style>
 
@@ -233,7 +284,7 @@
     <div class="mob-store-wrap" id="mob-store-wrap">
       <select class="mob-store-selector" id="mob-store-selector" onchange="onStoreChange(this.value)"></select>
     </div>
-    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:36px;height:36px;font-size:15px;">🌙</button>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:36px;height:36px;font-size:15px;">☀️</button>
   </div>
 </div>
 
@@ -299,7 +350,7 @@
         <span class="store-select-label">Store</span>
         <select class="store-selector" id="store-selector" onchange="onStoreChange(this.value)"></select>
       </div>
-      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
       <div id="topbar-actions"></div>
     </div>
   </div>
@@ -307,19 +358,27 @@
 </div>
 
 <!-- ORDER UPDATE MODAL -->
-<div class="modal-overlay" id="orderModal" onclick="if(event.target===this)closeModal('orderModal')">
+<div class="modal-overlay" id="orderModal" onclick="if(event.target===this)closeOrderModal()">
   <div class="modal">
     <div class="modal-hdr">
-      <div class="modal-hdr-icon">📦</div>
-      <div>
+      <div class="modal-hdr-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <div class="modal-hdr-info">
         <div class="modal-hdr-title">Update Order</div>
         <div class="modal-hdr-sub" id="modal-ord-num">—</div>
       </div>
+      <button class="modal-hdr-close" onclick="closeOrderModal()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <input type="hidden" id="orderEditId">
     <div class="od-box" id="orderDetailView"></div>
     <div class="field">
-      <label>Status</label>
+      <label>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.6"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>
+        Status
+      </label>
       <select id="orderStatus">
         <option value="pending">⏳ Pending</option>
         <option value="confirmed">✅ Confirmed</option>
@@ -330,17 +389,26 @@
       </select>
     </div>
     <div class="field">
-      <label>Tracking Number</label>
+      <label>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Tracking Number
+      </label>
       <input type="text" id="orderTracking" placeholder="AWB12345678" style="font-family:var(--mono);letter-spacing:.02em;">
     </div>
     <div class="field">
-      <label>Internal Notes</label>
+      <label>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Internal Notes
+      </label>
       <textarea id="orderNotes" placeholder="Add any internal notes about this order…"></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary btn-sm" onclick="closeModal('orderModal')">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="saveOrder()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <button class="btn btn-secondary btn-sm" onclick="closeOrderModal()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="saveOrder()" id="saveOrderBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17,21 17,13 7,13 7,21"/>
           <polyline points="7,3 7,8 15,8"/>
@@ -366,7 +434,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   setTopbarActions(`
     <button class="btn-export" onclick="exportCSV()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="7,10 12,15 17,10"/>
         <line x1="12" y1="15" x2="12" y2="3"/>
@@ -443,15 +511,26 @@ function renderPage(first=false){
       <div class="ord-divider"></div>
       <select class="ord-filter" id="orderStatusFilter" onchange="filterOrders()">
         <option value="">All Status</option>
-        <option value="pending">⏳ Pending</option><option value="confirmed">✅ Confirmed</option>
-        <option value="processing">⚙️ Processing</option><option value="shipped">🚚 Shipped</option>
-        <option value="delivered">🎉 Delivered</option><option value="cancelled">❌ Cancelled</option>
+        <option value="pending">⏳ Pending</option>
+        <option value="confirmed">✅ Confirmed</option>
+        <option value="processing">⚙️ Processing</option>
+        <option value="shipped">🚚 Shipped</option>
+        <option value="delivered">🎉 Delivered</option>
+        <option value="cancelled">❌ Cancelled</option>
       </select>
       <span class="ord-count" id="orderCount">${allOrders.length} orders</span>
     </div>
     <div class="ord-card">
       <table class="ord-table">
-        <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead><tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th style="width:120px;"></th>
+        </tr></thead>
         <tbody id="ordersBody"></tbody>
       </table>
     </div>
@@ -480,37 +559,84 @@ function renderOrders(orders){ renderTableRows(orders); renderMobileCards(orders
 
 function renderTableRows(orders){
   const body = document.getElementById('ordersBody'); if(!body) return;
-  if(!orders.length){ body.innerHTML=`<tr><td colspan="7"><div class="ord-empty"><div class="ord-empty-icon">📋</div><h3>No orders found</h3><p>Try adjusting your search or status filter.</p></div></td></tr>`; return; }
+  if(!orders.length){
+    body.innerHTML=`<tr><td colspan="7"><div class="ord-empty"><div class="ord-empty-icon">📋</div><h3>No orders found</h3><p>Try adjusting your search or status filter.</p></div></td></tr>`;
+    return;
+  }
   body.innerHTML = orders.map(o=>{
     const init = (o.customer_name||'?')[0].toUpperCase();
     const d = new Date(o.created_at);
     return `<tr>
       <td><span class="ord-num">${o.order_number}</span></td>
-      <td><div class="cust-cell"><div class="cust-av">${init}</div><div><div class="cust-name">${o.customer_name}</div><div class="cust-email">${o.customer_email}</div></div></div></td>
-      <td><span style="font-weight:700;">${o.items?.length||0}</span><span style="color:var(--text-3);font-size:12px;"> item${(o.items?.length||0)!==1?'s':''}</span></td>
-      <td><div class="ord-amount">₹${(o.total||0).toFixed(2)}</div><span class="ord-pay-chip">${o.payment_method==='razorpay'?'⚡ Razorpay':'💵 COD'}</span></td>
+      <td>
+        <div class="cust-cell">
+          <div class="cust-av">${init}</div>
+          <div>
+            <div class="cust-name">${o.customer_name}</div>
+            <div class="cust-email">${o.customer_email}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span style="font-weight:700;">${o.items?.length||0}</span>
+        <span style="color:var(--text-3);font-size:12px;"> item${(o.items?.length||0)!==1?'s':''}</span>
+      </td>
+      <td>
+        <div class="ord-amount">₹${(o.total||0).toFixed(2)}</div>
+        <span class="ord-pay-chip">${o.payment_method==='razorpay'?'⚡ Razorpay':'💵 COD'}</span>
+      </td>
       <td>${statusBadge(o.status)}</td>
-      <td><div style="font-size:13px;font-weight:700;line-height:1.2;">${d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">${d.toLocaleDateString('en-IN',{year:'numeric'})}</div></td>
-      <td><button class="btn-upd" onclick="openOrderEdit('${o._id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Update</button></td>
+      <td>
+        <div style="font-size:13px;font-weight:700;line-height:1.2;">${d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${d.toLocaleDateString('en-IN',{year:'numeric'})}</div>
+      </td>
+      <td>
+        <button class="btn-upd" onclick="openOrderEdit('${o._id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>Update
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 function renderMobileCards(orders){
   const list = document.getElementById('ordersMobileList'); if(!list) return;
-  if(!orders.length){ list.innerHTML=`<div class="ord-empty"><div class="ord-empty-icon">📋</div><h3>No orders found</h3><p>Try adjusting your search or status filter.</p></div>`; return; }
+  if(!orders.length){
+    list.innerHTML=`<div class="ord-empty"><div class="ord-empty-icon">📋</div><h3>No orders found</h3><p>Try adjusting your search or status filter.</p></div>`;
+    return;
+  }
   const statusColors={pending:'var(--amber)',confirmed:'var(--purple)',processing:'var(--blue)',shipped:'var(--cyan)',delivered:'var(--green)',cancelled:'var(--red)'};
   list.innerHTML = orders.map((o,i)=>{
-    const init=(o.customer_name||'?')[0].toUpperCase(),d=new Date(o.created_at);
+    const init=(o.customer_name||'?')[0].toUpperCase(), d=new Date(o.created_at);
     return`<div class="ord-mobile-card" style="animation-delay:${i*0.04}s;" onclick="openOrderEdit('${o._id}')">
       <div class="omc-stripe" style="background:${statusColors[o.status]||'var(--accent)'};"></div>
-      <div class="omc-header"><div class="omc-left"><div class="omc-av">${init}</div><div class="omc-info"><div class="omc-name">${o.customer_name}</div><div class="omc-num">${o.order_number}</div></div></div>${statusBadge(o.status)}</div>
+      <div class="omc-header">
+        <div class="omc-left">
+          <div class="omc-av">${init}</div>
+          <div class="omc-info">
+            <div class="omc-name">${o.customer_name}</div>
+            <div class="omc-num">${o.order_number}</div>
+          </div>
+        </div>
+        ${statusBadge(o.status)}
+      </div>
       <div class="omc-kpis">
         <div class="omc-kpi"><div class="omc-kpi-val green">₹${(o.total||0).toFixed(0)}</div><div class="omc-kpi-label">Total</div></div>
         <div class="omc-kpi"><div class="omc-kpi-val">${o.items?.length||0}</div><div class="omc-kpi-label">Items</div></div>
         <div class="omc-kpi"><div class="omc-kpi-val">${d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div class="omc-kpi-label">Date</div></div>
       </div>
-      <div class="omc-footer"><span class="omc-pay-chip">${o.payment_method==='razorpay'?'⚡ Razorpay':'💵 COD'}</span><span style="font-size:10.5px;color:var(--accent);font-weight:700;">Tap to update →</span></div>
+      <div class="omc-footer">
+        <span class="omc-pay-chip">${o.payment_method==='razorpay'?'⚡ Razorpay':'💵 COD'}</span>
+        <span style="font-size:10.5px;color:var(--accent);font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>Tap to update
+        </span>
+      </div>
     </div>`;
   }).join('');
 }
@@ -519,6 +645,17 @@ function renderMobileCards(orders){
 function statusBadge(s){
   const m={pending:'s-pending',confirmed:'s-confirmed',processing:'s-processing',shipped:'s-shipped',delivered:'s-delivered',cancelled:'s-cancelled'};
   return`<span class="sbadge ${m[s]||''}"><span class="sbadge-dot"></span>${s}</span>`;
+}
+
+/* ── Modal helpers ───────────────────────────────────────────── */
+function openOrderModal(){
+  document.getElementById('orderModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeOrderModal(){
+  document.getElementById('orderModal').classList.remove('open');
+  if(!document.getElementById('sidebar').classList.contains('mob-open'))
+    document.body.style.overflow = '';
 }
 
 /* ── Open order edit modal ───────────────────────────────────── */
@@ -547,19 +684,33 @@ function openOrderEdit(id){
     </div>
     <div class="od-items">
       ${(o.items||[]).map(i=>`<div class="od-item-row"><span>${i.name} <span style="color:var(--text-3);">×${i.qty}</span></span><span style="font-family:var(--mono);font-weight:600;">₹${i.price}</span></div>`).join('')}
-      <div class="od-total-row"><span>Total</span><span style="font-family:var(--mono);color:var(--accent);">₹${(o.total||0).toFixed(2)}</span></div>
+      <div class="od-total-row">
+        <span>Total</span>
+        <span style="font-family:var(--mono);color:var(--accent);">₹${(o.total||0).toFixed(2)}</span>
+      </div>
     </div>`;
-  openModal('orderModal');
+  openOrderModal();
 }
 
 /* ── Save order ──────────────────────────────────────────────── */
 async function saveOrder(){
-  const id = document.getElementById('orderEditId').value;
-  const body = {status:document.getElementById('orderStatus').value,tracking_number:document.getElementById('orderTracking').value.trim(),notes:document.getElementById('orderNotes').value.trim()};
+  const id  = document.getElementById('orderEditId').value;
+  const btn = document.getElementById('saveOrderBtn');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Saving…`;
+  const body = {
+    status:          document.getElementById('orderStatus').value,
+    tracking_number: document.getElementById('orderTracking').value.trim(),
+    notes:           document.getElementById('orderNotes').value.trim()
+  };
   try{
     await apiFetch(`/stores/${currentStoreId}/orders/${id}`,{method:'PUT',body:JSON.stringify(body)});
-    closeModal('orderModal'); await loadOrders(); toast('Order updated successfully','success');
+    closeOrderModal();
+    await loadOrders();
+    toast('Order updated successfully','success');
   }catch(e){ toast(e.message,'error'); }
+  finally{ btn.disabled=false; btn.innerHTML=origHTML; }
 }
 
 /* ── Export CSV ──────────────────────────────────────────────── */
@@ -567,7 +718,7 @@ function exportCSV(){
   if(!allOrders.length) return toast('No orders to export','error');
   const rows=[['Order #','Customer','Email','Phone','Items','Total','Payment','Status','Date','Tracking']];
   allOrders.forEach(o=>rows.push([o.order_number,o.customer_name,o.customer_email,o.customer_phone||'',(o.items||[]).map(i=>`${i.name} x${i.qty}`).join(' | '),(o.total||0).toFixed(2),o.payment_method==='razorpay'?'Razorpay':'COD',o.status,new Date(o.created_at).toLocaleDateString('en-IN'),o.tracking_number||'']));
-  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"` ).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = `orders-${new Date().toISOString().slice(0,10)}.csv`;
@@ -584,7 +735,7 @@ function renderEmpty(type){
   el.style.display='block';
 }
 
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal('orderModal'); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeOrderModal(); });
 </script>
 </body>
 </html>
