@@ -57,13 +57,20 @@
 /* ── Content area ────────────────────────────────────────────── */
 .content{
   flex:1;padding:16px 20px;background:var(--bg);
-  min-width:0;display:flex;flex-direction:column;
+  min-width:0;min-height:0;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* Lock main-wrap to viewport so the chat never causes page scroll */
+.main-wrap{
+  height:100vh;
+  overflow:hidden;
 }
 
 /* ── AI root layout ──────────────────────────────────────────── */
 .ai-root{
   display:grid;grid-template-columns:1fr 388px;gap:16px;
-  flex:1;min-height:0;height:calc(100vh - 60px - 32px);
+  flex:1;min-height:0;height:100%;
 }
 
 /* ── Chat panel ──────────────────────────────────────────────── */
@@ -503,7 +510,7 @@
   /* Switch to single-column — action panel is in the drawer */
   .ai-root{
     grid-template-columns:1fr;
-    height:calc(100vh - 56px - 28px);  /* account for mobile topbar */
+    height:100%;  /* account for mobile topbar */
     gap:0;
   }
   /* Desktop action panel becomes invisible — drawer takes over */
@@ -518,7 +525,7 @@
 }
 
 @media(max-width:648px){
-  .ai-root{height:calc(100vh - 56px - 24px)}
+  .ai-root{height:100%}
   .content{padding:10px 10px 10px}
   .chat-header{padding:11px 14px}
   .chat-header-avatar{width:34px;height:34px;font-size:16px}
