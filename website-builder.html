@@ -488,20 +488,18 @@
     .undo-dismiss{padding:5px 8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px}
   </style>
 <style>
-/* ══════════════════════════════════════════════════════════════
-   WEBSITE-BUILDER — MOBILE (≤ 768px)
-   Static bottom nav bar — always visible, native-app style
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   WEBSITE-BUILDER — MOBILE  ≤768px
+   Injected last in <head> so source-order beats earlier rules.
+═══════════════════════════════════════════════════════════════ */
 
-.mob-builder-bar { display: none; }   /* hidden on desktop */
+/* Hidden on desktop — JS creates the DOM node unconditionally */
+.mob-builder-bar { display: none !important; }
 
 @media (max-width: 768px) {
 
-  /* ── 1. Viewport lock (iOS-safe — no html position:fixed) ── */
-  html {
-    height: 100%;
-    overflow: hidden;
-  }
+  /* 1 ── Scroll lock: html+body, iOS-safe (no position:fixed on html) */
+  html { height: 100%; overflow: hidden; }
   body {
     height: 100dvh !important;
     max-height: 100dvh !important;
@@ -509,184 +507,161 @@
     overscroll-behavior: none !important;
   }
 
-  /* ── 2. Topbar: compact, single row ── */
+  /* 2 ── Topbar: compact single row, nothing overflows */
   #topbar {
-    padding: 0 8px;
-    gap: 4px;
-    height: var(--topbar-h);
-    flex-shrink: 0;
-    overflow: hidden;
+    padding: 0 8px !important;
+    gap: 4px !important;
+    height: var(--topbar-h) !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
   }
-  /* Hide non-essential items */
   .tb-page-label,
   .tb-device-group,
   .tb-shortcut    { display: none !important; }
   .tb-btn-ghost   { display: none !important; }
-  .tb-unsaved     { display: none !important; }   /* hidden — save btn implies unsaved */
-
-  /* Compact remaining items */
-  .tb-logo        { font-size: 15px; padding-right: 7px; flex-shrink: 0; }
-  .tb-store-pill  { padding: 4px 7px; gap: 4px; min-width: 0; flex-shrink: 1; max-width: 110px; }
-  .tb-store-name  { max-width: 75px; font-size: 11.5px; }
-  .tb-spacer      { flex: 1; min-width: 4px; }
-  .theme-toggle   { width: 30px; height: 30px; min-width: 30px; font-size: 13px; flex-shrink: 0; }
+  .tb-unsaved     { display: none !important; }
+  .tb-logo        { font-size: 15px !important; padding-right: 7px !important; flex-shrink: 0 !important; }
+  .tb-store-pill  { padding: 4px 7px !important; gap: 4px !important; flex-shrink: 1 !important; max-width: 110px !important; }
+  .tb-store-name  { max-width: 70px !important; font-size: 11.5px !important; }
+  .tb-spacer      { flex: 1 !important; min-width: 4px !important; }
+  .theme-toggle   { width: 30px !important; height: 30px !important; min-width: 30px !important; font-size: 13px !important; flex-shrink: 0 !important; }
   .store-dropdown { left: 8px !important; }
-
-  /* Save button: short label on mobile */
-  #save-btn {
-    padding: 7px 10px;
-    font-size: 12px;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  /* Replace long label with short one via content trick on the span */
+  #save-btn       { padding: 6px 10px !important; font-size: 12px !important; flex-shrink: 0 !important; white-space: nowrap !important; }
   #save-btn .tb-shortcut { display: none !important; }
 
-  /* ── 3. Builder wrap: fill between topbar and bottom bar ── */
+  /* 3 ── Builder wrap */
   #builder-wrap {
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    overscroll-behavior: none;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
   }
 
-  /* ── 4. Left panel: full-width flex column ── */
+  /* 4 ── Left panel: full-width flex column */
   #left-panel {
-    width: 100%      !important;
+    width: 100% !important;
     min-width: unset !important;
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border-right: none    !important;
-    border-bottom: 1px solid var(--border);
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
   }
 
-  /* ── 5. Panel tabs: no shrink ── */
-  .panel-tabs { flex-shrink: 0; }
-  .panel-tab  { font-size: 11px; padding: 10px 4px; }
+  /* 5 ── Panel tabs */
+  .panel-tabs { flex-shrink: 0 !important; }
+  .panel-tab  { font-size: 11px !important; padding: 10px 4px !important; }
 
-  /* ── 6. Panel body: only scrollable element inside left-panel ── */
+  /* 6 ── Panel body: scrolls internally, never overflows */
   .panel-body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: contain !important;
   }
 
-  /* ── 7. Preview / center panel: fixed overlay, slides from right ── */
+  /* 7 ── Center/preview panel: fixed overlay, off-screen right */
   #center-panel {
     position: fixed !important;
-    top:      var(--topbar-h);
-    left:     0;
-    right:    0;
-    bottom:   calc(48px + env(safe-area-inset-bottom, 0px));
-    z-index:  100;
-    background: #111118;
-    transform: translateX(100%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    top: var(--topbar-h) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 48px !important;
+    z-index: 100 !important;
+    background: #111118 !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1) !important;
     display: flex !important;
-    flex-direction: column;
-    overflow: hidden;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
   #center-panel.mob-preview-active {
-    transform: translateX(0);
+    transform: translateX(0) !important;
   }
 
-  /* ── 8. Preview bar & canvas ── */
-  .preview-bar        { padding: 0 10px; gap: 7px; height: 42px; flex-shrink: 0; }
-  .preview-hint       { display: none !important; }
-  .preview-url        { max-width: none; flex: 1; padding: 4px 9px; }
-  .preview-zoom-wrap  { display: none !important; }
-  .preview-canvas     { flex: 1; min-height: 0; padding: 10px; overflow: auto;
-                        -webkit-overflow-scrolling: touch; }
-  .device-shell.desktop { max-width: 100%; }
+  /* 8 ── Preview bar & canvas */
+  .preview-bar       { padding: 0 10px !important; gap: 7px !important; height: 42px !important; flex-shrink: 0 !important; }
+  .preview-hint      { display: none !important; }
+  .preview-url       { max-width: none !important; flex: 1 !important; }
+  .preview-zoom-wrap { display: none !important; }
+  .preview-canvas    { flex: 1 !important; min-height: 0 !important; padding: 10px !important; overflow: auto !important; -webkit-overflow-scrolling: touch; }
+  .device-shell.desktop { max-width: 100% !important; }
 
-  /* ── 9. Add Section drawer: sits above bottom bar, uses z-index > bar ── */
+  /* 9 ── Add Section drawer: sits above bottom bar */
   .add-section-drawer {
-    left:    0 !important;
-    right:   0 !important;
-    bottom:  calc(48px + env(safe-area-inset-bottom, 0px)) !important;
-    z-index: 10000 !important;    /* above bottom bar (9999) */
-    padding: 14px 16px 18px;
-    max-height: 70dvh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 48px !important;
+    z-index: 400 !important;
+    padding: 14px 16px 16px !important;
+    max-height: 65dvh !important;
+    overflow-y: auto !important;
   }
   .add-section-types {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3,1fr) !important;
+    gap: 8px !important;
   }
 
-  /* ── 10. Section rows & editor fields ── */
-  .section-row        { padding: 6px 7px; }
-  .section-row-label  { font-size: 11.5px; }
-  .panel-group-label  { font-size: 9px; }
+  /* 10 ── Section rows & fields */
+  .section-row       { padding: 6px 7px !important; }
+  .section-row-label { font-size: 11.5px !important; }
+  .panel-group-label { font-size: 9px !important; }
   .field-input,
-  .field-select       { font-size: 12px; padding: 6px 8px; }
-  .editor-fields      { min-height: 0; }
+  .field-select      { font-size: 12px !important; padding: 6px 8px !important; }
 
-  /* ── 11. Bottom bar: static footer, always visible ────────────
-     • position:fixed + will-change:transform = stays put on iOS
-     • z-index:9999 — only add-section-drawer (10000) sits above it
-     • env(safe-area-inset-bottom) — respects iPhone home indicator
-  ────────────────────────────────────────────────────────────── */
+  /* 11 ── BOTTOM BAR — static footer, always visible */
   .mob-builder-bar {
-    display:       flex !important;
-    position:      fixed;
-    bottom:        0;
-    left:          0;
-    right:         0;
-    height:        calc(48px + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background:    var(--surface);
-    border-top:    1.5px solid var(--border-md, rgba(0,0,0,.1));
-    z-index:       9999;
-    align-items:   stretch;
-    box-shadow:    0 -1px 0 rgba(0,0,0,.06), 0 -4px 20px rgba(0,0,0,.1);
-    /* GPU layer — bar cannot be scrolled off-screen */
-    -webkit-transform: translateZ(0);
-    transform:     translateZ(0);
-    will-change:   transform;
-    /* Prevent tap delay */
-    touch-action:  manipulation;
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 48px !important;
+    background: var(--surface) !important;
+    border-top: 1.5px solid var(--border-md, rgba(0,0,0,.11)) !important;
+    z-index: 300 !important;   /* same tier as drawer — JS stacks them correctly */
+    align-items: stretch !important;
+    box-shadow: 0 -1px 0 rgba(0,0,0,.06), 0 -4px 20px rgba(0,0,0,.1) !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    will-change: transform;
+    touch-action: manipulation;
   }
-
   .mob-bar-tab {
-    flex:             1;
-    display:          flex;
-    flex-direction:   column;
-    align-items:      center;
-    justify-content:  center;
-    gap:              3px;
-    font-size:        10px;
-    font-weight:      700;
-    letter-spacing:   0.04em;
-    text-transform:   uppercase;
-    color:            var(--text-3, #9ca3af);
-    cursor:           pointer;
-    transition:       background 0.15s, color 0.15s, border-color 0.15s;
-    border:           none;
-    background:       transparent;
-    font-family:      'Plus Jakarta Sans', sans-serif;
-    border-top:       2.5px solid transparent;
-    padding:          0;
-    margin-top:       -1.5px;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--text-3, #9ca3af) !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    border-top: 2.5px solid transparent !important;
+    padding: 0 !important;
     -webkit-tap-highlight-color: transparent;
-    touch-action:     manipulation;
-    user-select:      none;
+    touch-action: manipulation;
+    user-select: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .mob-bar-tab.active {
-    color:            var(--accent-2, #818cf8);
-    background:       rgba(91, 92, 246, 0.07);
-    border-top-color: var(--accent, #5b5cf6);
+    color: var(--accent-2, #818cf8) !important;
+    background: rgba(91,92,246,0.07) !important;
+    border-top-color: var(--accent, #5b5cf6) !important;
   }
-  .mob-bar-tab-icon  { font-size: 20px; line-height: 1; display: block; }
-  .mob-bar-tab-label { font-size: 9.5px; font-weight: 700; line-height: 1; }
+  .mob-bar-tab-icon  { font-size: 20px !important; line-height: 1 !important; display: block !important; }
+  .mob-bar-tab-label { font-size: 9.5px !important; font-weight: 700 !important; line-height: 1 !important; }
 }
 </style>
 </head>
@@ -1233,13 +1208,14 @@ function highlightSectionInPreview(id){
 function clearHighlight(){try{document.getElementById('preview-iframe').contentDocument?.querySelectorAll('[data-section-id]').forEach(el=>el.classList.remove('sec-active'))}catch(e){}}
 </script>
 <script>
-/* ── Website Builder — Mobile Bottom Nav Bar ──────────────────
-   Bar always created (no innerWidth guard).
-   CSS display:none hides on desktop; @media shows on mobile.
-   This ensures DevTools responsive mode + real phones both work.
+/* ── Website Builder — Mobile Nav Bar ────────────────────────────
+   No innerWidth guard: bar always in DOM, CSS display:none hides
+   it on desktop. JS also enforces positions inline to guarantee
+   correct stacking regardless of CSS cascade issues.
 ─────────────────────────────────────────────────────────────── */
 (function () {
 
+  /* ── Build tab button ── */
   function makeTab(id, icon, label, active) {
     var b = document.createElement('button');
     b.id = id;
@@ -1252,8 +1228,10 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
     return b;
   }
 
-  var bar  = document.createElement('div');
+  /* ── Create bar ── */
+  var bar = document.createElement('div');
   bar.className = 'mob-builder-bar';
+  bar.id = 'mob-builder-bar';
   bar.setAttribute('role', 'tablist');
 
   var btn1 = makeTab('mob-tab-editor',  '&#9998;',   'Editor',  true);
@@ -1262,7 +1240,7 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
   bar.appendChild(btn2);
   document.body.appendChild(bar);
 
-  /* ── Toggle ── */
+  /* ── Toggle editor / preview ── */
   window.mobBuilderTab = function (tab) {
     var cp = document.getElementById('center-panel');
     var t1 = document.getElementById('mob-tab-editor');
@@ -1282,7 +1260,22 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
   btn1.addEventListener('click', function () { mobBuilderTab('editor'); });
   btn2.addEventListener('click', function () { mobBuilderTab('preview'); });
 
-  /* Keep on editor when opening section editor */
+  /* ── Intercept openAddDrawer: position drawer above bar inline ── */
+  var _oad = window.openAddDrawer;
+  if (typeof _oad === 'function') {
+    window.openAddDrawer = function () {
+      _oad.apply(this, arguments);
+      var drawer = document.getElementById('add-section-drawer');
+      if (drawer) {
+        drawer.style.setProperty('bottom', '48px', 'important');
+        drawer.style.setProperty('left', '0', 'important');
+        drawer.style.setProperty('right', '0', 'important');
+        drawer.style.setProperty('z-index', '10000', 'important');
+      }
+    };
+  }
+
+  /* ── Wrap section-related fns to stay on editor tab ── */
   var _oe = window.openSectionEditor;
   if (typeof _oe === 'function') {
     window.openSectionEditor = function () {
@@ -1290,8 +1283,6 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
       mobBuilderTab('editor');
     };
   }
-
-  /* Keep on editor when returning to section list */
   var _sl = window.showSectionsListView;
   if (typeof _sl === 'function') {
     window.showSectionsListView = function () {
@@ -1299,41 +1290,31 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
       mobBuilderTab('editor');
     };
   }
-
-  /* Keep on editor when switching Sections/Themes/Settings tabs */
   var _st = window.switchLeftTab;
   if (typeof _st === 'function') {
-    window.switchLeftTab = function (tab, el) {
+    window.switchLeftTab = function () {
       _st.apply(this, arguments);
       mobBuilderTab('editor');
     };
   }
 
-  /* Shorten Save button label on mobile */
-  var saveBtn = document.getElementById('save-btn');
-  if (saveBtn) {
-    /* Keep function but shorten visible text */
-    saveBtn.addEventListener('DOMContentLoaded', function(){});
-    /* Use MutationObserver or just set after load */
-    function shortenSaveBtn() {
-      if (window.innerWidth <= 768 && saveBtn) {
-        /* Store original for resize */
-        if (!saveBtn.dataset.fullHtml) {
-          saveBtn.dataset.fullHtml = saveBtn.innerHTML;
-        }
-        saveBtn.innerHTML = '&#128190; Save';
-      } else if (saveBtn && saveBtn.dataset.fullHtml) {
-        saveBtn.innerHTML = saveBtn.dataset.fullHtml;
-      }
+  /* ── Shorten Save button text on mobile ── */
+  function patchSaveBtn() {
+    var btn = document.getElementById('save-btn');
+    if (!btn) return;
+    if (window.innerWidth <= 768) {
+      if (!btn.dataset.full) btn.dataset.full = btn.innerHTML;
+      btn.innerHTML = '&#128190;&nbsp;Save';
+    } else if (btn.dataset.full) {
+      btn.innerHTML = btn.dataset.full;
     }
-    /* Run on load and on resize */
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', shortenSaveBtn);
-    } else {
-      shortenSaveBtn();
-    }
-    window.addEventListener('resize', shortenSaveBtn);
   }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', patchSaveBtn);
+  } else {
+    patchSaveBtn();
+  }
+  window.addEventListener('resize', patchSaveBtn);
 
 })();
 </script>
