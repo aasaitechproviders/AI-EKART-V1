@@ -488,21 +488,22 @@
     .undo-dismiss{padding:5px 8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px}
   </style>
 <style>
-/* ════════════════════════════════════════════════════════
-   WEBSITE-BUILDER — MOBILE RESPONSIVE  (≤ 768px only)
-   All rules are inside @media so desktop/tablet untouched
-════════════════════════════════════════════════════════ */
-.mob-builder-bar { display: none; }
+/* ── WEBSITE-BUILDER MOBILE (≤768px) ─────────────────────────── */
+
+/* Bottom bar: hidden by default, shown only at ≤768px via media  */
+.mob-builder-bar {
+  display: none;
+}
 
 @media (max-width: 768px) {
 
-  /* ── 1. Fix body to use dvh so Safari toolbar doesn't bite ── */
+  /* 1 ── body: use dynamic viewport height, lock scroll */
   body {
     height: 100dvh !important;
     overflow: hidden !important;
   }
 
-  /* ── 2. Topbar: compact, hide desktop-only controls ── */
+  /* 2 ── Topbar: compact */
   #topbar {
     padding: 0 10px;
     gap: 6px;
@@ -511,17 +512,17 @@
   }
   .tb-page-label,
   .tb-device-group,
-  .tb-shortcut     { display: none !important; }
-  .tb-btn-ghost    { display: none !important; }
-  .tb-logo         { font-size: 16px; padding-right: 8px; }
-  .tb-store-name   { max-width: 85px; font-size: 12px; }
-  .tb-store-pill   { padding: 4px 8px; gap: 5px; }
-  .tb-btn-primary  { padding: 6px 11px; font-size: 12px; }
-  .theme-toggle    { width: 30px; height: 30px; font-size: 14px; }
-  .tb-unsaved      { padding: 3px 7px; font-size: 10px; gap: 4px; }
-  .store-dropdown  { left: 10px !important; }
+  .tb-shortcut  { display: none !important; }
+  .tb-btn-ghost { display: none !important; }
+  .tb-logo      { font-size: 16px; padding-right: 8px; }
+  .tb-store-name{ max-width: 80px; font-size: 12px; }
+  .tb-store-pill{ padding: 4px 8px; gap: 5px; }
+  .tb-btn-primary { padding: 6px 11px; font-size: 12px; }
+  .theme-toggle { width: 30px; height: 30px; font-size: 14px; }
+  .tb-unsaved   { padding: 3px 7px; font-size: 10px; gap: 4px; }
+  .store-dropdown { left: 10px !important; }
 
-  /* ── 3. Builder wrap: vertical stack ── */
+  /* 3 ── Builder wrap: stack vertically, fills remaining height */
   #builder-wrap {
     flex-direction: column;
     height: calc(100dvh - var(--topbar-h) - 48px);
@@ -529,7 +530,7 @@
     flex: 1;
   }
 
-  /* ── 4. Left panel: full width flex column filling builder-wrap ── */
+  /* 4 ── Left panel: full-width flex column */
   #left-panel {
     width: 100%      !important;
     min-width: unset !important;
@@ -538,69 +539,65 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-right: none    !important;
+    border-right: none !important;
     border-bottom: 1px solid var(--border);
   }
 
-  /* ── 5. Panel tabs: full width ── */
+  /* 5 ── Panel tabs row */
   .panel-tabs { flex-shrink: 0; }
   .panel-tab  { font-size: 11px; padding: 10px 4px; }
 
-  /* ── 6. Panel body: scroll within left-panel ── */
+  /* 6 ── Panel body: fills remaining height, scrolls */
   .panel-body {
     flex: 1;
+    min-height: 0;       /* critical: allows flex child to shrink below content size */
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    height: 0; /* force scroll within flex parent */
   }
 
-  /* ── 7. Preview / center panel: fixed overlay, off-screen right ── */
+  /* 7 ── Preview / center panel: fixed overlay, off-screen right */
   #center-panel {
-    position: fixed   !important;
+    position: fixed !important;
     top:    var(--topbar-h);
     left:   0;
     right:  0;
     bottom: 48px;
     z-index: 100;
-    transform: translateX(100%);
-    transition: transform .28s cubic-bezier(.4,0,.2,1);
-    display: flex     !important;
-    flex-direction: column;
     background: #111118;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex !important;
+    flex-direction: column;
   }
   #center-panel.mob-preview-active {
     transform: translateX(0);
   }
 
-  /* ── 8. Preview bar inside center panel ── */
-  .preview-bar      { padding: 0 10px; gap: 7px; height: 42px; }
-  .preview-hint     { display: none !important; }
-  .preview-url      { max-width: none; flex: 1; padding: 4px 9px; }
-  .preview-zoom-wrap{ display: none !important; }
-  .preview-canvas   { padding: 10px; }
+  /* 8 ── Preview bar inside center panel */
+  .preview-bar       { padding: 0 10px; gap: 7px; height: 42px; }
+  .preview-hint      { display: none !important; }
+  .preview-url       { max-width: none; flex: 1; padding: 4px 9px; }
+  .preview-zoom-wrap { display: none !important; }
+  .preview-canvas    { padding: 10px; }
   .device-shell.desktop { max-width: 100%; }
 
-  /* ── 9. Add-section drawer: above bottom bar ── */
+  /* 9 ── Add-section drawer: sit above bottom bar */
   .add-section-drawer { left: 0 !important; bottom: 48px; }
 
-  /* ── 10. Section list rows ── */
+  /* 10 ── Section rows */
   .section-row       { padding: 6px 7px; }
   .section-row-label { font-size: 11.5px; }
   .panel-group-label { font-size: 9px; }
 
-  /* ── 11. Editor fields ── */
-  .field-input, .field-select { font-size: 12px; padding: 6px 8px; }
-  .editor-fields { -webkit-overflow-scrolling: touch; }
+  /* 11 ── Editor fields */
+  .field-input, .field-select {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .editor-fields { -webkit-overflow-scrolling: touch; min-height: 0; }
 
-  /* ── 12. Card style / size grids: 2-col on mobile ── */
-  .card-style-grid { grid-template-columns: repeat(4, 1fr); }
-  .card-size-grid  { grid-template-columns: repeat(3, 1fr); }
-
-  /* ── 13. Theme grid ── */
-  .theme-grid { grid-template-columns: 1fr 1fr; }
-
-  /* ── 14. Mobile bottom bar ── */
+  /* 12 ── Bottom bar: shown on mobile */
   .mob-builder-bar {
     display:    flex !important;
     position:   fixed;
@@ -610,9 +607,9 @@
     height:     48px;
     background: var(--surface);
     border-top: 1px solid var(--border);
-    z-index:    200;
+    z-index:    9000;          /* above everything */
     align-items: stretch;
-    box-shadow: 0 -2px 16px rgba(0,0,0,.12);
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.14);
   }
   .mob-bar-tab {
     flex:            1;
@@ -620,25 +617,26 @@
     flex-direction:  column;
     align-items:     center;
     justify-content: center;
-    gap:             2px;
-    font-size:       10px;
+    gap:             3px;
+    font-size:       10.5px;
     font-weight:     700;
-    letter-spacing:  .03em;
-    color:           var(--text3, var(--text-3, #9ca3af));
+    letter-spacing:  0.03em;
+    color:           var(--text-3, #9ca3af);
     cursor:          pointer;
-    transition:      all .15s;
+    transition:      all 0.15s;
     border:          none;
-    background:      none;
+    background:      transparent;
     font-family:     'Plus Jakarta Sans', sans-serif;
-    border-top:      2px solid transparent;
+    border-top:      2.5px solid transparent;
     padding:         0;
+    -webkit-tap-highlight-color: transparent;
   }
   .mob-bar-tab.active {
-    color:      var(--accent2, var(--accent-2, #818cf8));
-    background: var(--accent-dim, rgba(91,92,246,.08));
+    color:            var(--accent-2, #818cf8);
+    background:       rgba(91, 92, 246, 0.08);
     border-top-color: var(--accent, #5b5cf6);
   }
-  .mob-bar-tab-icon { font-size: 17px; line-height: 1; }
+  .mob-bar-tab-icon { font-size: 18px; line-height: 1; }
 }
 </style>
 </head>
@@ -1185,33 +1183,37 @@ function highlightSectionInPreview(id){
 function clearHighlight(){try{document.getElementById('preview-iframe').contentDocument?.querySelectorAll('[data-section-id]').forEach(el=>el.classList.remove('sec-active'))}catch(e){}}
 </script>
 <script>
-/* ── Mobile Website Builder: bottom bar + Editor/Preview toggle ── */
+/* ── Website Builder — mobile bottom bar ───────────────────────
+   Bar is ALWAYS created; CSS (display:none / @media display:flex)
+   controls visibility, so DevTools responsive simulation works.   */
 (function () {
-  if (window.innerWidth > 768) return;
-
-  /* Create bottom bar */
+  /* Create bar */
   var bar = document.createElement('div');
   bar.className = 'mob-builder-bar';
 
+  /* Editor tab */
   var btn1 = document.createElement('button');
   btn1.className = 'mob-bar-tab active';
   btn1.id = 'mob-tab-editor';
+  btn1.setAttribute('aria-label', 'Editor');
   btn1.innerHTML = '<span class="mob-bar-tab-icon">&#9998;</span>Editor';
 
+  /* Preview tab */
   var btn2 = document.createElement('button');
   btn2.className = 'mob-bar-tab';
   btn2.id = 'mob-tab-preview';
+  btn2.setAttribute('aria-label', 'Preview');
   btn2.innerHTML = '<span class="mob-bar-tab-icon">&#128065;</span>Preview';
 
   bar.appendChild(btn1);
   bar.appendChild(btn2);
   document.body.appendChild(bar);
 
-  /* Tab toggle function */
+  /* Toggle function — safe to call at any viewport width */
   window.mobBuilderTab = function (tab) {
-    var cp  = document.getElementById('center-panel');
-    var et  = document.getElementById('mob-tab-editor');
-    var pt  = document.getElementById('mob-tab-preview');
+    var cp = document.getElementById('center-panel');
+    var et = document.getElementById('mob-tab-editor');
+    var pt = document.getElementById('mob-tab-preview');
     if (tab === 'preview') {
       if (cp) cp.classList.add('mob-preview-active');
       if (et) et.classList.remove('active');
@@ -1227,29 +1229,21 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
   btn1.addEventListener('click', function () { mobBuilderTab('editor'); });
   btn2.addEventListener('click', function () { mobBuilderTab('preview'); });
 
-  /* Keep on editor tab when section editor opens */
+  /* Wrap openSectionEditor — stay on editor tab */
   var _oe = window.openSectionEditor;
   if (typeof _oe === 'function') {
     window.openSectionEditor = function () {
       _oe.apply(this, arguments);
-      if (window.innerWidth <= 768) mobBuilderTab('editor');
+      mobBuilderTab('editor');
     };
   }
 
-  /* Keep on editor tab when returning to section list */
+  /* Wrap showSectionsListView — stay on editor tab */
   var _sl = window.showSectionsListView;
   if (typeof _sl === 'function') {
     window.showSectionsListView = function () {
       _sl.apply(this, arguments);
-      if (window.innerWidth <= 768) mobBuilderTab('editor');
-    };
-  }
-
-  /* Switch to preview after save to confirm changes */
-  var _sp = window.saveAndPublish;
-  if (typeof _sp === 'function') {
-    window.saveAndPublish = function () {
-      return _sp.apply(this, arguments);
+      mobBuilderTab('editor');
     };
   }
 })();
