@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 
-<!-- Light default — no _pageDarkDefault flag needed -->
 <script>
 ;(function(){
   var dark = localStorage.getItem('ekart_theme') === 'dark';
@@ -30,7 +29,7 @@
 /* ── Tabs bar ────────────────────────────────────────────────── */
 .tabs-bar{height:44px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 24px;position:sticky;top:60px;z-index:40;flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
 .tabs-bar::-webkit-scrollbar{display:none}
-.tab-btn{display:flex;align-items:center;gap:6px;padding:0 15px;font-size:12.5px;font-weight:600;color:var(--text-3);letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:var(--font);border-bottom:2px solid transparent;transition:var(--t);white-space:nowrap;flex-shrink:0;}
+.tab-btn{display:inline-flex;align-items:center;gap:6px;padding:0 15px;font-size:12.5px;font-weight:600;color:var(--text-3);letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:var(--font);border-bottom:2px solid transparent;transition:var(--t);white-space:nowrap;flex-shrink:0;}
 .tab-btn:hover{color:var(--text-2)}.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
@@ -38,7 +37,7 @@
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:flex;align-items:flex-start;gap:14px;transition:var(--t);position:relative;overflow:hidden;box-shadow:var(--sh-sm);}
 .stat-card:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:var(--sh)}
-.stat-icon-wrap{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:var(--t);}
+.stat-icon-wrap{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--t);}
 .stat-card:hover .stat-icon-wrap{background:var(--accent-dim);border-color:rgba(124,111,255,.2)}
 .stat-info{flex:1;min-width:0}
 .stat-label{font-size:10px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
@@ -46,18 +45,19 @@
 .stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}
 .stat-sub{font-size:10.5px;color:var(--text-3);margin-top:5px;}
 .stat-loading{animation:kpiPulse 1.4s ease-in-out infinite;color:var(--surface-4)!important;}
+@keyframes kpiPulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── Section card ────────────────────────────────────────────── */
 .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden;}
 .section-card-hd{padding:18px 22px 14px;border-bottom:1px solid var(--border);}
 .section-card-title{font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.03em;display:flex;align-items:center;gap:8px;margin-bottom:3px;}
-.section-card-icon{width:28px;height:28px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.section-card-icon{width:28px;height:28px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);}
 .section-card-sub{font-size:12px;color:var(--text-2);line-height:1.6;}
 .section-card-bd{padding:20px 22px;}
 
-/* ── Form ────────────────────────────────────────────────────── */
+/* ── Form fields ─────────────────────────────────────────────── */
 .field{margin-bottom:14px;}
-.field label{display:block;font-size:10.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.field label{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .field label span{font-weight:400;text-transform:none;letter-spacing:0;opacity:.7;}
 .field input,.field textarea,.field select{width:100%;font-family:var(--font);font-size:13px;height:40px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border-md);background:var(--surface-2);color:var(--text);outline:none;transition:var(--t);}
 .field textarea{height:72px;padding:10px 12px;resize:vertical;}
@@ -96,7 +96,7 @@
 .step-body a:hover{text-decoration:underline}
 .step-body code{background:var(--surface-3);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--accent-2);}
 
-/* ── Table ───────────────────────────────────────────────────── */
+/* ── Table + table-wrap ──────────────────────────────────────── */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);}
 .table-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
 .table-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
@@ -105,12 +105,18 @@
 .search-input{padding:7px 12px 7px 30px;background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12.5px;outline:none;width:190px;transition:var(--t);}
 .search-input::placeholder{color:var(--text-3)}
 .search-input:focus{border-color:var(--accent);width:210px;box-shadow:0 0 0 3px var(--accent-dim);}
-.tbl-overflow{overflow-x:auto;}
+.tbl-overflow{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent;}
+.tbl-overflow::-webkit-scrollbar{height:4px}.tbl-overflow::-webkit-scrollbar-thumb{background:var(--surface-4);border-radius:2px}
 table{width:100%;border-collapse:collapse;}
 th{padding:9px 14px;text-align:left;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap;}
 td{padding:11px 14px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-2);transition:background .1s;}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(124,111,255,.03)}
+/* Zebra striping */
+tbody tr:nth-child(even) td{background:rgba(0,0,0,.018)}
+[data-theme="dark"] tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+/* Hover wins over stripe */
+tbody tr:hover td{background:rgba(124,111,255,.055)!important}
+[data-theme="dark"] tbody tr:hover td{background:rgba(124,111,255,.07)!important}
 
 /* ── Payout cards ────────────────────────────────────────────── */
 .payout-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
@@ -135,20 +141,53 @@ tr:hover td{background:rgba(124,111,255,.03)}
 .links-grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
 .link-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:9px;transition:var(--t);}
 .link-card:hover{border-color:rgba(124,111,255,.3);transform:translateY(-2px);box-shadow:var(--sh)}
+/* Link card zebra */
+.link-card:nth-child(even){background:var(--surface-3)}
 .link-amount{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em;}
 .link-desc{font-size:12px;color:var(--text-2);}
 .link-url{font-family:var(--mono);font-size:11px;color:var(--accent-2);background:var(--accent-dim);border:1px solid rgba(124,111,255,.15);padding:7px 10px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:space-between;gap:7px;}
 .link-url-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
 .link-footer{display:flex;align-items:center;justify-content:space-between;}
 
-/* ── Extra buttons ───────────────────────────────────────────── */
-.btn-primary.full{width:100%;height:40px;justify-content:center;}
-.btn-secondary.full{width:100%;height:40px;justify-content:center;margin-bottom:10px;}
-.btn-refund{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 10px;border-radius:var(--r-xs);background:var(--red-dim);color:var(--red);border:1px solid rgba(224,82,82,.25);font-size:11.5px;font-weight:700;font-family:var(--font);cursor:pointer;transition:var(--t);}
-.btn-refund:hover{background:rgba(224,82,82,.16)}
-.btn-refund:disabled{opacity:.4;cursor:not-allowed}
-.btn-copy{background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;flex-shrink:0;padding:3px;border-radius:5px;transition:var(--t);}
+/* ── Action buttons ──────────────────────────────────────────── */
+/* Green edit-style for verify/test */
+.btn-verify-key{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;height:40px;border-radius:var(--r-sm);
+  background:var(--surface-3);border:1px solid var(--border-md);
+  color:var(--text-2);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:var(--font);transition:var(--t);margin-bottom:10px;
+}
+.btn-verify-key:hover{border-color:rgba(124,111,255,.35);color:var(--accent);background:var(--accent-dim)}
+.btn-verify-key:disabled{opacity:.5;cursor:not-allowed}
+/* Refund button */
+.btn-refund{
+  display:inline-flex;align-items:center;gap:4px;
+  height:28px;padding:0 10px;border-radius:var(--r-xs);
+  background:var(--red-dim);color:var(--red);
+  border:1px solid var(--red-border);
+  font-size:11.5px;font-weight:700;font-family:var(--font);
+  cursor:pointer;transition:var(--t);white-space:nowrap;
+}
+.btn-refund:hover{background:rgba(224,82,82,.16);transform:translateY(-1px)}
+.btn-refund:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* Copy button */
+.btn-copy{
+  background:none;border:none;cursor:pointer;
+  color:var(--accent);font-size:13px;
+  flex-shrink:0;padding:3px;border-radius:5px;transition:var(--t);
+  display:inline-flex;align-items:center;
+}
 .btn-copy:hover{background:var(--accent-dim);transform:scale(1.1)}
+/* Refresh buttons */
+.btn-refresh{
+  display:inline-flex;align-items:center;gap:5px;
+  height:30px;padding:0 11px;border-radius:var(--r-xs);
+  background:var(--surface-3);border:1px solid var(--border-md);
+  color:var(--text-2);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:var(--font);transition:var(--t);
+}
+.btn-refresh:hover{border-color:var(--border-lg);color:var(--text);background:var(--surface-4)}
 
 /* ── Not configured / empty ──────────────────────────────────── */
 .not-configured{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:60px 28px;text-align:center;box-shadow:var(--sh-sm);}
@@ -163,20 +202,49 @@ tr:hover td{background:rgba(124,111,255,.03)}
 /* ── Two-col layout ──────────────────────────────────────────── */
 .two-col{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
 
-/* ── Modal ───────────────────────────────────────────────────── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+/* ── Modal — exact merchant.html pattern ─────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  z-index:300;align-items:center;justify-content:center;
+  padding:20px;box-sizing:border-box;
+}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);padding:26px;width:100%;max-width:440px;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:var(--sh-lg);}
-.modal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+[data-theme="dark"] .modal-overlay{background:rgba(0,0,0,.55)}
+
+.modal{
+  background:var(--surface);border:1px solid var(--border-md);
+  border-radius:var(--r-xl);
+  box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);
+  color:var(--text);font-family:var(--font);
+  padding:28px;width:100%;max-width:440px;
+  max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);
+  overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent;
+  box-sizing:border-box;overscroll-behavior:contain;
+  transform:scale(.93);opacity:0;
+  transition:transform .24s cubic-bezier(.34,1.28,.64,1),opacity .18s ease;
+}
+[data-theme="dark"] .modal{box-shadow:0 24px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3)}
+.modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--surface-4);border-radius:2px}
+.modal-overlay.open .modal{transform:scale(1);opacity:1;}
+
+/* Modal header */
+.modal-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.modal-hd-icon{width:40px;height:40px;border-radius:var(--r-sm);background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.modal-hd-info{flex:1;min-width:0;}
 .modal-title{font-size:16px;font-weight:800;letter-spacing:-.03em;color:var(--text);}
 .modal-sub{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.5;}
-.modal-close{width:30px;height:30px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border-md);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-2);transition:var(--t);flex-shrink:0;}
-.modal-close:hover{background:var(--red-dim);border-color:rgba(224,82,82,.3);color:var(--red)}
+.modal-close{
+  width:32px;height:32px;border-radius:var(--r-sm);
+  background:var(--surface-3);border:1px solid var(--border-md);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);transition:var(--t);flex-shrink:0;
+}
+.modal-close:hover{background:var(--red-dim);border-color:rgba(242,107,107,.3);color:var(--red)}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
 
 /* ── Animations ──────────────────────────────────────────────── */
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinning{display:inline-block;animation:spin .7s linear infinite}
 @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .card-in{animation:cardIn .25s var(--ease) both}
 
@@ -193,8 +261,34 @@ tr:hover td{background:rgba(124,111,255,.03)}
   .payout-grid{grid-template-columns:1fr}
   .two-col,.links-grid{grid-template-columns:1fr}
   th,td{padding:9px 10px}
-  .modal{padding:18px;border-radius:var(--r-lg)}
-  .modal-overlay{padding:10px}
+  /* Modal → true bottom sheet, exactly like merchant.html */
+  .modal-overlay{padding:0!important;align-items:flex-end!important}
+  .modal{
+    width:100%!important;max-width:100%!important;
+    max-height:90vh!important;max-height:90dvh!important;
+    border-radius:var(--r-xl) var(--r-xl) 0 0!important;
+    border-bottom:none!important;
+    transform:translateY(100%)!important;
+    opacity:1!important;
+    transition:transform .25s cubic-bezier(.4,0,.2,1)!important;
+    padding:0 20px calc(20px + env(safe-area-inset-bottom,0px))!important;
+  }
+  .modal-overlay.open .modal{transform:translateY(0)!important;}
+  /* Drag handle pill */
+  .modal::before{
+    content:'';display:block;width:40px;height:4px;
+    background:var(--border-md);border-radius:2px;
+    margin:14px auto 20px;
+  }
+  .modal-hd{margin-top:0}
+  .modal-footer{flex-wrap:wrap;padding-bottom:0}
+  .modal-footer .btn{flex:1;justify-content:center}
+  .search-input{width:150px}
+}
+@media(max-width:380px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-value{font-size:16px!important}
+  .modal{max-height:95vh!important;max-height:95dvh!important}
 }
 </style>
 </head>
@@ -286,21 +380,38 @@ tr:hover td{background:rgba(124,111,255,.03)}
 
   <!-- TABS -->
   <div class="tabs-bar">
-    <button class="tab-btn active" data-tab="setup"        onclick="switchTab('setup',this)">⚙️ Setup</button>
-    <button class="tab-btn"        data-tab="transactions" onclick="switchTab('transactions',this)">📄 Transactions</button>
-    <button class="tab-btn"        data-tab="payouts"      onclick="switchTab('payouts',this)">💰 Payouts</button>
-    <button class="tab-btn"        data-tab="links"        onclick="switchTab('links',this)">🔗 Payment Links</button>
+    <button class="tab-btn active" data-tab="setup"        onclick="switchTab('setup',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Setup
+    </button>
+    <button class="tab-btn" data-tab="transactions" onclick="switchTab('transactions',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Transactions
+    </button>
+    <button class="tab-btn" data-tab="payouts" onclick="switchTab('payouts',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Payouts
+    </button>
+    <button class="tab-btn" data-tab="links" onclick="switchTab('links',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Payment Links
+    </button>
   </div>
 
   <div id="page-content" class="content" style="display:none;">
 
-    <!-- SETUP -->
+    <!-- ─── SETUP ───────────────────────────────────────────── -->
     <div class="tab-panel active" id="tab-setup">
       <div class="two-col">
         <div>
           <div class="section-card">
             <div class="section-card-hd">
-              <div class="section-card-title"><div class="section-card-icon">💳</div>Razorpay Credentials</div>
+              <div class="section-card-title">
+                <div class="section-card-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                </div>
+                Razorpay Credentials
+              </div>
               <div class="section-card-sub">Connect your Razorpay account to start accepting payments on your storefront.</div>
             </div>
             <div class="section-card-bd">
@@ -308,19 +419,57 @@ tr:hover td{background:rgba(124,111,255,.03)}
                 <div><div class="toggle-label">Enable Payments</div><div class="toggle-sub">Allow customers to pay online</div></div>
                 <label class="toggle"><input type="checkbox" id="pay-enabled" onchange="saveEnabled()"><span class="toggle-slider"></span></label>
               </div>
-              <div class="field"><label>Key ID</label><input class="mono" id="key-id" type="text" placeholder="rzp_live_xxxxxxxxxxxx" autocomplete="off"><div class="field-hint">Starts with <code>rzp_live_</code> (production) or <code>rzp_test_</code> (testing)</div></div>
-              <div class="field"><label>Key Secret</label><input id="key-secret" type="password" placeholder="••••••••••••••••••••" autocomplete="new-password" style="font-family:var(--mono);letter-spacing:.08em;font-size:12.5px;"><div class="field-hint">Never exposed to customers. Stored encrypted on the server.</div></div>
-              <div class="field"><label>Currency</label><select id="pay-currency"><option value="INR">INR — Indian Rupee ₹</option><option value="USD">USD — US Dollar $</option><option value="EUR">EUR — Euro €</option><option value="GBP">GBP — British Pound £</option><option value="SGD">SGD — Singapore Dollar S$</option><option value="AED">AED — UAE Dirham</option></select></div>
-              <button class="btn btn-secondary btn-secondary.full" id="btn-verify" onclick="verifyKeys()" style="width:100%;height:40px;justify-content:center;margin-bottom:10px;">🔍 Test Connection</button>
+              <div class="field">
+                <label>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Key ID
+                </label>
+                <input class="mono" id="key-id" type="text" placeholder="rzp_live_xxxxxxxxxxxx" autocomplete="off">
+                <div class="field-hint">Starts with <code>rzp_live_</code> (production) or <code>rzp_test_</code> (testing)</div>
+              </div>
+              <div class="field">
+                <label>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                  Key Secret
+                </label>
+                <input id="key-secret" type="password" placeholder="••••••••••••••••••••" autocomplete="new-password" style="font-family:var(--mono);letter-spacing:.08em;font-size:12.5px;">
+                <div class="field-hint">Never exposed to customers. Stored encrypted on the server.</div>
+              </div>
+              <div class="field">
+                <label>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  Currency
+                </label>
+                <select id="pay-currency">
+                  <option value="INR">INR — Indian Rupee ₹</option>
+                  <option value="USD">USD — US Dollar $</option>
+                  <option value="EUR">EUR — Euro €</option>
+                  <option value="GBP">GBP — British Pound £</option>
+                  <option value="SGD">SGD — Singapore Dollar S$</option>
+                  <option value="AED">AED — UAE Dirham</option>
+                </select>
+              </div>
+              <button class="btn-verify-key" id="btn-verify" onclick="verifyKeys()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Test Connection
+              </button>
               <div class="verify-status" id="verify-status"></div>
-              <button class="btn btn-primary btn-primary.full" id="btn-save" onclick="saveSettings()" style="width:100%;height:40px;justify-content:center;">💾 Save Settings</button>
+              <button class="btn btn-primary" id="btn-save" onclick="saveSettings()" style="width:100%;height:40px;justify-content:center;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Settings
+              </button>
             </div>
           </div>
         </div>
         <div>
           <div class="section-card">
             <div class="section-card-hd">
-              <div class="section-card-title"><div class="section-card-icon">📋</div>How to get your API keys</div>
+              <div class="section-card-title">
+                <div class="section-card-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                How to get your API keys
+              </div>
               <div class="section-card-sub">Follow these steps to connect your Razorpay account.</div>
             </div>
             <div class="section-card-bd">
@@ -337,65 +486,164 @@ tr:hover td{background:rgba(124,111,255,.03)}
       </div>
     </div>
 
-    <!-- TRANSACTIONS -->
+    <!-- ─── TRANSACTIONS ────────────────────────────────────── -->
     <div class="tab-panel" id="tab-transactions">
-      <div id="txn-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">💳</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to view transactions.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="txn-not-configured" class="not-configured" style="display:none;">
+        <span class="nc-icon">💳</span>
+        <h3>Razorpay not configured</h3>
+        <p>Set up your Razorpay credentials in the Setup tab to view transactions.</p>
+        <button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          Go to Setup
+        </button>
+      </div>
       <div id="txn-content">
         <div class="stats-row">
-          <div class="stat-card"><div class="stat-icon-wrap">💰</div><div class="stat-info"><div class="stat-label">Total Collected</div><div class="stat-value green stat-loading" id="stat-collected">—</div><div class="stat-sub">Last 30 days</div></div></div>
-          <div class="stat-card"><div class="stat-icon-wrap">📊</div><div class="stat-info"><div class="stat-label">Transactions</div><div class="stat-value stat-loading" id="stat-count">—</div><div class="stat-sub">Total payments</div></div></div>
-          <div class="stat-card"><div class="stat-icon-wrap">🔄</div><div class="stat-info"><div class="stat-label">Refunded</div><div class="stat-value red stat-loading" id="stat-refunded">—</div><div class="stat-sub">Amount refunded</div></div></div>
-          <div class="stat-card"><div class="stat-icon-wrap">⚠️</div><div class="stat-info"><div class="stat-label">Failed</div><div class="stat-value amber stat-loading" id="stat-failed">—</div><div class="stat-sub">Failed payments</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-info"><div class="stat-label">Total Collected</div><div class="stat-value green stat-loading" id="stat-collected">—</div><div class="stat-sub">Last 30 days</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="stat-info"><div class="stat-label">Transactions</div><div class="stat-value stat-loading" id="stat-count">—</div><div class="stat-sub">Total payments</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></div><div class="stat-info"><div class="stat-label">Refunded</div><div class="stat-value red stat-loading" id="stat-refunded">—</div><div class="stat-sub">Amount refunded</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-info"><div class="stat-label">Failed</div><div class="stat-value amber stat-loading" id="stat-failed">—</div><div class="stat-sub">Failed payments</div></div></div>
         </div>
         <div class="table-wrap">
           <div class="table-hd">
             <span class="table-title">Payment History</span>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <div class="search-wrap"><svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="txn-search" placeholder="Search ID or email…" oninput="filterTxns()"></div>
-              <button class="btn btn-secondary btn-sm" onclick="loadTransactions()">↻ Refresh</button>
+              <div class="search-wrap">
+                <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input class="search-input" id="txn-search" placeholder="Search ID or email…" oninput="filterTxns()">
+              </div>
+              <button class="btn-refresh" onclick="loadTransactions()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                Refresh
+              </button>
             </div>
           </div>
-          <div class="tbl-overflow"><table><thead><tr><th>Payment ID</th><th>Amount</th><th>Method</th><th>Customer</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="txn-tbody"><tr><td colspan="7" style="text-align:center;padding:36px;color:var(--text-3);">Loading transactions…</td></tr></tbody></table></div>
+          <div class="tbl-overflow">
+            <table>
+              <thead><tr><th>Payment ID</th><th>Amount</th><th>Method</th><th>Customer</th><th>Status</th><th>Date</th><th></th></tr></thead>
+              <tbody id="txn-tbody"><tr><td colspan="7" style="text-align:center;padding:36px;color:var(--text-3);">Loading transactions…</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- PAYOUTS -->
+    <!-- ─── PAYOUTS ──────────────────────────────────────────── -->
     <div class="tab-panel" id="tab-payouts">
-      <div id="payout-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">💰</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to view payout summary.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="payout-not-configured" class="not-configured" style="display:none;">
+        <span class="nc-icon">💰</span>
+        <h3>Razorpay not configured</h3>
+        <p>Set up your Razorpay credentials in the Setup tab to view payout summary.</p>
+        <button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          Go to Setup
+        </button>
+      </div>
       <div id="payout-content">
         <div class="payout-grid">
           <div class="payout-card"><span class="payout-card-emoji">💰</span><div class="payout-card-label">Net Collected</div><div class="payout-card-value green" id="payout-net">—</div><div class="payout-card-sub" id="payout-period">INR · Last 30 days</div></div>
           <div class="payout-card"><span class="payout-card-emoji">🔄</span><div class="payout-card-label">Total Refunded</div><div class="payout-card-value red" id="payout-refunded">—</div><div class="payout-card-sub">Refunds issued</div></div>
           <div class="payout-card"><span class="payout-card-emoji">❌</span><div class="payout-card-label">Failed Payments</div><div class="payout-card-value amber" id="payout-failed">—</div><div class="payout-card-sub">Not collected</div></div>
         </div>
-        <div class="section-card"><div class="section-card-hd"><div class="section-card-title"><div class="section-card-icon">📊</div>Payment Method Breakdown</div></div><div class="section-card-bd"><div class="method-row" id="method-breakdown"><div style="color:var(--text-3);font-size:12.5px;">Loading breakdown…</div></div></div></div>
+        <div class="section-card">
+          <div class="section-card-hd">
+            <div class="section-card-title">
+              <div class="section-card-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              Payment Method Breakdown
+            </div>
+          </div>
+          <div class="section-card-bd">
+            <div class="method-row" id="method-breakdown"><div style="color:var(--text-3);font-size:12.5px;">Loading breakdown…</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- PAYMENT LINKS -->
+    <!-- ─── PAYMENT LINKS ────────────────────────────────────── -->
     <div class="tab-panel" id="tab-links">
-      <div id="links-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">🔗</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to generate payment links.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="links-not-configured" class="not-configured" style="display:none;">
+        <span class="nc-icon">🔗</span>
+        <h3>Razorpay not configured</h3>
+        <p>Set up your Razorpay credentials in the Setup tab to generate payment links.</p>
+        <button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          Go to Setup
+        </button>
+      </div>
       <div id="links-content">
         <div class="links-grid">
           <div>
             <div class="section-card">
-              <div class="section-card-hd"><div class="section-card-title"><div class="section-card-icon">🔗</div>Create Payment Link</div></div>
+              <div class="section-card-hd">
+                <div class="section-card-title">
+                  <div class="section-card-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </div>
+                  Create Payment Link
+                </div>
+              </div>
               <div class="section-card-bd">
-                <div class="field"><label>Amount (₹)</label><input class="mono" id="link-amount" type="number" min="1" placeholder="999"></div>
-                <div class="field"><label>Description</label><input id="link-desc" type="text" placeholder="e.g. Custom order #1234"></div>
-                <div class="field"><label>Customer Name <span>(optional)</span></label><input id="link-name" type="text" placeholder="John Doe"></div>
-                <div class="field"><label>Customer Email <span>(optional)</span></label><input id="link-email" type="email" placeholder="john@example.com"></div>
-                <div class="field"><label>Customer Phone <span>(optional)</span></label><input class="mono" id="link-phone" type="tel" placeholder="+91 98765 43210"></div>
-                <div class="field"><label>Expires in</label><select id="link-expiry"><option value="">Never</option><option value="24">24 hours</option><option value="48">48 hours</option><option value="72">72 hours</option><option value="168">7 days</option><option value="720">30 days</option></select></div>
-                <button class="btn btn-primary" id="btn-create-link" onclick="createPaymentLink()" style="width:100%;height:40px;justify-content:center;">✨ Generate Payment Link</button>
+                <div class="field">
+                  <label>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Amount (₹)
+                  </label>
+                  <input class="mono" id="link-amount" type="number" min="1" placeholder="999">
+                </div>
+                <div class="field">
+                  <label>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Description
+                  </label>
+                  <input id="link-desc" type="text" placeholder="e.g. Custom order #1234">
+                </div>
+                <div class="field">
+                  <label>Customer Name <span>(optional)</span></label>
+                  <input id="link-name" type="text" placeholder="John Doe">
+                </div>
+                <div class="field">
+                  <label>Customer Email <span>(optional)</span></label>
+                  <input id="link-email" type="email" placeholder="john@example.com">
+                </div>
+                <div class="field">
+                  <label>Customer Phone <span>(optional)</span></label>
+                  <input class="mono" id="link-phone" type="tel" placeholder="+91 98765 43210">
+                </div>
+                <div class="field">
+                  <label>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Expires in
+                  </label>
+                  <select id="link-expiry">
+                    <option value="">Never</option>
+                    <option value="24">24 hours</option>
+                    <option value="48">48 hours</option>
+                    <option value="72">72 hours</option>
+                    <option value="168">7 days</option>
+                    <option value="720">30 days</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" id="btn-create-link" onclick="createPaymentLink()" style="width:100%;height:40px;justify-content:center;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  Generate Payment Link
+                </button>
               </div>
             </div>
           </div>
           <div>
             <div class="table-wrap">
-              <div class="table-hd"><span class="table-title">Recent Links</span><button class="btn btn-secondary btn-sm" onclick="loadLinks()">↻ Refresh</button></div>
-              <div id="links-list" style="padding:12px;display:flex;flex-direction:column;gap:8px;"><div style="color:var(--text-3);font-size:12.5px;padding:18px;text-align:center;">Loading links…</div></div>
+              <div class="table-hd">
+                <span class="table-title">Links Created</span>
+                <button class="btn-refresh" onclick="loadLinks()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                  Refresh
+                </button>
+              </div>
+              <div id="links-list" style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+                <div style="color:var(--text-3);font-size:12.5px;padding:18px;text-align:center;">Loading links…</div>
+              </div>
             </div>
           </div>
         </div>
@@ -405,17 +653,37 @@ tr:hover td{background:rgba(124,111,255,.03)}
   </div><!-- /#page-content -->
 </div><!-- /.main-wrap -->
 
-<!-- REFUND MODAL -->
-<div class="modal-overlay" id="modal-refund">
+<!-- REFUND MODAL — exact merchant.html pattern -->
+<div class="modal-overlay" id="modal-refund" onclick="if(event.target===this)closePayModal('modal-refund')">
   <div class="modal">
     <div class="modal-hd">
-      <div><div class="modal-title">💸 Issue Refund</div><div class="modal-sub">Processing refund for <span id="refund-pid" style="font-family:var(--mono);font-size:11px;color:var(--accent-2);"></span></div></div>
-      <button class="modal-close" onclick="closeModal('modal-refund')">✕</button>
+      <div class="modal-hd-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+      </div>
+      <div class="modal-hd-info">
+        <div class="modal-title">Issue Refund</div>
+        <div class="modal-sub">Payment ID: <span id="refund-pid" style="font-family:var(--mono);font-size:11px;color:var(--accent-2);"></span></div>
+      </div>
+      <button class="modal-close" onclick="closePayModal('modal-refund')" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div class="field"><label>Refund Amount (₹) <span>— leave blank for full refund</span></label><input class="mono" id="refund-amount" type="number" min="1" placeholder="Full refund"></div>
+    <div class="field">
+      <label>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="opacity:.6"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Refund Amount (₹) <span>— leave blank for full refund</span>
+      </label>
+      <input class="mono" id="refund-amount" type="number" min="1" placeholder="Full refund">
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-refund')">Cancel</button>
-      <button class="btn btn-danger" id="btn-confirm-refund" onclick="confirmRefund()">💸 Confirm Refund</button>
+      <button class="btn btn-secondary" onclick="closePayModal('modal-refund')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button class="btn btn-danger" id="btn-confirm-refund" onclick="confirmRefund()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        Confirm Refund
+      </button>
     </div>
   </div>
 </div>
@@ -424,15 +692,18 @@ tr:hover td{background:rgba(124,111,255,.03)}
 /* ── State ────────────────────────────────────────────────────── */
 let currentStoreId = '', paymentSettings = null, allTxns = [], refundTarget = null, _activeTab = 'setup';
 
+/* ── SVG icons reused in JS-rendered HTML ─────────────────────── */
+const SVG_REFUND = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>`;
+const SVG_COPY   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+const SVG_SPIN   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+
 /* ── Init ─────────────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', async () => {
   const nav = await renderNav('payments');
   if(!nav){ dismissSkeleton(); return; }
-
   const stores = nav.stores || [];
   currentStoreId = nav.currentStoreId || (stores[0]?._id || '');
   buildStoreSelector(stores, currentStoreId);
-
   await loadAll();
 });
 
@@ -445,7 +716,6 @@ function buildStoreSelector(stores, activeId){
   if(dw){ dw.style.display='inline-flex'; ds.innerHTML=opts; }
   if(mw){ mw.style.display='inline-flex'; ms.innerHTML=opts; }
 }
-
 function onStoreChange(id){
   currentStoreId = id;
   ['store-selector','mob-store-selector'].forEach(sid=>{const el=document.getElementById(sid);if(el&&el.value!==id)el.value=id;});
@@ -477,16 +747,15 @@ async function loadSettings(){
     if(g('pay-currency'))g('pay-currency').value = d.currency || 'INR';
   }catch{ paymentSettings = null; }
 }
-
 async function saveEnabled(){
   const en = document.getElementById('pay-enabled').checked;
   try{ await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify({enabled:en})}); toast(en?'Payments enabled':'Payments disabled',en?'success':'info'); }
   catch(e){ toast(e.message||'Failed','error'); }
 }
-
 async function saveSettings(){
   const btn=document.getElementById('btn-save');
-  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Saving…';
+  const orig = btn.innerHTML;
+  btn.disabled=true; btn.innerHTML=`${SVG_SPIN} Saving…`;
   try{
     const ks=document.getElementById('key-secret').value;
     const body={razorpay_key_id:document.getElementById('key-id').value.trim(),currency:document.getElementById('pay-currency').value,enabled:document.getElementById('pay-enabled').checked};
@@ -494,18 +763,24 @@ async function saveSettings(){
     await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify(body)});
     toast('Settings saved successfully!','success'); await loadSettings();
   }catch(e){ toast(e.message||'Failed to save','error'); }
-  finally{ btn.disabled=false; btn.innerHTML='💾 Save Settings'; }
+  finally{ btn.disabled=false; btn.innerHTML=orig; }
 }
-
 async function verifyKeys(){
   const btn=document.getElementById('btn-verify'), status=document.getElementById('verify-status');
-  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Testing…';
+  const orig = btn.innerHTML;
+  btn.disabled=true; btn.innerHTML=`${SVG_SPIN} Testing…`;
   status.className='verify-status'; status.style.display='none';
   const ki=document.getElementById('key-id').value.trim(), ks=document.getElementById('key-secret').value;
   if(ki&&ks&&!ks.startsWith('•')){ try{await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify({razorpay_key_id:ki,razorpay_key_secret:ks})});}catch{} }
-  try{ const d=await apiFetch(`/stores/${currentStoreId}/payment-settings/verify`,{method:'POST'}); status.className='verify-status ok'; status.innerHTML='✅ '+d.message; }
-  catch(e){ status.className='verify-status err'; status.innerHTML='❌ '+(e.message||'Verification failed'); }
-  finally{ btn.disabled=false; btn.innerHTML='🔍 Test Connection'; }
+  try{
+    const d=await apiFetch(`/stores/${currentStoreId}/payment-settings/verify`,{method:'POST'});
+    status.className='verify-status ok';
+    status.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> ${d.message}`;
+  }catch(e){
+    status.className='verify-status err';
+    status.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${e.message||'Verification failed'}`;
+  }
+  finally{ btn.disabled=false; btn.innerHTML=orig; }
 }
 
 /* ── Tabs ────────────────────────────────────────────────────── */
@@ -532,23 +807,47 @@ async function loadTransactions(){
   if(tbody) tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3);">Loading transactions…</td></tr>`;
   try{
     const [txns,sum]=await Promise.all([apiFetch(`/stores/${currentStoreId}/payments`),apiFetch(`/stores/${currentStoreId}/payments/summary`)]);
-    allTxns=txns.items||[]; const cur=sum.currency||'INR';
-    setStatVal('stat-collected',fmtAmt(sum.total_collected,cur)); setStatVal('stat-count',sum.total_transactions||0);
-    setStatVal('stat-refunded',fmtAmt(sum.total_refunded,cur)); setStatVal('stat-failed',sum.failed_count||0);
+    allTxns=txns.items||[];
+    const cur=sum.currency||'INR';
+    setStatVal('stat-collected',fmtAmt(sum.total_collected,cur));
+    setStatVal('stat-count',sum.total_transactions||0);
+    setStatVal('stat-refunded',fmtAmt(sum.total_refunded,cur));
+    setStatVal('stat-failed',sum.failed_count||0);
     renderTxns(allTxns);
-  }catch(e){ if(tbody) tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--red);">⚠️ ${e.message}</td></tr>`; toast('Failed to load transactions','error'); }
+  }catch(e){
+    if(tbody) tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--red);">⚠️ ${e.message}</td></tr>`;
+    toast('Failed to load transactions','error');
+  }
 }
 function setStatVal(id,val){const el=document.getElementById(id);if(el){el.textContent=val;el.classList.remove('stat-loading');}}
 function renderTxns(items){
   const tbody=document.getElementById('txn-tbody'); if(!tbody) return;
-  if(!items.length){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">📄</span><h3>No transactions yet</h3><p>Transactions will appear here once customers start paying.</p></div></td></tr>`; return; }
+  if(!items.length){
+    tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">📄</span><h3>No transactions yet</h3><p>Transactions will appear here once customers start paying.</p></div></td></tr>`;
+    return;
+  }
   const sm={captured:'badge-green',refunded:'badge-amber',failed:'badge-red'};
   tbody.innerHTML=items.map(p=>{
-    const amt=(p.amount/100).toFixed(2), date=new Date(p.created_at*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-    return`<tr><td><span style="font-family:var(--mono);font-size:11px;color:var(--accent-2);">${p.id}</span></td><td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);">₹${amt}</span></td><td style="text-transform:capitalize;font-weight:600;font-size:12.5px;">${p.method||'—'}</td><td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.email||p.contact||'—'}</td><td><span class="badge ${sm[p.status]||'badge-gray'}">● ${p.status}</span></td><td style="font-size:11.5px;white-space:nowrap;">${date}</td><td>${p.status==='captured'?`<button class="btn-refund" onclick="openRefund('${p.id}',${p.amount})">💸 Refund</button>`:'—'}</td></tr>`;
+    const amt=(p.amount/100).toFixed(2);
+    const date=new Date(p.created_at*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return`<tr>
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent-2);">${p.id}</span></td>
+      <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);">₹${amt}</span></td>
+      <td style="text-transform:capitalize;font-weight:600;font-size:12.5px;">${p.method||'—'}</td>
+      <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.email||p.contact||'—'}</td>
+      <td><span class="badge ${sm[p.status]||'badge-gray'}">● ${p.status}</span></td>
+      <td style="font-size:11.5px;white-space:nowrap;">${date}</td>
+      <td>${p.status==='captured'
+        ?`<button class="btn-refund" onclick="openRefund('${p.id}',${p.amount})">${SVG_REFUND} Refund</button>`
+        :'—'
+      }</td>
+    </tr>`;
   }).join('');
 }
-function filterTxns(){ const q=document.getElementById('txn-search').value.toLowerCase(); renderTxns(q?allTxns.filter(p=>p.id.toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q)||(p.contact||'').includes(q)):allTxns); }
+function filterTxns(){
+  const q=document.getElementById('txn-search').value.toLowerCase();
+  renderTxns(q?allTxns.filter(p=>p.id.toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q)||(p.contact||'').includes(q)):allTxns);
+}
 
 /* ── Payouts ─────────────────────────────────────────────────── */
 async function loadPayouts(){
@@ -559,21 +858,23 @@ async function loadPayouts(){
   try{
     const [sum,txns]=await Promise.all([apiFetch(`/stores/${currentStoreId}/payments/summary`),apiFetch(`/stores/${currentStoreId}/payments`)]);
     const cur=sum.currency||'INR';
-    document.getElementById('payout-net').textContent     = fmtAmt(sum.total_collected,cur);
-    document.getElementById('payout-refunded').textContent = fmtAmt(sum.total_refunded,cur);
-    document.getElementById('payout-failed').textContent   = sum.failed_count||0;
-    document.getElementById('payout-period').textContent   = `${cur} · Last 30 days`;
+    document.getElementById('payout-net').textContent      = fmtAmt(sum.total_collected,cur);
+    document.getElementById('payout-refunded').textContent  = fmtAmt(sum.total_refunded,cur);
+    document.getElementById('payout-failed').textContent    = sum.failed_count||0;
+    document.getElementById('payout-period').textContent    = `${cur} · Last 30 days`;
     const methods={};
     (txns.items||[]).filter(p=>p.status==='captured').forEach(p=>{const m=p.method||'other';methods[m]=(methods[m]||0)+p.amount/100;});
     const total=Object.values(methods).reduce((a,b)=>a+b,0)||1;
     const icons={upi:'📱',card:'💳',netbanking:'🏦',wallet:'👛',emi:'📅',other:'💰'};
     const bd=document.getElementById('method-breakdown');
     const sorted=Object.entries(methods).sort((a,b)=>b[1]-a[1]);
-    if(bd) bd.innerHTML=sorted.length?sorted.map(([m,amt])=>{const pct=Math.round((amt/total)*100);return`<div class="method-item card-in"><div class="method-top"><span class="method-name">${icons[m]||'💰'} ${m}</span><span class="method-amt">${fmtAmt(amt,cur)} <span style="color:var(--text-3);font-size:10px;">(${pct}%)</span></span></div><div class="method-bar-bg"><div class="method-bar-fill" style="width:${pct}%;"></div></div></div>`;}).join(''):`<div style="color:var(--text-3);font-size:12.5px;text-align:center;padding:20px;">No captured payments yet</div>`;
+    if(bd) bd.innerHTML=sorted.length
+      ?sorted.map(([m,amt])=>{const pct=Math.round((amt/total)*100);return`<div class="method-item card-in"><div class="method-top"><span class="method-name">${icons[m]||'💰'} ${m}</span><span class="method-amt">${fmtAmt(amt,cur)} <span style="color:var(--text-3);font-size:10px;">(${pct}%)</span></span></div><div class="method-bar-bg"><div class="method-bar-fill" style="width:${pct}%;"></div></div></div>`;}).join('')
+      :`<div style="color:var(--text-3);font-size:12.5px;text-align:center;padding:20px;">No captured payments yet</div>`;
   }catch(e){ toast('Failed to load payout data','error'); }
 }
 
-/* ── Payment links ───────────────────────────────────────────── */
+/* ── Payment links — fixed to handle multiple API response shapes ── */
 async function loadLinks(){
   const nc=document.getElementById('links-not-configured'), ct=document.getElementById('links-content');
   if(!nc||!ct) return;
@@ -582,32 +883,70 @@ async function loadLinks(){
   const container=document.getElementById('links-list');
   if(container) container.innerHTML=`<div style="color:var(--text-3);font-size:12.5px;padding:18px;text-align:center;">Loading links…</div>`;
   try{
-    const data=await apiFetch(`/stores/${currentStoreId}/payment-links`), items=data.items||[];
+    const data=await apiFetch(`/stores/${currentStoreId}/payment-links`);
+    /* Handle multiple possible shapes from the backend */
+    const items = Array.isArray(data)
+      ? data
+      : (data.items || data.links || data.payment_links || data.data || []);
     if(!container) return;
-    if(!items.length){ container.innerHTML=`<div class="empty-state"><span class="empty-icon">🔗</span><h3>No payment links yet</h3><p>Create your first payment link using the form.</p></div>`; return; }
+    if(!items.length){
+      container.innerHTML=`<div class="empty-state"><span class="empty-icon">🔗</span><h3>No payment links yet</h3><p>Create your first payment link using the form on the left.</p></div>`;
+      return;
+    }
     const sm={created:'badge-amber',paid:'badge-green',cancelled:'badge-red',expired:'badge-gray'};
     container.innerHTML=items.map((l,i)=>{
-      const amt=(l.amount/100).toFixed(2), date=new Date(l.created_at*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}), url=l.short_url||l.id||'';
-      return`<div class="link-card card-in" style="animation-delay:${i*0.04}s;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div><div class="link-amount">₹${amt}</div><div class="link-desc">${l.description||'No description'}</div></div><span class="badge ${sm[l.status]||'badge-gray'}">● ${l.status}</span></div>${url?`<div class="link-url"><span class="link-url-text">${url}</span><button class="btn-copy" onclick="copyText('${url}')" title="Copy link">📋</button></div>`:''}<div class="link-footer"><span style="font-size:11px;color:var(--text-3);">${date}</span>${l.customer?.name?`<span style="font-size:11.5px;color:var(--text-2);">👤 ${l.customer.name}</span>`:''}</div></div>`;
+      const amt=((l.amount||0)/100).toFixed(2);
+      const createdAt = l.created_at || l.createdAt || l.created || null;
+      const date = createdAt ? new Date(createdAt*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      const url=l.short_url||l.url||l.link_url||'';
+      const status=l.status||'created';
+      const custName=l.customer?.name||l.customer_name||'';
+      return`<div class="link-card card-in" style="animation-delay:${i*0.04}s;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div>
+            <div class="link-amount">₹${amt}</div>
+            <div class="link-desc">${l.description||l.desc||'No description'}</div>
+          </div>
+          <span class="badge ${sm[status]||'badge-gray'}">● ${status}</span>
+        </div>
+        ${url?`<div class="link-url"><span class="link-url-text">${url}</span><button class="btn-copy" onclick="copyText('${url}','Link copied!')" title="Copy link">${SVG_COPY}</button></div>`:''}
+        <div class="link-footer">
+          <span style="font-size:11px;color:var(--text-3);">${date}</span>
+          ${custName?`<span style="font-size:11.5px;color:var(--text-2);">👤 ${custName}</span>`:''}
+        </div>
+      </div>`;
     }).join('');
   }catch(e){ toast('Failed to load links','error'); }
 }
 
 async function createPaymentLink(){
   const btn=document.getElementById('btn-create-link');
-  const amount=parseFloat(document.getElementById('link-amount').value), desc=document.getElementById('link-desc').value.trim();
+  const amount=parseFloat(document.getElementById('link-amount').value);
+  const desc=document.getElementById('link-desc').value.trim();
   if(!amount||amount<1){ toast('Enter a valid amount','error'); return; }
   if(!desc){ toast('Enter a description','error'); return; }
-  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Generating…';
+  const orig = btn.innerHTML;
+  btn.disabled=true; btn.innerHTML=`${SVG_SPIN} Generating…`;
   try{
-    const body={amount,description:desc,customer_name:document.getElementById('link-name').value.trim(),customer_email:document.getElementById('link-email').value.trim(),customer_phone:document.getElementById('link-phone').value.trim(),expire_hours:parseInt(document.getElementById('link-expiry').value)||undefined};
-    const d=await apiFetch(`/stores/${currentStoreId}/payment-links`,{method:'POST',body:JSON.stringify(body)});
+    const body={
+      amount, description:desc,
+      customer_name:  document.getElementById('link-name').value.trim(),
+      customer_email: document.getElementById('link-email').value.trim(),
+      customer_phone: document.getElementById('link-phone').value.trim(),
+      expire_hours:   parseInt(document.getElementById('link-expiry').value)||undefined
+    };
+    const d = await apiFetch(`/stores/${currentStoreId}/payment-links`,{method:'POST',body:JSON.stringify(body)});
     toast('Payment link created!','success');
-    if(d.link?.short_url){ navigator.clipboard.writeText(d.link.short_url).catch(()=>{}); toast('Link copied to clipboard!','info'); }
+    /* Copy the link URL to clipboard if available */
+    const linkUrl = d.link?.short_url || d.short_url || d.url || d.link_url || '';
+    if(linkUrl){ navigator.clipboard.writeText(linkUrl).catch(()=>{}); toast('Link copied to clipboard!','info'); }
+    /* Clear form */
     ['link-amount','link-desc','link-name','link-email','link-phone'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('link-expiry').value=''; await loadLinks();
+    document.getElementById('link-expiry').value='';
+    /* Reload links list immediately */
+    await loadLinks();
   }catch(e){ toast(e.message||'Failed to create link','error'); }
-  finally{ btn.disabled=false; btn.innerHTML='✨ Generate Payment Link'; }
+  finally{ btn.disabled=false; btn.innerHTML=orig; }
 }
 
 /* ── Refunds ─────────────────────────────────────────────────── */
@@ -616,24 +955,43 @@ function openRefund(pid, ap){
   document.getElementById('refund-pid').textContent=pid;
   document.getElementById('refund-amount').value='';
   document.getElementById('refund-amount').placeholder=`Full refund (₹${(ap/100).toFixed(2)})`;
-  openModal('modal-refund');
+  openPayModal('modal-refund');
 }
 async function confirmRefund(){
   if(!refundTarget) return;
-  const btn=document.getElementById('btn-confirm-refund'), amount=parseFloat(document.getElementById('refund-amount').value)||undefined;
-  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Processing…';
+  const btn=document.getElementById('btn-confirm-refund');
+  const orig = btn.innerHTML;
+  const amount=parseFloat(document.getElementById('refund-amount').value)||undefined;
+  btn.disabled=true; btn.innerHTML=`${SVG_SPIN} Processing…`;
   try{
     await apiFetch(`/stores/${currentStoreId}/payments/${refundTarget.paymentId}/refund`,{method:'POST',body:JSON.stringify({amount})});
-    toast('Refund issued successfully!','success'); closeModal('modal-refund'); await loadTransactions();
+    toast('Refund issued successfully!','success');
+    closePayModal('modal-refund');
+    await loadTransactions();
   }catch(e){ toast(e.message||'Refund failed','error'); }
-  finally{ btn.disabled=false; btn.innerHTML='💸 Confirm Refund'; }
+  finally{ btn.disabled=false; btn.innerHTML=orig; }
+}
+
+/* ── Modal helpers — merchant.html pattern exactly ───────────── */
+function openPayModal(id){
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePayModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(!document.getElementById('sidebar').classList.contains('mob-open'))
+    document.body.style.overflow='';
 }
 
 /* ── Utils ───────────────────────────────────────────────────── */
-function fmtAmt(amount,currency){ const sym={INR:'₹',USD:'$',EUR:'€',GBP:'£',SGD:'S$',AED:'AED '}; return(sym[currency]||'')+(amount||0).toFixed(2); }
+function fmtAmt(amount,currency){
+  const sym={INR:'₹',USD:'$',EUR:'€',GBP:'£',SGD:'S$',AED:'AED '};
+  return (sym[currency]||'')+(amount||0).toFixed(2);
+}
 
-document.querySelectorAll('.modal-overlay').forEach(ov=>{ ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>closeModal(ov.id)); });
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>closePayModal(ov.id));
+});
 </script>
 </body>
 </html>
