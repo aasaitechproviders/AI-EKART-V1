@@ -1004,12 +1004,14 @@ CARD RULE: As soon as the user expresses intent (e.g. "create a product", "add c
 
 FILL RULE: Only populate fields the user explicitly mentioned. Leave everything else "" or 0 or []. Never hallucinate names, descriptions, prices or tags.
 
+CATEGORY RULE: The "category" action type is ONLY for CREATING new categories. If the user wants to CHOOSE/SELECT an existing category for a product, use action type "product" with the category field set to the chosen category name — this patches the product card's dropdown. Never render a category card with an empty categories array.
+
 Response format:
 {"message":"reply","chips":["chip1","chip2","chip3"],"action":null}
 
 Action types (use only when user requests it):
-product:  {"type":"product","title":"...","data":{"name":"","category":"","price":0,"description":"","tags":[],"highlights":[],"sku":""}}
-category: {"type":"category","title":"...","data":{"categories":[{"name":"","description":"","icon":"emoji"}]}}
+product:  {"type":"product","title":"...","data":{"name":"","category":"exact name from existing categories list","price":0,"description":"","tags":[],"highlights":[],"sku":""}}
+category: {"type":"category","title":"...","data":{"categories":[{"name":"new cat name","description":"","icon":"emoji"}]}} ← ONLY for creating NEW categories, never empty
 store:    {"type":"store","title":"...","data":{"name_suggestions":[],"description":"","tagline":"","categories":[],"tips":[]}}
 coupon:   {"type":"coupon","title":"...","data":{"code":"","discount_type":"percent|flat","discount_value":0,"min_order":0,"description":"","valid_days":30}}
 insights: {"type":"insights","title":"...","data":{"summary":"","wins":[],"improvements":[],"actions":[{"label":"","priority":"high|medium|low"}]}}
@@ -1172,12 +1174,24 @@ function buildProductCard(id,action){
   const d=action.data;
   const catOpts=allCategories.map(c=>`<option value="${c._id}" ${c.name===d.category?'selected':''}>${c.name}</option>`).join('');
   const tags=(Array.isArray(d.tags)?d.tags:[]).map(t=>String(t||'')).join(', ');
+  const catPills = allCategories.length
+    ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;">
+        ${allCategories.map(c=>`<span style="padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--border-md);background:var(--surface-2);color:var(--text-2);transition:var(--t);"
+          onclick="(function(el){var sel=document.getElementById('${id}_cat');if(sel){Array.from(sel.options).forEach(function(o){if(o.text===el.textContent.trim())sel.value=o.value;});} document.querySelectorAll('#${id} .cat-sel-pill').forEach(function(p){p.style.borderColor='';p.style.color='';p.style.background='';});el.style.borderColor='var(--accent)';el.style.color='var(--accent-2)';el.style.background='var(--accent-dim)';})(this)"
+          class="cat-sel-pill">${escHtml(c.name)}</span>`).join('')}
+      </div>`
+    : '';
   return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--accent-dim);">📦</div><div><div class="action-card-title">${action.title||'New Product'}</div><div class="action-card-sub">Review &amp; save to your store</div></div></div>
     <div class="action-card-body">
       <div class="ac-field"><label>Product Name</label><input id="${id}_name" value="${escAttr(d.name||'')}"></div>
       <div class="ac-field-row">
-        <div class="ac-field"><label>Category</label><select id="${id}_cat">${catOpts||'<option>Uncategorised</option>'}</select></div>
         <div class="ac-field"><label>Price (₹)</label><input id="${id}_price" type="number" value="${d.price||''}" placeholder="0"></div>
+        <div class="ac-field"><label>Stock</label><input id="${id}_stock" type="number" value="" placeholder="0"></div>
+      </div>
+      <div class="ac-field">
+        <label>Category</label>
+        <select id="${id}_cat">${catOpts||'<option value="">Uncategorised</option>'}</select>
+        ${catPills}
       </div>
       <div class="ac-field"><label>Description</label><textarea id="${id}_desc">${escAttr(d.description||'')}</textarea></div>
       <div class="ac-field"><label>Tags (comma separated)</label><input id="${id}_tags" value="${escAttr(tags)}"></div>
@@ -1193,11 +1207,13 @@ function buildProductCard(id,action){
 }
 
 function buildCategoryCard(id,action){
-  const cats=Array.isArray(action.data.categories)?action.data.categories:[];
-  const rows=cats.map((c,i)=>`<div class="cat-item-wrap"><div class="ac-field-row"><div class="ac-field"><label>Name</label><input id="${id}_cat${i}_name" value="${escAttr(c.name||'')}"></div><div class="ac-field"><label>Icon</label><input id="${id}_cat${i}_icon" value="${escAttr(c.icon||'📦')}" style="text-align:center;font-size:18px;"></div></div><div class="ac-field"><label>Description</label><input id="${id}_cat${i}_desc" value="${escAttr(c.description||'')}"></div><div class="ac-field"><label>Image <span style="font-weight:400;text-transform:none;opacity:.7;">(optional)</span></label><input type="file" id="${id}_cat${i}_img" class="file-input-ac" accept="image/*" onchange="previewAIImages(this,'${id}_cat${i}_imgprev')"><div class="img-previews-ac" id="${id}_cat${i}_imgprev"></div></div></div>`).join('');
-  return`<div class="action-card-header"><div class="action-card-icon" style="background:rgba(59,130,246,.1);">🗂️</div><div><div class="action-card-title">${action.title||'New Categories'}</div><div class="action-card-sub">${cats.length} categor${cats.length===1?'y':'ies'} to add</div></div></div>
+  const cats=Array.isArray(action.data.categories)?action.data.categories.filter(c=>c&&c.name):[];
+  // Guard: if AI sent empty array, show one blank row so merchant can fill it
+  const rows=(cats.length?cats:[{name:'',description:'',icon:'📦'}]).map((c,i)=>`<div class="cat-item-wrap"><div class="ac-field-row"><div class="ac-field"><label>Name</label><input id="${id}_cat${i}_name" value="${escAttr(c.name||'')}"></div><div class="ac-field"><label>Icon</label><input id="${id}_cat${i}_icon" value="${escAttr(c.icon||'📦')}" style="text-align:center;font-size:18px;"></div></div><div class="ac-field"><label>Description</label><input id="${id}_cat${i}_desc" value="${escAttr(c.description||'')}"></div><div class="ac-field"><label>Image <span style="font-weight:400;text-transform:none;opacity:.7;">(optional)</span></label><input type="file" id="${id}_cat${i}_img" class="file-input-ac" accept="image/*" onchange="previewAIImages(this,'${id}_cat${i}_imgprev')"><div class="img-previews-ac" id="${id}_cat${i}_imgprev"></div></div></div>`).join('');
+  const count = cats.length || 1;
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:rgba(59,130,246,.1);">🗂️</div><div><div class="action-card-title">${action.title||'New Category'}</div><div class="action-card-sub">Fill in the details and save</div></div></div>
     <div class="action-card-body"><div id="${id}_catrows">${rows}</div>
-      <div class="ac-actions"><button class="btn-save" onclick="saveCategories('${id}',${cats.length})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All</button><button class="btn-save-outline" onclick="dismissCard('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="ac-actions"><button class="btn-save" onclick="saveCategories('${id}',${count})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All</button><button class="btn-save-outline" onclick="dismissCard('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
       <div id="${id}_msg"></div>
     </div>`;
 }
@@ -1309,6 +1325,7 @@ async function saveProduct(id){
       fd.append('name', name);
       fd.append('category_id', catEl?.value||'');
       fd.append('price', parseFloat(document.getElementById(`${id}_price`).value)||0);
+      fd.append('stock', parseInt(document.getElementById(`${id}_stock`)?.value)||0);
       fd.append('description', document.getElementById(`${id}_desc`).value.trim());
       fd.append('tags', document.getElementById(`${id}_tags`).value);
       fd.append('status', 'active');
@@ -1319,7 +1336,7 @@ async function saveProduct(id){
       if(!res.ok){ const e=await res.json(); throw new Error(e.error||'Failed'); }
     } else {
       // JSON path when no images
-      const payload={name,category_id:catEl?catEl.value:'',price:parseFloat(document.getElementById(`${id}_price`).value)||0,description:document.getElementById(`${id}_desc`).value.trim(),tags:document.getElementById(`${id}_tags`).value.split(',').map(t=>t.trim()).filter(Boolean)};
+      const payload={name,category_id:catEl?catEl.value:'',price:parseFloat(document.getElementById(`${id}_price`).value)||0,stock:parseInt(document.getElementById(`${id}_stock`)?.value)||0,description:document.getElementById(`${id}_desc`).value.trim(),tags:document.getElementById(`${id}_tags`).value.split(',').map(t=>t.trim()).filter(Boolean)};
       await apiFetch(`/stores/${currentStoreId}/products`,{method:'POST',body:JSON.stringify(payload)});
     }
     showCardMsg(msg,'✅ Product saved successfully!','success'); btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
