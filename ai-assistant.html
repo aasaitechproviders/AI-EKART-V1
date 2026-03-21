@@ -351,6 +351,22 @@
 .btn-save-outline:hover{border-color:var(--accent);color:var(--accent-2);background:var(--accent-dim)}
 
 /* ── Card sub-components ─────────────────────────────────────── */
+/* ── File upload + image preview (matches merchant.html) ──────── */
+.file-input-ac{
+  width:100%;background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:var(--r-sm);padding:7px 11px;color:var(--text);
+  font-family:var(--font);font-size:12.5px;cursor:pointer;
+  transition:border-color .15s;outline:none;box-sizing:border-box;
+}
+.file-input-ac:hover{border-color:rgba(124,111,255,.4)}
+.img-previews-ac{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.img-previews-ac img{
+  width:48px;height:48px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--border-md);transition:transform .2s;
+}
+.img-previews-ac img:hover{transform:scale(1.08)}
+
+/* ── Tag cloud ────────────────────────────────────────────────── */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .tag-pill{background:var(--accent-dim);color:var(--accent-2);border:1px solid rgba(124,111,255,.2);border-radius:5px;padding:2px 9px;font-size:11.5px;font-weight:600}
 .hi-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;font-size:12.5px;color:var(--text-2);line-height:1.5}
@@ -1117,6 +1133,11 @@ function buildProductCard(id,action){
       <div class="ac-field"><label>Description</label><textarea id="${id}_desc">${escAttr(d.description||'')}</textarea></div>
       <div class="ac-field"><label>Tags (comma separated)</label><input id="${id}_tags" value="${escAttr(tags)}"></div>
       ${d.highlights&&Array.isArray(d.highlights)&&d.highlights.length?`<div class="ac-field"><label>Highlights</label>${d.highlights.map(h=>`<div class="hi-item"><div class="hi-dot"></div>${escHtml(h)}</div>`).join('')}</div>`:''}
+      <div class="ac-field">
+        <label>Product Images <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.7;">(optional, up to 5)</span></label>
+        <input type="file" id="${id}_imgs" class="file-input-ac" accept="image/*" multiple onchange="previewAIImages(this,'${id}_imgprev')">
+        <div class="img-previews-ac" id="${id}_imgprev"></div>
+      </div>
       <div class="ac-actions"><button class="btn-save" onclick="saveProduct('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Product</button><button class="btn-save-outline" onclick="dismissCard('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
       <div id="${id}_msg"></div>
     </div>`;
@@ -1124,7 +1145,7 @@ function buildProductCard(id,action){
 
 function buildCategoryCard(id,action){
   const cats=Array.isArray(action.data.categories)?action.data.categories:[];
-  const rows=cats.map((c,i)=>`<div class="cat-item-wrap"><div class="ac-field-row"><div class="ac-field"><label>Name</label><input id="${id}_cat${i}_name" value="${escAttr(c.name||'')}"></div><div class="ac-field"><label>Icon</label><input id="${id}_cat${i}_icon" value="${escAttr(c.icon||'📦')}" style="text-align:center;font-size:18px;"></div></div><div class="ac-field"><label>Description</label><input id="${id}_cat${i}_desc" value="${escAttr(c.description||'')}"></div></div>`).join('');
+  const rows=cats.map((c,i)=>`<div class="cat-item-wrap"><div class="ac-field-row"><div class="ac-field"><label>Name</label><input id="${id}_cat${i}_name" value="${escAttr(c.name||'')}"></div><div class="ac-field"><label>Icon</label><input id="${id}_cat${i}_icon" value="${escAttr(c.icon||'📦')}" style="text-align:center;font-size:18px;"></div></div><div class="ac-field"><label>Description</label><input id="${id}_cat${i}_desc" value="${escAttr(c.description||'')}"></div><div class="ac-field"><label>Image <span style="font-weight:400;text-transform:none;opacity:.7;">(optional)</span></label><input type="file" id="${id}_cat${i}_img" class="file-input-ac" accept="image/*" onchange="previewAIImages(this,'${id}_cat${i}_imgprev')"><div class="img-previews-ac" id="${id}_cat${i}_imgprev"></div></div></div>`).join('');
   return`<div class="action-card-header"><div class="action-card-icon" style="background:rgba(59,130,246,.1);">🗂️</div><div><div class="action-card-title">${action.title||'New Categories'}</div><div class="action-card-sub">${cats.length} categor${cats.length===1?'y':'ies'} to add</div></div></div>
     <div class="action-card-body"><div id="${id}_catrows">${rows}</div>
       <div class="ac-actions"><button class="btn-save" onclick="saveCategories('${id}',${cats.length})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All</button><button class="btn-save-outline" onclick="dismissCard('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1143,6 +1164,11 @@ function buildStoreCard(id,action){
       ${d.tagline?`<div class="ac-field"><label>Tagline</label><input id="${id}_tagline" value="${escAttr(d.tagline)}"></div>`:''}
       ${d.categories&&d.categories.length?`<div class="ac-field"><label>Suggested Categories</label><div class="cat-pill-grid">${d.categories.map(c=>`<span class="cat-pill" onclick="toggleCat(this)">${escHtml(c)}</span>`).join('')}</div></div>`:''}
       ${d.tips&&d.tips.length?`<div class="ac-field"><label>Tips</label>${d.tips.map(t=>`<div class="hi-item"><div class="hi-dot"></div>${escHtml(t)}</div>`).join('')}</div>`:''}
+      <div class="ac-field">
+        <label>Store Logo <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.7;">(optional)</span></label>
+        <input type="file" id="${id}_slogo" class="file-input-ac" accept="image/*" onchange="previewAIImages(this,'${id}_slogoprev')">
+        <div class="img-previews-ac" id="${id}_slogoprev"></div>
+      </div>
       <div class="ac-actions"><button class="btn-save" onclick="saveStore('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Update Store</button><button class="btn-save-outline" onclick="dismissCard('${id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
       <div id="${id}_msg"></div>
     </div>`;
@@ -1196,6 +1222,25 @@ function _buildBadgeText(code,type,value){ const v=parseFloat(value); if(!isNaN(
 function updateCouponBanner(id){ const codeEl=document.getElementById(`${id}_code`),typeEl=document.getElementById(`${id}_dtype`),valEl=document.getElementById(`${id}_dval`),bCode=document.getElementById(`${id}_banner_code`),bBadge=document.getElementById(`${id}_banner_badge`); if(!codeEl||!typeEl||!valEl||!bCode||!bBadge)return; bCode.textContent=(codeEl.value||'').toUpperCase()||'CODE'; bBadge.textContent=_buildBadgeText(codeEl.value,typeEl.value,valEl.value); }
 
 /* ══════════════════════════════════════════════════════════════
+   IMAGE PREVIEW HELPER
+══════════════════════════════════════════════════════════════ */
+function previewAIImages(input, wrapId){
+  const wrap = document.getElementById(wrapId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  Array.from(input.files).slice(0, 5).forEach(f=>{
+    const r = new FileReader();
+    r.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.title = f.name;
+      wrap.appendChild(img);
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
    SAVE HANDLERS
 ══════════════════════════════════════════════════════════════ */
 async function saveProduct(id){
@@ -1205,9 +1250,29 @@ async function saveProduct(id){
   if(!name){showCardMsg(msg,'Enter a product name','error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Product';return;}
   if(!currentStoreId){showCardMsg(msg,'Select a store first','error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Product';return;}
   const catEl=document.getElementById(`${id}_cat`);
-  const payload={name,category_id:catEl?catEl.value:'',price:parseFloat(document.getElementById(`${id}_price`).value)||0,description:document.getElementById(`${id}_desc`).value.trim(),tags:document.getElementById(`${id}_tags`).value.split(',').map(t=>t.trim()).filter(Boolean)};
+  const imageFiles = document.getElementById(`${id}_imgs`)?.files || [];
+  const hasImages = imageFiles.length > 0;
+
   try{
-    await apiFetch(`/stores/${currentStoreId}/products`,{method:'POST',body:JSON.stringify(payload)});
+    if(hasImages){
+      // Use FormData when images are attached
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('category_id', catEl?.value||'');
+      fd.append('price', parseFloat(document.getElementById(`${id}_price`).value)||0);
+      fd.append('description', document.getElementById(`${id}_desc`).value.trim());
+      fd.append('tags', document.getElementById(`${id}_tags`).value);
+      fd.append('status', 'active');
+      Array.from(imageFiles).slice(0,5).forEach(f => fd.append('images', f));
+      const res = await fetch(`${API}/stores/${currentStoreId}/products`, {
+        method:'POST', headers:{'Authorization':'Bearer '+getToken()}, body:fd
+      });
+      if(!res.ok){ const e=await res.json(); throw new Error(e.error||'Failed'); }
+    } else {
+      // JSON path when no images
+      const payload={name,category_id:catEl?catEl.value:'',price:parseFloat(document.getElementById(`${id}_price`).value)||0,description:document.getElementById(`${id}_desc`).value.trim(),tags:document.getElementById(`${id}_tags`).value.split(',').map(t=>t.trim()).filter(Boolean)};
+      await apiFetch(`/stores/${currentStoreId}/products`,{method:'POST',body:JSON.stringify(payload)});
+    }
     showCardMsg(msg,'✅ Product saved successfully!','success'); btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
     toast('Product saved!','success');
     allProducts=await apiFetch(`/stores/${currentStoreId}/products`).catch(()=>allProducts);
@@ -1222,7 +1287,21 @@ async function saveCategories(id,count){
   for(let i=0;i<count;i++){
     const nameEl=document.getElementById(`${id}_cat${i}_name`); if(!nameEl)continue;
     const name=nameEl.value.trim(); if(!name)continue;
-    try{await apiFetch(`/stores/${currentStoreId}/categories`,{method:'POST',body:JSON.stringify({name,icon:document.getElementById(`${id}_cat${i}_icon`)?.value||'📦',description:document.getElementById(`${id}_cat${i}_desc`)?.value.trim()||''})});saved++;}catch{}
+    const imgFile = document.getElementById(`${id}_cat${i}_img`)?.files?.[0];
+    try{
+      if(imgFile){
+        const fd=new FormData();
+        fd.append('name',name);
+        fd.append('icon',document.getElementById(`${id}_cat${i}_icon`)?.value||'📦');
+        fd.append('description',document.getElementById(`${id}_cat${i}_desc`)?.value.trim()||'');
+        fd.append('image',imgFile);
+        const res=await fetch(`${API}/stores/${currentStoreId}/categories`,{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
+        if(!res.ok){const e=await res.json();throw new Error(e.error);}
+      } else {
+        await apiFetch(`/stores/${currentStoreId}/categories`,{method:'POST',body:JSON.stringify({name,icon:document.getElementById(`${id}_cat${i}_icon`)?.value||'📦',description:document.getElementById(`${id}_cat${i}_desc`)?.value.trim()||''})});
+      }
+      saved++;
+    }catch{}
   }
   if(saved>0){showCardMsg(msg,`✅ ${saved} categor${saved===1?'y':'ies'} saved!`,'success');btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';toast(`${saved} ${saved===1?'category':'categories'} saved!`,'success');allCategories=await apiFetch(`/stores/${currentStoreId}/categories`).catch(()=>allCategories);}
   else{showCardMsg(msg,'❌ Could not save categories','error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All';}
@@ -1234,9 +1313,20 @@ async function saveStore(id){
   const name=document.getElementById(`${id}_sname`)?.value.trim(),desc=document.getElementById(`${id}_sdesc`)?.value.trim(),tagline=document.getElementById(`${id}_tagline`)?.value.trim();
   if(!name&&!desc){showCardMsg(msg,'Fill in at least one field','error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Update Store';return;}
   if(!currentStoreId){showCardMsg(msg,'Select a store first','error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Update Store';return;}
+  const logoFile = document.getElementById(`${id}_slogo`)?.files?.[0];
   try{
-    const payload={};if(name)payload.name=name;if(desc)payload.description=desc;if(tagline)payload.tagline=tagline;
-    await apiFetch(`/stores/${currentStoreId}`,{method:'PUT',body:JSON.stringify(payload)});
+    if(logoFile){
+      const fd=new FormData();
+      if(name)fd.append('name',name);
+      if(desc)fd.append('description',desc);
+      if(tagline)fd.append('tagline',tagline);
+      fd.append('logo',logoFile);
+      const res=await fetch(`${API}/stores/${currentStoreId}`,{method:'PUT',headers:{'Authorization':'Bearer '+getToken()},body:fd});
+      if(!res.ok){const e=await res.json();throw new Error(e.error||'Failed');}
+    } else {
+      const payload={};if(name)payload.name=name;if(desc)payload.description=desc;if(tagline)payload.tagline=tagline;
+      await apiFetch(`/stores/${currentStoreId}`,{method:'PUT',body:JSON.stringify(payload)});
+    }
     showCardMsg(msg,'✅ Store updated!','success');btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';toast('Store updated!','success');await loadStoreData();
   }catch(e){showCardMsg(msg,'❌ '+e.message,'error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Update Store';}
 }
@@ -1257,7 +1347,7 @@ async function saveCoupon(id){
   const expiresAt=new Date(Date.now()+validDays*24*60*60*1000).toISOString();
   try{
     await apiFetch(`/stores/${currentStoreId}/coupons`,{method:'POST',body:JSON.stringify({code,type,value:discountVal,min_order:minOrder,expires_at:expiresAt,description})});
-    showCardMsg(msg,'✅ Coupon created successfully!','success');btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Created!';toast('Coupon created!','success');
+    showCardMsg(msg,'✅ Coupon created successfully!','success');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Created!';toast('Coupon created!','success');
   }catch(e){showCardMsg(msg,'❌ '+(e.message||'Failed to create coupon'),'error');btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Create Coupon';}
 }
 
