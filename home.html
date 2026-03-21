@@ -158,7 +158,12 @@
 .dns-pending-hint code{font-family:var(--mono);font-size:10.5px;background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px}
 [data-theme="dark"] .dns-pending-hint code{background:rgba(0,0,0,.2)}
 
-/* ── Empty state ──────────────────────────────────────────────── */
+/* ── Panel drag handle (mobile only) ─────────────────────────── */
+.sp-drag-handle{display:none}
+@media(max-width:648px){
+  .sp-drag-handle{display:flex;justify-content:center;align-items:center;padding:12px 0 4px;flex-shrink:0;background:var(--surface)}
+  .sp-drag-handle::before{content:'';width:40px;height:4px;background:var(--border-md);border-radius:2px}
+}
 .stores-empty-state{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 250px);padding:40px 20px;animation:fadeUp .4s var(--ease) both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .stores-empty-inner{text-align:center;max-width:400px}
@@ -169,9 +174,9 @@
 .stores-empty-btn:hover{transform:translateY(-2px)!important;box-shadow:0 10px 32px var(--accent-glow)!important}
 
 /* ── Edit/Create modal ────────────────────────────────────────── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:300;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);color:var(--text);font-family:var(--font);padding:28px;width:100%;max-width:560px;max-height:calc(100vh - 40px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent}
+.modal{background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);color:var(--text);font-family:var(--font);padding:28px;width:100%;max-width:560px;max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface-4) transparent;box-sizing:border-box;overscroll-behavior:contain}
 [data-theme="dark"] .modal{box-shadow:0 24px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3)}
 .modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--surface-4);border-radius:2px}
 .modal h2{font-size:18px;font-weight:800;letter-spacing:-.04em;margin-bottom:22px;color:var(--text)}
@@ -229,18 +234,33 @@
   .store-kpi-val{font-size:12px}
   .store-kpi-label{font-size:7.5px}
   /* Panel → bottom sheet */
-  .store-panel{width:100%!important;max-width:100%!important;max-height:92vh!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;transform:translate(0,100%)!important;opacity:1!important;border-radius:var(--r-xl) var(--r-xl) 0 0!important;border-bottom:none!important}
+  .store-panel{width:100%!important;max-width:100%!important;max-height:90vh!important;max-height:90dvh!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;transform:translate(0,100%)!important;opacity:1!important;border-radius:var(--r-xl) var(--r-xl) 0 0!important;border-bottom:none!important}
   .store-panel.open{transform:translate(0,0)!important}
-  .sp-body{max-height:calc(92vh - 220px)!important}
+  /* let flex fill remaining space instead of magic calc */
+  .sp-body{flex:1!important;min-height:0!important;max-height:none!important;overflow-y:auto}
   .sp-kpi-val{font-size:14px}
-  .modal{padding:20px;border-radius:var(--r-lg);max-height:calc(100vh - 20px)}
+  /* Modal → true bottom sheet: anchored, full-width, no side gaps */
+  .modal-overlay{padding:0!important;align-items:flex-end!important}
+  .modal{
+    width:100%!important;max-width:100%!important;
+    max-height:90vh!important;max-height:90dvh!important;
+    border-radius:var(--r-xl) var(--r-xl) 0 0!important;
+    border-bottom:none!important;
+    /* top drag handle via padding-top so ::before has room */
+    padding:0 20px calc(20px + env(safe-area-inset-bottom,0px))!important;
+  }
+  /* drag handle pill */
+  .modal::before{
+    content:'';display:block;width:40px;height:4px;
+    background:var(--border-md);border-radius:2px;
+    margin:14px auto 20px;position:sticky;top:0;
+  }
   .modal h2{font-size:16px;margin-bottom:16px}
   .field-row{grid-template-columns:1fr}
-  .modal-overlay{padding:10px;align-items:flex-end}
   .card-style-picker{grid-template-columns:repeat(2,1fr)}
   .domain-input-wrap{flex-direction:column;gap:6px}
   .domain-save-btn{width:100%}
-  .sp-actions{gap:6px}.sp-btn{min-width:calc(50% - 3px)}
+  .sp-actions{gap:6px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))!important}.sp-btn{min-width:calc(50% - 3px)}
 }
 @media(max-width:380px){
   .stats-row{grid-template-columns:1fr 1fr}
@@ -248,6 +268,7 @@
   .sp-actions{flex-direction:column;gap:6px}
   .sp-btn{flex:none;width:100%;min-width:unset}
   .content{padding:12px 12px 80px}
+  .modal{max-height:95vh!important;max-height:95dvh!important}
 }
 </style>
 
@@ -368,6 +389,7 @@
 <!-- STORE DETAIL PANEL -->
 <div class="panel-backdrop" id="panelBackdrop" onclick="closeStorePanel()"></div>
 <div class="store-panel" id="storePanel">
+  <div class="sp-drag-handle"></div>
   <div class="sp-header">
     <div class="sp-stripe" id="sp-stripe"></div>
     <div class="sp-header-inner">
