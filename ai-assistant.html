@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>eKart — AI Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<script>
+;(function(){
+  var dark = localStorage.getItem('ekart_theme') === 'dark';
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.style.background = dark ? '#07080D' : '#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="shared.js"></script>
+<script src="nav.js"></script>
+
+<style>
+/* ── Skeleton — chat-specific layout ────────────────────────── */
+.skel-body{
+  flex:1; padding:16px 20px; overflow:hidden;
+  display:grid; grid-template-columns:1fr 380px; gap:16px;
+}
+.skel-chat-col{display:flex;flex-direction:column;gap:0}
+.skel-chat-panel{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;
+}
+.skel-chat-hdr{
+  height:66px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 18px;flex-shrink:0;
+}
+.skel-chat-msgs{flex:1;padding:20px;display:flex;flex-direction:column;gap:14px}
+.skel-msg-row{display:flex;align-items:flex-end;gap:10px}
+.skel-msg-row.user{flex-direction:row-reverse}
+.skel-chat-footer{
+  height:72px;border-top:1px solid var(--border);
+  padding:14px;display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.skel-action-col{
+  background:var(--surface);border:1px dashed var(--border-md);
+  border-radius:var(--r-lg);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;padding:40px 28px;
+}
+@media(max-width:900px){
+  #page-skeleton{left:0;top:56px}
+  .skel-body{grid-template-columns:1fr}
+  .skel-action-col{display:none}
+}
+
+/* ── Content area ────────────────────────────────────────────── */
+.content{
+  flex:1;padding:16px 20px;background:var(--bg);
+  min-width:0;display:flex;flex-direction:column;
+}
+
+/* ── AI root layout ──────────────────────────────────────────── */
+.ai-root{
+  display:grid;grid-template-columns:1fr 388px;gap:16px;
+  flex:1;min-height:0;height:calc(100vh - 60px - 32px);
+}
+
+/* ── Chat panel ──────────────────────────────────────────────── */
+.chat-panel{
+  display:flex;flex-direction:column;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:var(--sh-sm);transition:border-color .2s,box-shadow .2s;
+  position:relative;min-height:0;
+}
+.chat-panel:focus-within{
+  border-color:rgba(124,111,255,.25);
+  box-shadow:var(--sh),0 0 0 1px var(--accent-dim);
+}
+.chat-header{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent-soft) 0%,transparent 60%);
+}
+.chat-header-avatar{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  font-size:19px;flex-shrink:0;box-shadow:0 0 18px var(--accent-glow);
+}
+.chat-header-info h2{font-size:13.5px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.chat-header-info p{font-size:11px;color:var(--text-3);margin-top:1px}
+.chat-status-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 7px var(--green);margin-left:auto;flex-shrink:0;position:relative;
+}
+.chat-status-dot::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:var(--green);animation:statusRing 2s ease-out infinite;
+}
+@keyframes statusRing{0%{transform:scale(1);opacity:.7}70%{transform:scale(2.4);opacity:0}100%{transform:scale(2.4);opacity:0}}
+
+/* ── Messages ────────────────────────────────────────────────── */
+.chat-messages{
+  flex:1;overflow-y:auto;padding:20px;
+  display:flex;flex-direction:column;gap:16px;
+  scroll-behavior:smooth;transition:opacity .2s ease;min-height:0;
+}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:4px}
+.chat-messages.store-switching{opacity:.3;pointer-events:none}
+.msg{display:flex;gap:10px;align-items:flex-end;animation:msgIn .25s ease both}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{
+  width:28px;height:28px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;
+}
+.msg.ai   .msg-avatar{background:linear-gradient(135deg,var(--accent),#a78bfa);box-shadow:0 2px 8px var(--accent-glow)}
+.msg.user .msg-avatar{background:var(--surface-3);border:1px solid var(--border-md);font-size:11px;font-weight:800;color:var(--text-2)}
+.msg-bubble{
+  max-width:76%;padding:11px 15px;
+  border-radius:var(--r);font-size:13.5px;line-height:1.65;
+  color:var(--text);word-break:break-word;
+}
+.msg.ai .msg-bubble{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.msg.user .msg-bubble{
+  background:linear-gradient(135deg,var(--accent),#7c73ff);color:#fff;
+  border-bottom-right-radius:4px;box-shadow:0 3px 12px var(--accent-glow);
+}
+.msg-bubble strong{color:var(--accent-2);font-weight:700}
+.msg.user .msg-bubble strong{color:rgba(255,255,255,.9)}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 2px}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:blink 1.2s ease infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+/* ── Quick chips ─────────────────────────────────────────────── */
+.quick-chips{
+  display:flex;flex-wrap:wrap;gap:7px;padding:8px 18px 4px;
+  transition:opacity .2s ease;flex-shrink:0;
+}
+.quick-chips.store-switching{opacity:.3;pointer-events:none}
+.chip{
+  background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:30px;padding:6px 14px;
+  font-size:12px;font-weight:600;color:var(--text-2);
+  cursor:pointer;transition:var(--t);font-family:var(--font);
+  animation:chipIn .2s ease both;
+}
+@keyframes chipIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.chip:hover{border-color:var(--accent);color:var(--accent-2);background:var(--accent-dim);transform:translateY(-1px)}
+
+/* ── Input bar ───────────────────────────────────────────────── */
+.chat-input-wrap{
+  padding:12px 14px;border-top:1px solid var(--border);
+  display:flex;gap:8px;align-items:flex-end;
+  flex-shrink:0;background:var(--surface);transition:opacity .2s ease;
+}
+.chat-input-wrap.store-switching{opacity:.3;pointer-events:none}
+.chat-input{
+  flex:1;background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:var(--r-sm);padding:11px 15px;
+  font-size:13.5px;color:var(--text);font-family:var(--font);
+  resize:none;max-height:120px;min-height:44px;line-height:1.5;
+  transition:border-color .15s,box-shadow .15s;outline:none;
+}
+.chat-input:focus{
+  border-color:rgba(124,111,255,.5);
+  box-shadow:0 0 0 3px var(--accent-dim);background:var(--surface-3);
+}
+.chat-input::placeholder{color:var(--text-3)}
+.chat-input.listening{
+  border-color:rgba(239,68,68,.45)!important;
+  background:rgba(239,68,68,.03)!important;
+  box-shadow:0 0 0 3px rgba(239,68,68,.08)!important;
+}
+.chat-send-btn{
+  width:44px;height:44px;border-radius:var(--r-sm);
+  background:linear-gradient(135deg,var(--accent),#7c73ff);
+  border:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;flex-shrink:0;
+  transition:opacity .15s,transform .1s,box-shadow .15s;
+  box-shadow:0 3px 12px var(--accent-glow);
+}
+.chat-send-btn:hover  {opacity:.88;box-shadow:0 5px 18px var(--accent-glow)}
+.chat-send-btn:active {transform:scale(.94)}
+.chat-send-btn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
+
+/* ── Language / mic tools ────────────────────────────────────── */
+.input-tools{display:flex;gap:6px;align-items:flex-end;flex-shrink:0}
+.chat-mic-btn-solo{
+  width:44px;height:44px;border-radius:var(--r-sm);
+  background:var(--surface-2);border:1px solid var(--border-md);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;flex-shrink:0;transition:var(--t);
+}
+.chat-mic-btn-solo:hover  {border-color:rgba(124,111,255,.4);background:var(--accent-dim)}
+.chat-mic-btn-solo:disabled{opacity:.35;cursor:not-allowed}
+.chat-mic-btn-solo.recording{
+  background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.55);
+  animation:micGlow 1.2s ease-in-out infinite;
+}
+@keyframes micGlow{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+.lang-wrap{position:relative;flex-shrink:0}
+.lang-btn{
+  height:44px;min-width:66px;padding:0 11px;border-radius:var(--r-sm);
+  background:var(--surface-2);border:1px solid var(--border-md);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--text-2);
+  font-family:var(--font);transition:var(--t);white-space:nowrap;user-select:none;
+}
+.lang-btn:hover {border-color:rgba(124,111,255,.45);color:var(--accent-2);background:var(--accent-dim)}
+.lang-btn.open  {border-color:rgba(124,111,255,.55);color:var(--accent-2);background:var(--accent-dim)}
+.lang-btn .lb-flag{font-size:15px;line-height:1}
+.lang-btn .lb-code{font-size:12px;font-weight:800;letter-spacing:.03em}
+.lang-btn .lb-arrow{font-size:9px;opacity:.55;margin-left:1px;transition:transform .15s}
+.lang-btn.open .lb-arrow{transform:rotate(180deg)}
+.lang-btn.recording{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.07);color:#ef4444}
+.rec-pulse{
+  width:7px;height:7px;border-radius:50%;background:#ef4444;
+  animation:recPulse 1s ease-in-out infinite;flex-shrink:0;display:none;
+}
+.lang-btn.recording .rec-pulse{display:block}
+@keyframes recPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.lang-dropdown{
+  position:absolute;bottom:calc(100% + 8px);right:0;
+  background:var(--surface);border:1px solid var(--border-md);
+  border-radius:var(--r-lg);padding:8px 6px;
+  min-width:210px;max-height:320px;overflow-y:auto;
+  box-shadow:var(--sh-lg);z-index:9999;display:none;
+}
+.lang-dropdown::-webkit-scrollbar{width:3px}
+.lang-dropdown::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:3px}
+.lang-dropdown.open{display:block;animation:ddFadeUp .15s ease}
+@keyframes ddFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.lang-dd-head{padding:4px 10px 8px;font-size:10px;font-weight:800;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em}
+.lang-dd-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;
+  cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);transition:background .12s;
+}
+.lang-dd-item:hover {background:var(--surface-2);color:var(--text)}
+.lang-dd-item.active{background:var(--accent-dim);color:var(--accent-2)}
+.lang-dd-item .dd-flag {font-size:17px;flex-shrink:0}
+.lang-dd-item .dd-name {flex:1}
+.lang-dd-item .dd-check{font-size:13px;color:var(--accent);opacity:0}
+.lang-dd-item.active .dd-check{opacity:1}
+.lang-dd-sep{height:1px;background:var(--border);margin:5px 4px}
+
+/* ── Store-switch overlay ─────────────────────────────────────── */
+.store-switch-overlay{
+  display:none;position:absolute;inset:0;
+  background:rgba(255,255,255,.65);border-radius:var(--r-lg);
+  z-index:100;align-items:center;justify-content:center;flex-direction:column;
+  gap:10px;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+[data-theme="dark"] .store-switch-overlay{background:rgba(12,14,22,.65)}
+.store-switch-overlay.active{display:flex;animation:overlayIn .2s ease}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+.store-switch-spinner{
+  width:32px;height:32px;border:3px solid var(--accent-dim);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:storeSpin .7s linear infinite;
+}
+.store-switch-label{font-size:12px;font-weight:600;color:var(--text-2)}
+
+/* ── Action panel ────────────────────────────────────────────── */
+.action-panel{
+  display:flex;flex-direction:column;gap:0;
+  overflow-y:auto;overflow-x:hidden;height:100%;padding-bottom:4px;
+  transition:opacity .25s ease;
+}
+.action-panel::-webkit-scrollbar{width:4px}
+.action-panel::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:4px}
+.action-panel.store-switching{opacity:.3;pointer-events:none}
+.action-empty{
+  background:var(--surface);border:1px dashed var(--border-md);
+  border-radius:var(--r-lg);padding:44px 28px;
+  text-align:center;color:var(--text-3);font-size:13px;line-height:1.7;
+  box-shadow:var(--sh-sm);
+}
+.action-empty-icon{font-size:40px;margin-bottom:14px;opacity:.45}
+.action-empty h3{font-size:13.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+
+/* ── Action card ─────────────────────────────────────────────── */
+.action-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:visible;
+  animation:acCardIn .3s ease both;transition:border-color .2s,box-shadow .2s;
+  flex-shrink:0;box-shadow:var(--sh-sm);
+}
+.action-card:hover{border-color:rgba(124,111,255,.28);box-shadow:var(--sh)}
+@keyframes acCardIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.action-card-header{
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--accent-soft),transparent);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+}
+.action-card-icon{
+  width:36px;height:36px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;
+}
+.action-card-title{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--text)}
+.action-card-sub  {font-size:11px;color:var(--text-3);margin-top:2px}
+.action-card-body {padding:14px 16px 18px}
+.ac-field{margin-bottom:10px}
+.ac-field label{
+  display:block;font-size:10.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px;
+}
+.ac-field input,.ac-field textarea,.ac-field select{
+  width:100%;background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--text);
+  font-family:var(--font);transition:border-color .15s,box-shadow .15s;outline:none;box-sizing:border-box;
+}
+.ac-field input:focus,.ac-field textarea:focus,.ac-field select:focus{
+  border-color:rgba(124,111,255,.5);box-shadow:0 0 0 3px var(--accent-dim);background:var(--surface-3);
+}
+.ac-field textarea{resize:none;height:72px;line-height:1.5}
+.ac-field select option{background:var(--surface);color:var(--text)}
+.ac-field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ac-field-row .ac-field{margin-bottom:0}
+.ac-actions{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--border);padding-bottom:4px;
+}
+.btn-save{
+  flex:1;
+  background:linear-gradient(135deg,var(--accent),#7c73ff);
+  border:none;border-radius:var(--r-sm);padding:10px 14px;
+  font-size:12.5px;font-weight:700;color:white;cursor:pointer;font-family:var(--font);
+  transition:opacity .15s,transform .1s,box-shadow .15s;white-space:nowrap;
+  box-shadow:0 2px 10px var(--accent-glow);
+}
+.btn-save:hover  {opacity:.88;box-shadow:0 4px 14px var(--accent-glow)}
+.btn-save:active {transform:scale(.97)}
+.btn-save:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn-save-outline{
+  flex:1;background:transparent;
+  border:1px solid var(--border-md);border-radius:var(--r-sm);
+  padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--text-2);
+  cursor:pointer;font-family:var(--font);transition:var(--t);white-space:nowrap;
+}
+.btn-save-outline:hover{border-color:var(--accent);color:var(--accent-2);background:var(--accent-dim)}
+
+/* ── Card sub-components ─────────────────────────────────────── */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag-pill{background:var(--accent-dim);color:var(--accent-2);border:1px solid rgba(124,111,255,.2);border-radius:5px;padding:2px 9px;font-size:11.5px;font-weight:600}
+.hi-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;font-size:12.5px;color:var(--text-2);line-height:1.5}
+.hi-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.cat-pill-grid{display:flex;flex-wrap:wrap;gap:6px}
+.cat-pill{
+  background:var(--surface-2);border:1.5px solid var(--border-md);
+  border-radius:var(--r-xs);padding:5px 11px;
+  font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;transition:var(--t);
+}
+.cat-pill.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent-2)}
+.name-suggestion{
+  background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:var(--r-xs);padding:8px 12px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:var(--t);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.name-suggestion:hover{border-color:var(--accent);color:var(--accent-2);background:var(--accent-dim);transform:translateX(2px)}
+.name-suggestions{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.cat-item-wrap{margin-bottom:10px;padding:10px;background:var(--surface-2);border-radius:var(--r-sm);border:1px solid var(--border)}
+
+/* ── Coupon card ─────────────────────────────────────────────── */
+.coupon-banner{
+  background:linear-gradient(135deg,var(--accent-dim),var(--accent-soft));
+  border:1.5px dashed rgba(124,111,255,.35);border-radius:var(--r-sm);
+  padding:14px 16px 11px;text-align:center;margin-bottom:14px;
+  cursor:pointer;transition:var(--t);
+}
+.coupon-banner:hover{background:linear-gradient(135deg,rgba(124,111,255,.14),rgba(124,115,255,.07));border-color:rgba(124,111,255,.5);transform:scale(1.01)}
+.coupon-code-display{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent-2);letter-spacing:.08em;line-height:1;margin-bottom:6px}
+.coupon-badge{display:inline-block;background:var(--accent-dim);border:1px solid rgba(124,111,255,.25);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;color:var(--accent-2);letter-spacing:.02em;transition:var(--t)}
+.coupon-copy-hint{font-size:10.5px;color:var(--text-3);margin-top:5px}
+
+/* ── Insights card ───────────────────────────────────────────── */
+.insight-section{margin-bottom:12px}
+.insight-section h4{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:7px}
+.insight-summary-box{font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:12px;padding:12px;background:var(--surface-2);border-radius:var(--r-sm);border:1px solid var(--border)}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:1100px){.ai-root{grid-template-columns:1fr 340px}}
+@media(max-width:900px){
+  .ai-root{grid-template-columns:1fr;height:auto;gap:14px}
+  .chat-panel{height:65vh;min-height:420px}
+  .action-panel{overflow-y:visible;height:auto}
+  .content{padding:14px}
+}
+@media(max-width:648px){
+  .content{padding:12px 12px 80px}
+  .ai-root{gap:12px}
+  .chat-panel{height:60vh;min-height:380px;border-radius:var(--r)}
+  .action-card,.action-empty{border-radius:var(--r)}
+  .chat-header{padding:12px 14px}
+  .chat-header-avatar{width:34px;height:34px;font-size:16px}
+  .chat-header-info h2{font-size:12.5px}
+  .chat-header-info p{display:none}
+  .chat-messages{padding:14px;gap:12px}
+  .msg-bubble{font-size:13px;padding:9px 13px}
+  .lang-btn{min-width:58px}
+}
+@media(max-width:380px){
+  .chat-input{font-size:13px}
+  .chat-send-btn,.chat-mic-btn-solo{width:40px;height:40px}
+  .lang-btn{height:40px;min-width:52px}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar" id="mobileTopbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">e<span>K</span>art</a>
+  </div>
+  <div class="mob-right">
+    <div class="mob-store-wrap" id="mob-store-wrap">
+      <select class="mob-store-selector" id="mob-store-selector" onchange="onStoreChange(this.value)"></select>
+    </div>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:32px;height:32px;font-size:14px;">☀️</button>
+  </div>
+</div>
+
+<!-- SKELETON -->
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:14px;width:110px;border-radius:5px;"></div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="skel" style="height:36px;width:190px;border-radius:var(--r-sm);"></div>
+      <div class="skel" style="height:36px;width:36px;border-radius:var(--r-sm);"></div>
+    </div>
+  </div>
+  <div class="skel-body">
+    <div class="skel-chat-col">
+      <div class="skel-chat-panel">
+        <div class="skel-chat-hdr">
+          <div class="skel" style="width:40px;height:40px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <div class="skel" style="height:13px;width:140px;"></div>
+            <div class="skel" style="height:10px;width:210px;"></div>
+          </div>
+          <div class="skel" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-left:auto;"></div>
+        </div>
+        <div class="skel-chat-msgs">
+          <div class="skel-msg-row">
+            <div class="skel" style="width:28px;height:28px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+            <div class="skel" style="height:80px;width:68%;border-radius:var(--r);border-bottom-left-radius:4px;"></div>
+          </div>
+          <div class="skel-msg-row user">
+            <div class="skel" style="width:28px;height:28px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+            <div class="skel" style="height:40px;width:42%;border-radius:var(--r);border-bottom-right-radius:4px;"></div>
+          </div>
+          <div class="skel-msg-row">
+            <div class="skel" style="width:28px;height:28px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+            <div class="skel" style="height:52px;width:55%;border-radius:var(--r);border-bottom-left-radius:4px;"></div>
+          </div>
+          <div style="display:flex;gap:7px;margin-top:4px;padding-left:38px;">
+            <div class="skel" style="height:30px;width:120px;border-radius:30px;"></div>
+            <div class="skel" style="height:30px;width:100px;border-radius:30px;"></div>
+            <div class="skel" style="height:30px;width:90px;border-radius:30px;"></div>
+          </div>
+        </div>
+        <div class="skel-chat-footer">
+          <div class="skel" style="flex:1;height:44px;border-radius:var(--r-sm);"></div>
+          <div class="skel" style="width:66px;height:44px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+          <div class="skel" style="width:44px;height:44px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+          <div class="skel" style="width:44px;height:44px;border-radius:var(--r-sm);flex-shrink:0;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="skel-action-col">
+      <div class="skel" style="width:40px;height:40px;border-radius:var(--r-sm);opacity:.3;"></div>
+      <div class="skel" style="height:14px;width:140px;border-radius:5px;opacity:.25;"></div>
+      <div class="skel" style="height:11px;width:210px;border-radius:4px;opacity:.18;"></div>
+      <div class="skel" style="height:11px;width:170px;border-radius:4px;opacity:.14;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
+  <div class="sidebar-user-skel" id="sidebar-user-skel">
+    <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+      <div class="skel" style="height:10px;width:90px;border-radius:4px;"></div>
+      <div class="skel" style="height:8px;width:120px;border-radius:3px;"></div>
+    </div>
+  </div>
+  <div class="sidebar-user loading" id="sidebar-user-real">
+    <div class="sidebar-avatar" id="nav-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name"  id="nav-user-name"></div>
+      <div class="sidebar-user-email" id="nav-user-email"></div>
+    </div>
+  </div>
+  <div id="sidebar-nav"></div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">AI Assistant</span></div>
+    <div class="topbar-right">
+      <div class="store-select-wrap" id="store-select-wrap">
+        <span class="store-select-label">Store</span>
+        <select class="store-selector" id="store-selector" onchange="onStoreChange(this.value)"></select>
+      </div>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+      <div id="topbar-actions"></div>
+    </div>
+  </div>
+
+  <div id="page-content" class="content" style="display:none;">
+    <div class="ai-root">
+
+      <!-- LEFT: Chat -->
+      <div class="chat-panel">
+        <div class="store-switch-overlay" id="storeSwitchOverlay">
+          <div class="store-switch-spinner"></div>
+          <div class="store-switch-label">Loading store…</div>
+        </div>
+        <div class="chat-header">
+          <div class="chat-header-avatar">🤖</div>
+          <div class="chat-header-info">
+            <h2>eKart AI Assistant</h2>
+            <p>Ask me anything about your store in any language</p>
+          </div>
+          <div class="chat-status-dot"></div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="quick-chips" id="quickChips"></div>
+        <div class="chat-input-wrap">
+          <textarea class="chat-input" id="chatInput" placeholder="Type or speak your message…" rows="1"></textarea>
+          <div class="input-tools">
+            <div class="lang-wrap" id="langWrap">
+              <button class="lang-btn" id="langBtn" onclick="toggleLangDD()" title="Choose voice language">
+                <span class="rec-pulse"></span>
+                <span class="lb-flag" id="lbFlag">🇮🇳</span>
+                <span class="lb-code" id="lbCode">EN</span>
+                <span class="lb-arrow">▼</span>
+              </button>
+              <div class="lang-dropdown" id="langDropdown"></div>
+            </div>
+            <button class="chat-mic-btn-solo" id="micBtn" onclick="toggleVoice()" title="Voice input">
+              <span id="micIcon">🎙</span>
+            </button>
+          </div>
+          <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Actions -->
+      <div class="action-panel" id="actionPanel">
+        <div class="action-empty">
+          <div class="action-empty-icon">💬</div>
+          <h3>Start a conversation</h3>
+          <p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── State ────────────────────────────────────────────────────── */
+let currentStoreId = '', allProducts = [], allCategories = [];
+let conversationHistory = [], isTyping = false, userName = '', _storeSwitching = false;
+
+/* ── Store selectors ─────────────────────────────────────────── */
+function buildStoreSel(stores, activeId){
+  const opts = stores.map(s=>`<option value="${s._id}"${s._id===activeId?' selected':''}>${s.name}</option>`).join('');
+  const desk = document.getElementById('store-selector');
+  const mob  = document.getElementById('mob-store-selector');
+  if(desk) desk.innerHTML = opts;
+  if(mob)  mob.innerHTML  = opts;
+}
+
+function onStoreChange(id){
+  if(!id || id === currentStoreId) return;
+  currentStoreId = id;
+  sessionStorage.setItem('ekart_current_store', id);
+  ['store-selector','mob-store-selector'].forEach(sid=>{const el=document.getElementById(sid);if(el&&el.value!==id)el.value=id;});
+  triggerStoreSwitch();
+}
+
+/* ── Init ─────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', async () => {
+  const nav = await renderNav('ai-assistant', id => { onStoreChange(id); });
+  if(!nav) return;
+
+  currentStoreId = nav.currentStoreId;
+  userName       = nav.user?.name || nav.user?.email || 'there';
+  if(nav.stores && nav.stores.length) buildStoreSel(nav.stores, currentStoreId);
+
+  if(currentStoreId) await loadStoreData();
+  setupInput();
+  addWelcomeMessage();
+  showQuickChips(getInitialChips());
+  initVoice();
+
+  document.getElementById('page-content').style.display = '';
+  dismissSkeleton();
+});
+
+/* ── Store switch ────────────────────────────────────────────── */
+async function triggerStoreSwitch(){
+  if(_storeSwitching) return;
+  _storeSwitching = true;
+  const overlay     = document.getElementById('storeSwitchOverlay');
+  const msgs        = document.getElementById('chatMessages');
+  const chips       = document.getElementById('quickChips');
+  const inputWrap   = document.querySelector('.chat-input-wrap');
+  const actionPanel = document.getElementById('actionPanel');
+  overlay?.classList.add('active');
+  msgs?.classList.add('store-switching');
+  chips?.classList.add('store-switching');
+  inputWrap?.classList.add('store-switching');
+  actionPanel?.classList.add('store-switching');
+  await loadStoreData();
+  await new Promise(r=>setTimeout(r,320));
+  conversationHistory = [];
+  if(msgs){
+    msgs.style.transition='opacity .18s ease'; msgs.style.opacity='0';
+    await new Promise(r=>setTimeout(r,200));
+    msgs.innerHTML=''; addWelcomeMessage(); msgs.style.opacity='1';
+  }
+  showQuickChips(getInitialChips());
+  if(actionPanel) actionPanel.innerHTML=`<div class="action-empty" id="actionEmpty"><div class="action-empty-icon">💬</div><h3>Start a conversation</h3><p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p></div>`;
+  overlay?.classList.remove('active');
+  msgs?.classList.remove('store-switching');
+  chips?.classList.remove('store-switching');
+  inputWrap?.classList.remove('store-switching');
+  actionPanel?.classList.remove('store-switching');
+  _storeSwitching = false;
+}
+
+async function loadStoreData(){
+  if(!currentStoreId) return;
+  try{
+    [allProducts, allCategories] = await Promise.all([
+      apiFetch(`/stores/${currentStoreId}/products`).catch(()=>[]),
+      apiFetch(`/stores/${currentStoreId}/categories`).catch(()=>[])
+    ]);
+  }catch{}
+}
+
+/* ── Welcome message ─────────────────────────────────────────── */
+function addWelcomeMessage(){
+  const first = (userName||'there').split(' ')[0];
+  addAIMessage(`Hi ${first}! 👋 I'm your eKart AI assistant. I can help you with:\n\n• **Add products** — describe a product and I'll fill in the details\n• **Create categories** — organise your catalogue effortlessly\n• **Store setup** — name, description, and category ideas\n• **Coupons & discounts** — create offers for your customers\n• **Sales insights** — understand your store performance\n\nYou can talk to me in any language — just type naturally!`);
+}
+
+/* ── Quick chips ─────────────────────────────────────────────── */
+function getInitialChips(){ return ['➕ Add a product','🗂️ Create a category','🏷️ Make a coupon','🏪 Setup my store','📊 Analyse my sales']; }
+function showQuickChips(chips){ document.getElementById('quickChips').innerHTML=chips.map(c=>`<span class="chip" onclick="chipClick(this)">${c}</span>`).join(''); }
+function chipClick(el){ document.getElementById('chatInput').value=el.textContent.trim(); sendMessage(); }
+
+/* ── Input setup ─────────────────────────────────────────────── */
+function setupInput(){
+  const inp=document.getElementById('chatInput');
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+  inp.addEventListener('input',()=>{ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,120)+'px'; });
+}
+
+/* ── Send ────────────────────────────────────────────────────── */
+async function sendMessage(){
+  if(_recActive) _stopVoice(false);
+  if(_storeSwitching) return;
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim();
+  if(!text||isTyping) return;
+  inp.value=''; inp.style.height='auto';
+  document.getElementById('quickChips').innerHTML='';
+  document.getElementById('sendBtn').disabled=true;
+  addUserMessage(text);
+  conversationHistory.push({role:'user',content:text});
+  showTyping(); isTyping=true;
+  try{
+    const response=await callClaudeAPI(conversationHistory);
+    hideTyping();
+    const{message,action,chips}=response;
+    conversationHistory.push({role:'assistant',content:JSON.stringify(response)});
+    addAIMessage(message);
+    if(action){
+      if(action.data) Object.keys(action.data).forEach(k=>{const v=action.data[k];if(v!==null&&v!==undefined&&!Array.isArray(v)&&typeof v==='object')action.data[k]=JSON.stringify(v);});
+      renderActionCard(action);
+    }
+    if(chips&&chips.length) showQuickChips(chips);
+  }catch(err){hideTyping();addAIMessage('Sorry, something went wrong. Please try again! 😅');console.error(err);}
+  isTyping=false;
+  document.getElementById('sendBtn').disabled=false;
+}
+
+/* ── Claude API ──────────────────────────────────────────────── */
+async function callClaudeAPI(history){
+  const systemPrompt=buildSystemPrompt();
+  const lastMsg=history[history.length-1]?.content||'';
+  const res=await apiFetch('/ai/website-builder',{method:'POST',body:JSON.stringify({message:lastMsg,history:history.slice(0,-1).slice(-12),system_prompt:systemPrompt,site_state:{storeId:currentStoreId}})});
+  const raw=res.reply||res.content||'';
+  let parsed=null;
+  try{parsed=JSON.parse(raw.trim());}catch{}
+  if(!parsed){const m=raw.match(/```(?:json)?\s*([\s\S]*?)```/);if(m)try{parsed=JSON.parse(m[1].trim());}catch{}}
+  if(!parsed){const si=raw.indexOf('{'),ei=raw.lastIndexOf('}');if(si!==-1&&ei>si)try{parsed=JSON.parse(raw.slice(si,ei+1));}catch{}}
+  if(!parsed||parsed.message===undefined) return{message:raw||'Something went wrong, please try again.',chips:[],action:null};
+  return parsed;
+}
+
+function buildSystemPrompt(){
+  const cats  = allCategories.map(c=>c.name).join(', ')||'None yet';
+  const prods = allProducts.slice(0,10).map(p=>p.name).join(', ')||'None yet';
+  return `You are an eKart AI assistant embedded in an e-commerce merchant dashboard.
+The merchant is talking to you to manage their store. You MUST respond in the SAME LANGUAGE the user writes in.
+
+Store context:
+- Store ID: ${currentStoreId||'not selected'}
+- Existing categories: ${cats}
+- Recent products: ${prods}
+
+Your job is to understand what the merchant wants and respond with a JSON object (NO markdown, NO code fences, pure JSON):
+
+{
+  "message": "Your friendly conversational reply in the user's language",
+  "chips": ["Follow-up suggestion 1", "Follow-up suggestion 2", "Follow-up suggestion 3"],
+  "action": null OR one of the action objects below
+}
+
+ACTION TYPES:
+1. ADD/CREATE PRODUCT:
+{ "type": "product", "title": "Card title", "data": { "name": "...", "category": "...", "price": 0, "description": "...", "tags": ["..."], "highlights": ["..."], "sku": "" } }
+2. ADD/CREATE CATEGORY:
+{ "type": "category", "title": "Card title", "data": { "categories": [{ "name": "...", "description": "...", "icon": "emoji" }] } }
+3. STORE SETUP:
+{ "type": "store", "title": "Card title", "data": { "name_suggestions": ["..."], "description": "...", "tagline": "...", "categories": ["..."], "tips": ["..."] } }
+4. COUPON / DISCOUNT — IMPORTANT: discount_type must be exactly "percent" or "flat":
+{ "type": "coupon", "title": "Card title", "data": { "code": "SAVE20", "discount_type": "percent", "discount_value": 20, "min_order": 0, "description": "...", "valid_days": 30 } }
+5. SALES INSIGHTS:
+{ "type": "insights", "title": "Card title", "data": { "summary": "...", "wins": ["..."], "improvements": ["..."], "actions": [{ "label": "...", "priority": "high|medium|low" }] } }
+
+If the user is just chatting, set action to null.
+Always generate 2-4 relevant follow-up chips in the user's language.
+Be warm, concise, helpful. Use emojis sparingly.`;
+}
+
+/* ── Chat rendering ──────────────────────────────────────────── */
+function addUserMessage(text){ const initials=(userName||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); appendMessage('user',text,initials); }
+function addAIMessage(text){ if(text===null||text===undefined)text=''; if(typeof text!=='string')text=JSON.stringify(text); const html=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); appendMessage('ai',html,'🤖',true); }
+function appendMessage(role,content,avatarContent,isHTML=false){ const wrap=document.getElementById('chatMessages'); const div=document.createElement('div'); div.className=`msg ${role}`; div.innerHTML=`<div class="msg-avatar">${avatarContent}</div><div class="msg-bubble">${isHTML?content:escHtml(content)}</div>`; wrap.appendChild(div); scrollChat(); }
+function showTyping(){ const wrap=document.getElementById('chatMessages'); const div=document.createElement('div'); div.className='msg ai'; div.id='typingMsg'; div.innerHTML=`<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`; wrap.appendChild(div); scrollChat(); }
+function hideTyping(){ document.getElementById('typingMsg')?.remove(); }
+function scrollChat(){ const wrap=document.getElementById('chatMessages'); setTimeout(()=>{wrap.scrollTop=wrap.scrollHeight;},50); }
+function escHtml(s){ if(s===null||s===undefined)return''; if(typeof s!=='string')s=String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function escAttr(s){ if(s===null||s===undefined)return''; if(typeof s!=='string')s=String(s); return s.replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── Action cards ────────────────────────────────────────────── */
+function renderActionCard(action){
+  const panel=document.getElementById('actionPanel');
+  document.getElementById('actionEmpty')?.remove();
+  const existing=panel.querySelector('.action-card');
+  if(existing){ existing.style.transition='opacity .15s,transform .15s'; existing.style.opacity='0'; existing.style.transform='translateX(20px)'; setTimeout(()=>existing.remove(),160); }
+  const card=document.createElement('div'); card.className='action-card';
+  const id='ac_'+Date.now(); card.id=id;
+  switch(action.type){
+    case 'product':  card.innerHTML=buildProductCard(id,action);  break;
+    case 'category': card.innerHTML=buildCategoryCard(id,action); break;
+    case 'store':    card.innerHTML=buildStoreCard(id,action);    break;
+    case 'coupon':   card.innerHTML=buildCouponCard(id,action);   break;
+    case 'insights': card.innerHTML=buildInsightsCard(id,action); break;
+    default: return;
+  }
+  setTimeout(()=>{ panel.appendChild(card); panel.scrollTop=0; if(action.type==='coupon')updateCouponBanner(id); }, existing?170:0);
+}
+
+function buildProductCard(id,action){
+  const d=action.data;
+  const catOpts=allCategories.map(c=>`<option value="${c._id}" ${c.name===d.category?'selected':''}>${c.name}</option>`).join('');
+  const tags=(Array.isArray(d.tags)?d.tags:[]).map(t=>String(t||'')).join(', ');
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--accent-dim);">📦</div><div><div class="action-card-title">${action.title||'New Product'}</div><div class="action-card-sub">Review & save to your store</div></div></div>
+    <div class="action-card-body">
+      <div class="ac-field"><label>Product Name</label><input id="${id}_name" value="${escAttr(d.name||'')}"></div>
+      <div class="ac-field-row">
+        <div class="ac-field"><label>Category</label><select id="${id}_cat">${catOpts||'<option>Uncategorised</option>'}</select></div>
+        <div class="ac-field"><label>Price (₹)</label><input id="${id}_price" type="number" value="${d.price||''}" placeholder="0"></div>
+      </div>
+      <div class="ac-field"><label>Description</label><textarea id="${id}_desc">${escAttr(d.description||'')}</textarea></div>
+      <div class="ac-field"><label>Tags (comma separated)</label><input id="${id}_tags" value="${escAttr(tags)}"></div>
+      ${d.highlights&&Array.isArray(d.highlights)&&d.highlights.length?`<div class="ac-field"><label>Highlights</label>${d.highlights.map(h=>`<div class="hi-item"><div class="hi-dot"></div>${escHtml(h)}</div>`).join('')}</div>`:''}
+      <div class="ac-actions"><button class="btn-save" onclick="saveProduct('${id}')">💾 Save Product</button><button class="btn-save-outline" onclick="dismissCard('${id}')">✕</button></div>
+      <div id="${id}_msg"></div>
+    </div>`;
+}
+
+function buildCategoryCard(id,action){
+  const cats=Array.isArray(action.data.categories)?action.data.categories:[];
+  const rows=cats.map((c,i)=>`<div class="cat-item-wrap"><div class="ac-field-row"><div class="ac-field"><label>Name</label><input id="${id}_cat${i}_name" value="${escAttr(c.name||'')}"></div><div class="ac-field"><label>Icon</label><input id="${id}_cat${i}_icon" value="${escAttr(c.icon||'📦')}" style="text-align:center;font-size:18px;"></div></div><div class="ac-field"><label>Description</label><input id="${id}_cat${i}_desc" value="${escAttr(c.description||'')}"></div></div>`).join('');
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:rgba(59,130,246,.1);">🗂️</div><div><div class="action-card-title">${action.title||'New Categories'}</div><div class="action-card-sub">${cats.length} categor${cats.length===1?'y':'ies'} to add</div></div></div>
+    <div class="action-card-body"><div id="${id}_catrows">${rows}</div>
+      <div class="ac-actions"><button class="btn-save" onclick="saveCategories('${id}',${cats.length})">💾 Save All</button><button class="btn-save-outline" onclick="dismissCard('${id}')">✕</button></div>
+      <div id="${id}_msg"></div>
+    </div>`;
+}
+
+function buildStoreCard(id,action){
+  const d=action.data;
+  const names=(Array.isArray(d.name_suggestions)?d.name_suggestions:[]).slice(0,4).map(n=>String(n||''));
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--amber-dim);">🏪</div><div><div class="action-card-title">${action.title||'Store Setup'}</div><div class="action-card-sub">Pick a name & description</div></div></div>
+    <div class="action-card-body">
+      ${names.length?`<div class="ac-field"><label>Suggested Names — tap to use</label><div class="name-suggestions">${names.map(n=>`<div class="name-suggestion" onclick="pickStoreName('${id}',this)">${escHtml(n)}<span style="color:var(--text-3);font-size:11px;">tap</span></div>`).join('')}</div></div>`:''}
+      <div class="ac-field" style="margin-top:10px;"><label>Store Name</label><input id="${id}_sname" placeholder="Enter or pick above"></div>
+      <div class="ac-field"><label>Description</label><textarea id="${id}_sdesc">${escAttr(d.description||'')}</textarea></div>
+      ${d.tagline?`<div class="ac-field"><label>Tagline</label><input id="${id}_tagline" value="${escAttr(d.tagline)}"></div>`:''}
+      ${d.categories&&d.categories.length?`<div class="ac-field"><label>Suggested Categories</label><div class="cat-pill-grid">${d.categories.map(c=>`<span class="cat-pill" onclick="toggleCat(this)">${escHtml(c)}</span>`).join('')}</div></div>`:''}
+      ${d.tips&&d.tips.length?`<div class="ac-field"><label>Tips</label>${d.tips.map(t=>`<div class="hi-item"><div class="hi-dot"></div>${escHtml(t)}</div>`).join('')}</div>`:''}
+      <div class="ac-actions"><button class="btn-save" onclick="saveStore('${id}')">💾 Update Store</button><button class="btn-save-outline" onclick="dismissCard('${id}')">✕</button></div>
+      <div id="${id}_msg"></div>
+    </div>`;
+}
+
+function buildCouponCard(id,action){
+  const d=action.data;
+  let rawType=(d.discount_type||'percent').toLowerCase();
+  if(rawType==='percentage')rawType='percent'; if(rawType==='fixed')rawType='flat';
+  if(!['percent','flat'].includes(rawType))rawType='percent';
+  const discountVal=(d.discount_value!=null&&d.discount_value!=='')?d.discount_value:'';
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--green-dim);">🏷️</div><div><div class="action-card-title">${action.title||'New Coupon'}</div><div class="action-card-sub">Create a discount for customers</div></div></div>
+    <div class="action-card-body">
+      <div class="coupon-banner" onclick="copyCoupon('${id}')" title="Click to copy code">
+        <div class="coupon-code-display" id="${id}_banner_code">${escHtml(d.code||'SAVE10')}</div>
+        <div class="coupon-badge" id="${id}_banner_badge">${_buildBadgeText(d.code||'SAVE10',rawType,discountVal)}</div>
+        <div class="coupon-copy-hint">tap to copy</div>
+      </div>
+      <div class="ac-field"><label>Coupon Code</label><input id="${id}_code" value="${escAttr(d.code||'SAVE10')}" oninput="updateCouponBanner('${id}')" style="text-transform:uppercase;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.06em;"></div>
+      <div class="ac-field-row">
+        <div class="ac-field"><label>Discount Type</label><select id="${id}_dtype" onchange="updateCouponBanner('${id}')"><option value="percent" ${rawType==='percent'?'selected':''}>Percentage (%)</option><option value="flat" ${rawType==='flat'?'selected':''}>Fixed Amount (₹)</option></select></div>
+        <div class="ac-field"><label>Value</label><input id="${id}_dval" type="number" min="0" value="${discountVal}" placeholder="e.g. 20" oninput="updateCouponBanner('${id}')"></div>
+      </div>
+      <div class="ac-field-row">
+        <div class="ac-field"><label>Min Order (₹)</label><input id="${id}_minord" type="number" min="0" value="${d.min_order!=null?d.min_order:0}" placeholder="0"></div>
+        <div class="ac-field"><label>Valid (days)</label><input id="${id}_days" type="number" min="1" value="${d.valid_days||30}" placeholder="30"></div>
+      </div>
+      <div class="ac-field"><label>Description</label><input id="${id}_cdesc" value="${escAttr(d.description||'')}"></div>
+      <div class="ac-actions"><button class="btn-save" onclick="saveCoupon('${id}')">🏷️ Create Coupon</button><button class="btn-save-outline" onclick="dismissCard('${id}')">✕</button></div>
+      <div id="${id}_msg"></div>
+    </div>`;
+}
+
+function buildInsightsCard(id,action){
+  const d=action.data;
+  const prioColor=p=>p==='high'?'var(--red)':p==='medium'?'var(--amber)':'var(--green)';
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--amber-dim);">📊</div><div><div class="action-card-title">${action.title||'Sales Insights'}</div><div class="action-card-sub">AI-powered analysis</div></div></div>
+    <div class="action-card-body">
+      <div class="insight-summary-box">${escHtml(d.summary||'')}</div>
+      ${d.wins&&d.wins.length?`<div class="insight-section"><h4>✅ What's Working</h4>${d.wins.map(w=>`<div class="hi-item"><div class="hi-dot" style="background:var(--green);"></div>${escHtml(w)}</div>`).join('')}</div>`:''}
+      ${d.improvements&&d.improvements.length?`<div class="insight-section"><h4>🔧 Areas to Improve</h4>${d.improvements.map(i=>`<div class="hi-item"><div class="hi-dot" style="background:var(--amber);"></div>${escHtml(i)}</div>`).join('')}</div>`:''}
+      ${d.actions&&d.actions.length?`<div class="insight-section"><h4>🎯 Recommended Actions</h4>${d.actions.map(a=>`<div class="hi-item"><div class="hi-dot" style="background:${prioColor(a.priority)};"></div>${escHtml(a.label)}</div>`).join('')}</div>`:''}
+      <div class="ac-actions"><button class="btn-save" onclick="exportInsights('${id}')">📋 Copy Summary</button><button class="btn-save-outline" onclick="dismissCard('${id}')">✕</button></div>
+    </div>`;
+}
+
+/* ── Coupon helpers ──────────────────────────────────────────── */
+function _buildBadgeText(code,type,value){ const v=parseFloat(value); if(!isNaN(v)&&v>0) return type==='percent'?`${v}% Off`:`₹${v} Off`; return type==='percent'?'% Off':'₹ Off'; }
+function updateCouponBanner(id){ const codeEl=document.getElementById(`${id}_code`),typeEl=document.getElementById(`${id}_dtype`),valEl=document.getElementById(`${id}_dval`),bCode=document.getElementById(`${id}_banner_code`),bBadge=document.getElementById(`${id}_banner_badge`); if(!codeEl||!typeEl||!valEl||!bCode||!bBadge)return; bCode.textContent=(codeEl.value||'').toUpperCase()||'CODE'; bBadge.textContent=_buildBadgeText(codeEl.value,typeEl.value,valEl.value); }
+
+/* ── Save handlers ───────────────────────────────────────────── */
+async function saveProduct(id){
+  const btn=document.querySelector(`#${id} .btn-save`),msg=document.getElementById(`${id}_msg`);
+  btn.disabled=true; btn.textContent='⏳ Saving…';
+  const name=document.getElementById(`${id}_name`).value.trim();
+  if(!name){showCardMsg(msg,'Enter a product name','error');btn.disabled=false;btn.textContent='💾 Save Product';return;}
+  if(!currentStoreId){showCardMsg(msg,'Select a store first','error');btn.disabled=false;btn.textContent='💾 Save Product';return;}
+  const catEl=document.getElementById(`${id}_cat`);
+  const payload={name,category_id:catEl?catEl.value:'',price:parseFloat(document.getElementById(`${id}_price`).value)||0,description:document.getElementById(`${id}_desc`).value.trim(),tags:document.getElementById(`${id}_tags`).value.split(',').map(t=>t.trim()).filter(Boolean)};
+  try{
+    await apiFetch(`/stores/${currentStoreId}/products`,{method:'POST',body:JSON.stringify(payload)});
+    showCardMsg(msg,'✅ Product saved successfully!','success'); btn.textContent='✅ Saved!';
+    toast('Product saved!','success');
+    allProducts=await apiFetch(`/stores/${currentStoreId}/products`).catch(()=>allProducts);
+  }catch(e){showCardMsg(msg,'❌ '+e.message,'error');btn.disabled=false;btn.textContent='💾 Save Product';}
+}
+
+async function saveCategories(id,count){
+  const btn=document.querySelector(`#${id} .btn-save`),msg=document.getElementById(`${id}_msg`);
+  btn.disabled=true; btn.textContent='⏳ Saving…';
+  if(!currentStoreId){showCardMsg(msg,'Select a store first','error');btn.disabled=false;btn.textContent='💾 Save All';return;}
+  let saved=0;
+  for(let i=0;i<count;i++){
+    const nameEl=document.getElementById(`${id}_cat${i}_name`); if(!nameEl)continue;
+    const name=nameEl.value.trim(); if(!name)continue;
+    try{await apiFetch(`/stores/${currentStoreId}/categories`,{method:'POST',body:JSON.stringify({name,icon:document.getElementById(`${id}_cat${i}_icon`)?.value||'📦',description:document.getElementById(`${id}_cat${i}_desc`)?.value.trim()||''})});saved++;}catch{}
+  }
+  if(saved>0){showCardMsg(msg,`✅ ${saved} categor${saved===1?'y':'ies'} saved!`,'success');btn.textContent='✅ Saved!';toast(`${saved} ${saved===1?'category':'categories'} saved!`,'success');allCategories=await apiFetch(`/stores/${currentStoreId}/categories`).catch(()=>allCategories);}
+  else{showCardMsg(msg,'❌ Could not save categories','error');btn.disabled=false;btn.textContent='💾 Save All';}
+}
+
+async function saveStore(id){
+  const btn=document.querySelector(`#${id} .btn-save`),msg=document.getElementById(`${id}_msg`);
+  btn.disabled=true; btn.textContent='⏳ Saving…';
+  const name=document.getElementById(`${id}_sname`)?.value.trim(),desc=document.getElementById(`${id}_sdesc`)?.value.trim(),tagline=document.getElementById(`${id}_tagline`)?.value.trim();
+  if(!name&&!desc){showCardMsg(msg,'Fill in at least one field','error');btn.disabled=false;btn.textContent='💾 Update Store';return;}
+  if(!currentStoreId){showCardMsg(msg,'Select a store first','error');btn.disabled=false;btn.textContent='💾 Update Store';return;}
+  try{
+    const payload={};if(name)payload.name=name;if(desc)payload.description=desc;if(tagline)payload.tagline=tagline;
+    await apiFetch(`/stores/${currentStoreId}`,{method:'PUT',body:JSON.stringify(payload)});
+    showCardMsg(msg,'✅ Store updated!','success');btn.textContent='✅ Saved!';toast('Store updated!','success');await loadStoreData();
+  }catch(e){showCardMsg(msg,'❌ '+e.message,'error');btn.disabled=false;btn.textContent='💾 Update Store';}
+}
+
+async function saveCoupon(id){
+  const btn=document.querySelector(`#${id} .btn-save`),msg=document.getElementById(`${id}_msg`);
+  btn.disabled=true; btn.textContent='⏳ Creating…';
+  const code=(document.getElementById(`${id}_code`)?.value||'').trim().toUpperCase();
+  const type=document.getElementById(`${id}_dtype`)?.value||'percent';
+  const discountVal=parseFloat(document.getElementById(`${id}_dval`)?.value);
+  const minOrder=parseFloat(document.getElementById(`${id}_minord`)?.value)||0;
+  const validDays=parseInt(document.getElementById(`${id}_days`)?.value)||30;
+  const description=document.getElementById(`${id}_cdesc`)?.value.trim()||'';
+  if(!code){showCardMsg(msg,'❌ Enter a coupon code','error');btn.disabled=false;btn.textContent='🏷️ Create Coupon';return;}
+  if(!['percent','flat'].includes(type)){showCardMsg(msg,'❌ Invalid discount type','error');btn.disabled=false;btn.textContent='🏷️ Create Coupon';return;}
+  if(isNaN(discountVal)||discountVal<=0){showCardMsg(msg,'❌ Enter a valid discount value greater than 0','error');btn.disabled=false;btn.textContent='🏷️ Create Coupon';return;}
+  if(!currentStoreId){showCardMsg(msg,'❌ Select a store first','error');btn.disabled=false;btn.textContent='🏷️ Create Coupon';return;}
+  const expiresAt=new Date(Date.now()+validDays*24*60*60*1000).toISOString();
+  try{
+    await apiFetch(`/stores/${currentStoreId}/coupons`,{method:'POST',body:JSON.stringify({code,type,value:discountVal,min_order:minOrder,expires_at:expiresAt,description})});
+    showCardMsg(msg,'✅ Coupon created successfully!','success');btn.textContent='✅ Created!';toast('Coupon created!','success');
+  }catch(e){showCardMsg(msg,'❌ '+(e.message||'Failed to create coupon'),'error');btn.disabled=false;btn.textContent='🏷️ Create Coupon';}
+}
+
+function exportInsights(id){ const card=document.getElementById(id);if(!card)return;navigator.clipboard.writeText(card.querySelector('.action-card-body').innerText).then(()=>toast('Copied to clipboard!','success')); }
+
+/* ── Card helpers ────────────────────────────────────────────── */
+function showCardMsg(el,text,type){ if(!el)return; const ok=type==='success'; const s=ok?'background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);':'background:var(--red-dim);border:1px solid rgba(224,82,82,.25);color:var(--red);'; el.innerHTML=`<div style="${s}border-radius:var(--r-sm);padding:9px 12px;font-size:12.5px;font-weight:600;margin-top:10px;">${escHtml(text)}</div>`; }
+function dismissCard(id){ const el=document.getElementById(id);if(el){el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .25s';setTimeout(()=>el.remove(),250);} }
+function pickStoreName(id,el){ const name=el.firstChild.textContent.trim(); document.getElementById(`${id}_sname`).value=name; document.querySelectorAll(`#${id} .name-suggestion`).forEach(n=>{n.style.borderColor='';n.style.color='';n.style.background='';}); el.style.borderColor='var(--accent)';el.style.color='var(--accent-2)';el.style.background='var(--accent-dim)'; }
+function toggleCat(el){ el.classList.toggle('selected'); }
+function copyCoupon(id){ const code=document.getElementById(`${id}_code`)?.value; if(code) navigator.clipboard.writeText(code.toUpperCase()).then(()=>toast('Coupon code copied!','success')); }
+
+/* ── Voice engine ────────────────────────────────────────────── */
+const VOICE_LANGS=[
+  {code:'en-IN',flag:'🇮🇳',label:'English (India)'},{code:'ta-IN',flag:'🇮🇳',label:'Tamil'},
+  {code:'hi-IN',flag:'🇮🇳',label:'Hindi'},{code:'te-IN',flag:'🇮🇳',label:'Telugu'},
+  {code:'kn-IN',flag:'🇮🇳',label:'Kannada'},{code:'ml-IN',flag:'🇮🇳',label:'Malayalam'},
+  {code:'mr-IN',flag:'🇮🇳',label:'Marathi'},{code:'bn-IN',flag:'🇮🇳',label:'Bengali'},
+  {code:'gu-IN',flag:'🇮🇳',label:'Gujarati'},{code:'pa-IN',flag:'🇮🇳',label:'Punjabi'},
+  {sep:true},
+  {code:'en-US',flag:'🇺🇸',label:'English (US)'},{code:'en-GB',flag:'🇬🇧',label:'English (UK)'},
+  {code:'ar-SA',flag:'🇸🇦',label:'Arabic'},{code:'zh-CN',flag:'🇨🇳',label:'Chinese'},
+  {code:'fr-FR',flag:'🇫🇷',label:'French'},{code:'de-DE',flag:'🇩🇪',label:'German'},
+];
+let _rec=null,_recActive=false,_finalText='',_idleTimer=null,_silTimer=null;
+let _voiceLang=localStorage.getItem('ekart_voice_lang')||'en-IN',_ddOpen=false,_interimText='';
+
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const mic=document.getElementById('micBtn'); if(!mic)return;
+  if(!SR){mic.disabled=true;mic.title='Voice needs Chrome or Edge';mic.style.opacity='0.3';return;}
+  const dd=document.getElementById('langDropdown');
+  if(dd) dd.innerHTML=`<div class="lang-dd-head">Voice Language</div>${VOICE_LANGS.map(l=>l.sep?`<div class="lang-dd-sep"></div>`:`<div class="lang-dd-item ${l.code===_voiceLang?'active':''}" onclick="selectVoiceLang('${l.code}',this)"><span class="dd-flag">${l.flag}</span><span class="dd-name">${l.label}</span><span class="dd-check">✓</span></div>`).join('')}`;
+  _syncLangBtn();
+  document.addEventListener('click',e=>{if(_ddOpen&&!e.target.closest('#langWrap'))_closeLangDD();});
+}
+function toggleLangDD(){_ddOpen?_closeLangDD():_openLangDD();}
+function _openLangDD(){document.getElementById('langDropdown')?.classList.add('open');document.getElementById('langBtn')?.classList.add('open');_ddOpen=true;}
+function _closeLangDD(){document.getElementById('langDropdown')?.classList.remove('open');document.getElementById('langBtn')?.classList.remove('open');_ddOpen=false;}
+function selectVoiceLang(code,el){_voiceLang=code;localStorage.setItem('ekart_voice_lang',code);document.querySelectorAll('.lang-dd-item').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');_syncLangBtn();_closeLangDD();if(_recActive){_stopRecognition();setTimeout(_spawnRec,150);}}
+function _syncLangBtn(){const found=VOICE_LANGS.find(l=>l.code===_voiceLang);const flag=document.getElementById('lbFlag'),code=document.getElementById('lbCode');if(flag&&found)flag.textContent=found.flag;if(code&&found)code.textContent=found.code.split('-')[0].toUpperCase();}
+function toggleVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){addAIMessage('Voice input needs Chrome or Edge browser 🎙');return;}_recActive?_stopVoice(true):_startVoice();}
+function _startVoice(){if(_recActive)return;_recActive=true;_finalText='';const inp=document.getElementById('chatInput');inp.value='';inp.classList.add('listening');_autoH(inp);_setMicUI(true);_idleTimer=setTimeout(()=>{if(_recActive&&!_finalText.trim()){_stopVoice(false);const i=document.getElementById('chatInput');if(i){i.placeholder='💬 No speech detected — try again';setTimeout(()=>{i.placeholder='Type or speak your message…';},3000);}}},10000);_spawnRec();}
+function _spawnRec(){if(!_recActive)return;const SR=window.SpeechRecognition||window.webkitSpeechRecognition;_rec=new SR();_rec.continuous=false;_rec.interimResults=true;_rec.maxAlternatives=1;_rec.lang=_voiceLang;_interimText='';const inp=document.getElementById('chatInput');_rec.onresult=(e)=>{_clearSil();_clearIdle();let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal){_finalText+=t+' ';_interimText='';}else interim+=t;}_interimText=interim;if(inp){inp.value=(_finalText+_interimText).trimStart();inp.placeholder='';_autoH(inp);inp.scrollTop=inp.scrollHeight;}_silTimer=setTimeout(()=>{if(_recActive&&_finalText.trim())_stopVoice(true);},10000);};_rec.onerror=(e)=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){addAIMessage('🔴 Mic access denied. Please allow microphone in browser settings.');_stopVoice(false);return;}if(e.error==='aborted')return;if(e.error==='no-speech'){if(_recActive)setTimeout(_spawnRec,100);return;}console.warn('[Voice]',e.error);};_rec.onend=()=>{_interimText='';if(_recActive)setTimeout(_spawnRec,100);};try{_rec.start();}catch(err){console.warn('[Voice] start:',err.message);}}
+function _stopRecognition(){try{_rec?.stop();}catch(_){}; _rec=null;}
+function _stopVoice(andSend){_recActive=false;_clearSil();_clearIdle();_stopRecognition();const inp=document.getElementById('chatInput');_interimText='';if(inp){inp.classList.remove('listening');inp.placeholder='Type or speak your message…';inp.value=_finalText.trim();_autoH(inp);}_setMicUI(false);if(andSend&&_finalText.trim())setTimeout(sendMessage,100);}
+function _clearSil(){if(_silTimer){clearTimeout(_silTimer);_silTimer=null;}}
+function _clearIdle(){if(_idleTimer){clearTimeout(_idleTimer);_idleTimer=null;}}
+function _setMicUI(on){const btn=document.getElementById('micBtn'),ico=document.getElementById('micIcon'),langBtn=document.getElementById('langBtn');if(!btn)return;btn.classList.toggle('recording',on);if(ico)ico.textContent=on?'⏹':'🎙';btn.title=on?'Recording — click to stop & send':'Voice input';if(langBtn)langBtn.classList.toggle('recording',on);}
+function _autoH(el){if(!el)return;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+</script>
+</body>
+</html>

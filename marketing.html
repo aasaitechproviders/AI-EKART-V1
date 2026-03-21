@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>eKart — Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<script>
+;(function(){
+  var dark = localStorage.getItem('ekart_theme') === 'dark';
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.style.background = dark ? '#07080D' : '#F2F3F9';
+})();
+</script>
+
+<style>
+/* ── Page-specific overrides ─────────────────────────────────── */
+
+/* ── Marketing layout ────────────────────────────────────────── */
+.marketing-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+.page-header{margin-bottom:22px}
+.page-header-title{font-size:20px;font-weight:800;letter-spacing:-.04em;color:var(--text);margin-bottom:4px}
+.page-header-sub{font-size:12.5px;color:var(--text-3);line-height:1.5}
+
+/* ── Tool list (left column) ─────────────────────────────────── */
+.tool-list{display:flex;flex-direction:column;gap:8px;position:sticky;top:80px}
+.tool-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .18s var(--ease),transform .18s var(--ease),box-shadow .18s var(--ease);position:relative;box-shadow:var(--sh-sm);overflow:hidden}
+.tool-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);opacity:0;border-radius:0 2px 2px 0;transition:opacity .16s}
+.tool-card:hover{border-color:rgba(124,111,255,.28);transform:translateY(-1px);box-shadow:var(--sh)}
+.tool-card.active{border-color:var(--accent);background:var(--accent-dim);box-shadow:var(--sh-accent)}
+.tool-card.active::before{opacity:1}
+.tool-card.active .tool-card-name{color:var(--accent);font-weight:700}
+.tool-card.active .tool-card-icon{background:rgba(124,111,255,.12);border-color:rgba(124,111,255,.28)}
+.tool-card-icon{width:38px;height:38px;min-width:38px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--surface-3);border:1px solid var(--border);flex-shrink:0;transition:var(--t)}
+.tool-card-text{flex:1;min-width:0}
+.tool-card-name{font-size:12.5px;font-weight:600;color:var(--text);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .16s}
+.tool-card-desc{font-size:10.5px;color:var(--text-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool-card-badge{flex-shrink:0;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 7px;border-radius:20px;background:var(--accent-dim);color:var(--accent-2);border:1px solid rgba(124,111,255,.18)}
+.tool-card-arrow{font-size:14px;color:var(--text-3);flex-shrink:0;opacity:0;transition:opacity .15s,transform .15s;transform:translateX(-4px)}
+.tool-card:hover .tool-card-arrow,.tool-card.active .tool-card-arrow{opacity:1;transform:translateX(0)}
+.tool-card.active .tool-card-arrow{color:var(--accent)}
+
+/* ── Right panel ─────────────────────────────────────────────── */
+.tool-panel-right{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh);animation:panelIn .22s var(--ease) both}
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tool-panel-header{padding:20px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px;background:linear-gradient(135deg,var(--accent-soft),transparent 65%)}
+.tool-panel-header-icon{width:46px;height:46px;min-width:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);flex-shrink:0}
+.tool-panel-header-info{flex:1;min-width:0}
+.tool-panel-header h2{font-size:16px;font-weight:800;margin-bottom:3px;color:var(--text);letter-spacing:-.03em}
+.tool-panel-header p{font-size:11.5px;color:var(--text-3);line-height:1.55}
+.tool-panel-body{padding:22px 24px}
+
+/* ── Form fields ─────────────────────────────────────────────── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:7px}
+.field label .opt{font-weight:500;text-transform:none;letter-spacing:0;opacity:.7}
+.field input,.field textarea,.field select{width:100%;padding:10px 13px;background:var(--surface-2);color:var(--text);border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s,background .15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(124,111,255,.55);box-shadow:0 0 0 3px var(--accent-dim);background:var(--surface-3)}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-3)}
+.field textarea{min-height:78px;resize:vertical}
+.field select option{background:var(--surface);color:var(--text)}
+.tone-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.tone-chip{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;border:1.5px solid var(--border-md);background:var(--surface-2);color:var(--text-2);cursor:pointer;transition:var(--t);font-family:var(--font)}
+.tone-chip:hover,.tone-chip.active{border-color:var(--accent);color:var(--accent-2);background:var(--accent-dim)}
+.tone-chip.active{font-weight:700}
+
+/* ── Generate button ─────────────────────────────────────────── */
+.btn-generate{width:100%;padding:13px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-3) 100%);color:white;box-shadow:0 4px 18px var(--accent-glow);transition:all .2s var(--ease);letter-spacing:-.01em;position:relative;overflow:hidden;margin-top:4px}
+.btn-generate::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13),transparent);pointer-events:none}
+.btn-generate:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-glow)}
+.btn-generate:active:not(:disabled){transform:translateY(0)}
+.btn-generate:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* ── Results ─────────────────────────────────────────────────── */
+.mkt-results{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+.result-block{background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r);overflow:hidden;animation:resultIn .22s var(--ease) both}
+.result-block:nth-child(2){animation-delay:.05s}.result-block:nth-child(3){animation-delay:.10s}.result-block:nth-child(4){animation-delay:.15s}
+@keyframes resultIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.result-block-header{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);background:var(--surface)}
+.result-block-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-3)}
+.result-body{padding:13px 15px}
+.result-content{font-size:13px;color:var(--text-2);line-height:1.85;white-space:pre-wrap;word-break:break-word}
+.email-subject-text{font-size:15px;font-weight:800;color:var(--text);line-height:1.4;letter-spacing:-.02em}
+.result-copy-btn{background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r-xs);padding:4px 11px;font-size:10.5px;font-weight:700;color:var(--text-2);cursor:pointer;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:4px}
+.result-copy-btn:hover{background:var(--accent);color:white;border-color:var(--accent)}
+.result-copy-btn.copied{background:var(--green);color:white;border-color:var(--green)}
+.insta-hashtags{display:flex;flex-wrap:wrap;gap:5px;padding-top:2px}
+.hashtag{font-size:11.5px;font-weight:600;color:var(--accent-2);background:var(--accent-dim);border-radius:var(--r-xs);padding:3px 9px;border:1px solid rgba(124,111,255,.15)}
+.char-counter{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;margin-top:8px;padding:4px 10px;border-radius:var(--r-xs)}
+.char-counter.ok{background:var(--green-dim);color:var(--green)}.char-counter.warn{background:var(--amber-dim);color:var(--amber)}.char-counter.over{background:var(--red-dim);color:var(--red)}
+
+/* ── Empty / generating state ────────────────────────────────── */
+.empty-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px;gap:10px}
+.empty-panel-icon{font-size:40px;opacity:.28;animation:floatIcon 3s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.empty-panel-text{font-size:13px;font-weight:600;color:var(--text-3)}
+.empty-panel-sub{font-size:11.5px;color:var(--text-3);opacity:.7}
+.generating-state{display:flex;flex-direction:column;align-items:center;gap:14px;padding:44px 0}
+.generating-bar{width:200px;height:3px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.generating-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-3));border-radius:3px;animation:genProg 2.2s var(--ease) infinite}
+@keyframes genProg{0%{width:0;margin-left:0}60%{width:80%;margin-left:0}100%{width:20%;margin-left:80%}}
+.generating-label{font-size:12px;color:var(--text-3);font-weight:600}
+.loading-dots{display:flex;gap:5px;align-items:center;justify-content:center}
+.loading-dots span{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dotBounce 1.2s ease-in-out infinite}
+.loading-dots span:nth-child(2){animation-delay:.15s}.loading-dots span:nth-child(3){animation-delay:.3s}
+@keyframes dotBounce{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ── Skeleton extras ─────────────────────────────────────────── */
+.skel-mkt-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media(max-width:900px){
+  .marketing-layout,.skel-mkt-grid{grid-template-columns:1fr}
+  .tool-list{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tool-card{flex-direction:column;align-items:center;text-align:center;padding:16px 12px;gap:9px}
+  .tool-card-icon{width:40px;height:40px;min-width:40px;font-size:18px}
+  .tool-card-text{flex:none;width:100%}
+  .tool-card-name{font-size:12px;white-space:normal;text-align:center;line-height:1.3}
+  .tool-card-desc,.tool-card-badge,.tool-card-arrow{display:none}
+}
+@media(max-width:648px){
+  .skel-mkt-grid{grid-template-columns:1fr}
+  .tool-card{padding:14px 10px;gap:8px}
+  .tool-card-icon{width:36px;height:36px;min-width:36px;font-size:16px}
+  .tool-panel-header{padding:16px 18px 14px;gap:11px}
+  .tool-panel-header-icon{width:40px;height:40px;min-width:40px;font-size:18px}
+  .tool-panel-header h2{font-size:14.5px}
+  .tool-panel-body{padding:16px 18px}
+}
+</style>
+
+<script src="api.js"></script>
+<script src="shared.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">e<span>K</span>art</a>
+  </div>
+  <div class="mob-right">
+    <div class="mob-store-wrap" id="mob-store-wrap">
+      <select class="mob-store-selector" id="mob-store-selector"></select>
+    </div>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:32px;height:32px;font-size:14px;">☀️</button>
+  </div>
+</div>
+
+<!-- PAGE SKELETON -->
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:14px;width:88px;border-radius:5px;"></div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div class="skel" style="height:36px;width:180px;border-radius:var(--r-sm);opacity:.75;"></div>
+      <div class="skel" style="height:36px;width:36px;border-radius:var(--r-sm);opacity:.5;"></div>
+    </div>
+  </div>
+  <div class="skel-body">
+    <div class="skel" style="height:16px;width:200px;border-radius:5px;"></div>
+    <div class="skel" style="height:11px;width:320px;border-radius:4px;opacity:.6;"></div>
+    <div class="skel-mkt-grid" style="margin-top:6px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="skel" style="height:64px;border-radius:var(--r-lg);"></div>
+        <div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.8;"></div>
+        <div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.65;"></div>
+        <div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.45;"></div>
+      </div>
+      <div class="skel" style="height:540px;border-radius:var(--r-xl);opacity:.9;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
+  <div class="sidebar-user-skel" id="sidebar-user-skel">
+    <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+      <div class="skel" style="height:10px;width:90px;border-radius:4px;"></div>
+      <div class="skel" style="height:8px;width:120px;border-radius:3px;"></div>
+    </div>
+  </div>
+  <div class="sidebar-user loading" id="sidebar-user-real">
+    <div class="sidebar-avatar" id="nav-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name"  id="nav-user-name"></div>
+      <div class="sidebar-user-email" id="nav-user-email"></div>
+    </div>
+  </div>
+  <div id="sidebar-nav"></div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Marketing</span></div>
+    <div class="topbar-right">
+      <div class="store-select-wrap" id="store-select-wrap">
+        <span class="store-select-label">Store</span>
+        <select class="store-selector" id="store-selector"></select>
+      </div>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+      <div id="topbar-actions"></div>
+    </div>
+  </div>
+  <div id="page-content" class="content" style="display:none;"></div>
+</div>
+
+<script>
+/* ── State ────────────────────────────────────────────────────── */
+let currentStoreId='', currentTool='instagram', allProducts=[], allStores=[], selectedTone='friendly', _loadToken=0;
+
+const TOOLS = {
+  instagram:{icon:'📸',name:'Instagram Post',    desc:'Captions + hashtags', help:'Generate scroll-stopping captions with trending hashtags.',badge:'Popular',label:'Post'},
+  whatsapp: {icon:'💬',name:'WhatsApp Broadcast', desc:'Promotional messages', help:'Create broadcast messages to announce sales, new arrivals, and exclusive offers.',label:'Message'},
+  email:    {icon:'📧',name:'Email Campaign',     desc:'Subject + full body',  help:'Generate a compelling email with subject, preview text and body copy.',label:'Email'},
+  sms:      {icon:'📱',name:'SMS Blast',           desc:'Punchy 160-char texts',help:'Short, conversion-optimized SMS messages that respect the 160-character limit.',label:'SMS'}
+};
+const TONES=[{key:'friendly',label:'😊 Friendly'},{key:'professional',label:'💼 Professional'},{key:'urgent',label:'🔥 Urgent'},{key:'playful',label:'🎉 Playful'},{key:'luxurious',label:'✨ Premium'}];
+
+/* ── Store change ────────────────────────────────────────────── */
+function onStoreChange(id){ currentStoreId=id; loadStoreData(); }
+function setStoreLoading(on){ document.getElementById('store-select-wrap')?.classList[on?'add':'remove']('loading'); }
+
+/* ── Fade helpers ────────────────────────────────────────────── */
+const FADE=160;
+function fadeOut(el){return new Promise(r=>{el.style.transition=`opacity ${FADE}ms ease,transform ${FADE}ms ease`;el.style.opacity='0';el.style.transform='translateY(-4px)';el.style.pointerEvents='none';setTimeout(r,FADE);});}
+function fadeIn(el){el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(6px)';el.style.display='block';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.transition=`opacity ${FADE+40}ms ease,transform ${FADE+40}ms ease`;el.style.opacity='1';el.style.transform='translateY(0)';el.style.pointerEvents='';}));}
+function inlineSkelHTML(){return`<div class="skel-mkt-grid"><div style="display:flex;flex-direction:column;gap:8px;"><div class="skel" style="height:64px;border-radius:var(--r-lg);"></div><div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.8;"></div><div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.65;"></div><div class="skel" style="height:64px;border-radius:var(--r-lg);opacity:.45;"></div></div><div class="skel" style="height:520px;border-radius:var(--r-xl);opacity:.9;"></div></div>`;}
+
+/* ── Init ─────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded',async()=>{
+  const nav=await renderNav('marketing', id=>{ onStoreChange(id); });
+  if(!nav){dismissSkeleton();return;}
+  allStores=nav.stores||[];
+  currentStoreId=nav.currentStoreId||(allStores[0]?._id||'');
+  if(currentStoreId){await loadFirstLoad();}
+  else{showNoStoreState();document.getElementById('page-content').style.display='block';dismissSkeleton();}
+});
+
+async function loadFirstLoad(){
+  const token=++_loadToken; const c=document.getElementById('page-content');
+  setStoreLoading(true);
+  try{allProducts=await apiFetch(`/stores/${currentStoreId}/products`);if(token!==_loadToken)return;}
+  catch{allProducts=[];}
+  if(token!==_loadToken)return;
+  renderPage(); c.style.display='block';
+  requestAnimationFrame(()=>dismissSkeleton());
+  setStoreLoading(false);
+}
+
+async function loadStoreData(){
+  const token=++_loadToken; const c=document.getElementById('page-content');
+  if(c.style.display==='none'||!c.style.display){await loadFirstLoad();return;}
+  setStoreLoading(true);
+  await fadeOut(c); if(token!==_loadToken)return;
+  c.innerHTML=inlineSkelHTML(); fadeIn(c);
+  try{allProducts=await apiFetch(`/stores/${currentStoreId}/products`);}catch{allProducts=[];}
+  if(token!==_loadToken)return;
+  await fadeOut(c); if(token!==_loadToken)return;
+  renderPage(); fadeIn(c);
+  setStoreLoading(false);
+}
+
+function showNoStoreState(){document.getElementById('page-content').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 200px);text-align:center;"><div style="font-size:48px;margin-bottom:16px;opacity:.35;">📣</div><div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.03em;margin-bottom:8px;">No store selected</div><div style="font-size:13px;color:var(--text-3);line-height:1.65;max-width:300px;">Select a store from the dropdown above to start generating AI marketing content.</div></div>`;}
+
+/* ── Render page ─────────────────────────────────────────────── */
+function renderPage(){
+  const c=document.getElementById('page-content');
+  const po=allProducts.map(p=>`<option value="${p._id}">${p.name}</option>`).join('');
+  c.innerHTML=`
+    <div class="page-header">
+      <div class="page-header-title">AI Marketing Tools</div>
+      <div class="page-header-sub">Generate on-brand content for every channel in seconds — powered by AI.</div>
+    </div>
+    <div class="marketing-layout">
+      <div class="tool-list" id="toolList">
+        ${Object.entries(TOOLS).map(([key,t])=>`
+          <div class="tool-card${currentTool===key?' active':''}" onclick="switchTool('${key}')" role="button" tabindex="0">
+            <div class="tool-card-icon">${t.icon}</div>
+            <div class="tool-card-text"><div class="tool-card-name">${t.name}</div><div class="tool-card-desc">${t.desc}</div></div>
+            ${t.badge?`<span class="tool-card-badge">${t.badge}</span>`:''}
+            <span class="tool-card-arrow">›</span>
+          </div>`).join('')}
+      </div>
+      <div class="tool-panel-right" id="toolPanel">${renderToolPanel(po)}</div>
+    </div>`;
+  c.querySelectorAll('.tool-card').forEach(card=>{card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click();}});});
+}
+
+function renderToolPanel(po){
+  const t=TOOLS[currentTool];
+  const hasOffer=currentTool==='email'||currentTool==='whatsapp';
+  const storeName=(allStores.find(s=>s._id===currentStoreId)||{}).name||'';
+  const ph={instagram:'e.g. Promote summer sale, Announce new arrivals…',whatsapp:'e.g. Flash sale this weekend, New product launch…',email:'e.g. Monthly newsletter, Re-engage inactive customers…',sms:'e.g. 48-hour sale, Limited stock alert…'};
+  const toneChips=TONES.map(tone=>`<button class="tone-chip${selectedTone===tone.key?' active':''}" onclick="setTone('${tone.key}',this)">${tone.label}</button>`).join('');
+  return`<div class="tool-panel-header">
+    <div class="tool-panel-header-icon">${t.icon}</div>
+    <div class="tool-panel-header-info"><h2>${t.name}</h2><p>${t.help}</p></div>
+  </div>
+  <div class="tool-panel-body">
+    <div class="field"><label>Campaign Goal <span style="color:var(--red);font-size:11px;">*</span></label>
+      <input type="text" id="mktGoal" placeholder="${ph[currentTool]||''}" onkeydown="if(event.key==='Enter')generateMarketing()">
+    </div>
+    ${allProducts.length?`<div class="field"><label>Product <span class="opt">(optional)</span></label><select id="mktProduct"><option value="">— General / All Products</option>${po}</select></div>`:''}
+    <div class="field"><label>Tone</label>
+      <div class="tone-chips" id="toneChips">${toneChips}</div>
+      <input type="hidden" id="mktTone" value="${selectedTone}">
+    </div>
+    ${hasOffer?`<div class="field"><label>Offer / Discount <span class="opt">(optional)</span></label><input type="text" id="mktOffer" placeholder="e.g. 20% off, Free shipping above ₹500"></div>`:''}
+    <div class="field"><label>Brand / Store Name</label><input type="text" id="mktBrand" placeholder="Your store or brand name" value="${storeName}"></div>
+    <button class="btn-generate" onclick="generateMarketing()" id="mktGenBtn"><span>✨</span> Generate ${t.label||'Content'}</button>
+    <div id="mktResult"><div class="empty-panel"><div class="empty-panel-icon">${t.icon}</div><div class="empty-panel-text">Ready to generate</div><div class="empty-panel-sub">Fill in the goal above and hit Generate</div></div></div>
+  </div>`;
+}
+
+function setTone(tone,btn){selectedTone=tone;document.getElementById('mktTone').value=tone;document.querySelectorAll('#toneChips .tone-chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');}
+
+function switchTool(tool){
+  if(currentTool===tool)return;
+  currentTool=tool;
+  document.querySelectorAll('.tool-card').forEach(card=>{const m=card.getAttribute('onclick').match(/'(\w+)'/);card.classList.toggle('active',m&&m[1]===tool);});
+  const po=allProducts.map(p=>`<option value="${p._id}">${p.name}</option>`).join('');
+  const panel=document.getElementById('toolPanel');
+  panel.style.transition='opacity .12s ease,transform .12s ease';panel.style.opacity='0';panel.style.transform='translateY(4px)';
+  setTimeout(()=>{panel.innerHTML=renderToolPanel(po);panel.style.transition='opacity .18s ease,transform .18s ease';panel.style.opacity='1';panel.style.transform='translateY(0)';},130);
+}
+
+async function generateMarketing(){
+  if(!currentStoreId)return toast('Select a store first','error');
+  const goal=document.getElementById('mktGoal').value.trim();if(!goal)return toast('Enter a campaign goal first','error');
+  const btn=document.getElementById('mktGenBtn'),resultEl=document.getElementById('mktResult'),label=TOOLS[currentTool].label||'Content';
+  btn.disabled=true;btn.innerHTML=`<span style="display:inline-block;animation:storeSpin .7s linear infinite">⏳</span> Generating…`;
+  resultEl.innerHTML=`<div class="generating-state"><div class="loading-dots"><span></span><span></span><span></span></div><div class="generating-bar"><div class="generating-bar-fill"></div></div><div class="generating-label">Crafting your ${label.toLowerCase()}…</div></div>`;
+  const productId=document.getElementById('mktProduct')?.value||'';
+  const product=allProducts.find(p=>p._id===productId);
+  const tone=document.getElementById('mktTone')?.value||selectedTone;
+  const offer=document.getElementById('mktOffer')?.value.trim()||'';
+  const brand=document.getElementById('mktBrand').value.trim();
+  try{
+    const store=allStores.find(s=>s._id===currentStoreId)||{};
+    const r=await apiFetch('/ai/marketing-content',{method:'POST',body:JSON.stringify({store_name:brand||store.name||'My Store',product_name:product?product.name:goal,product_description:[product?.description||'',offer?'Offer: '+offer:'',!product?goal:''].filter(Boolean).join('. '),platform:currentTool,tone,currency:store.currency||'INR',price:product?product.price:''})});
+    const all=r.content;
+    let content;
+    if(currentTool==='instagram')content=all.instagram||all;
+    else if(currentTool==='whatsapp')content=all.whatsapp||all;
+    else if(currentTool==='email')content=all.email||all;
+    else if(currentTool==='sms')content={message:all.sms||all.message||''};
+    else content=all;
+    renderResult(content);
+  }catch(e){resultEl.innerHTML=`<div style="margin-top:16px;padding:14px 16px;background:var(--red-dim);border:1px solid rgba(242,107,107,.2);border-radius:var(--r-sm);color:var(--red);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px;">⚠️ ${e.message||'Something went wrong.'}</div>`;}
+  btn.disabled=false;btn.innerHTML=`<span>✨</span> Generate ${label}`;
+}
+
+function renderResult(content){
+  const res=document.getElementById('mktResult');if(!content){res.innerHTML='<p style="color:var(--red);padding-top:14px;font-size:12.5px;">No content generated.</p>';return;}
+  let html='<div class="mkt-results">';
+  if(currentTool==='instagram'){
+    html+=resultBlock('📸 Caption',content.caption||content.text||'','instaCaption');
+    const hashtags=content.hashtags||[];
+    if(hashtags.length){const hashStr=hashtags.map(h=>h.startsWith('#')?h:'#'+h).join(' ');html+=`<div class="result-block"><div class="result-block-header"><span class="result-block-title">🏷️ Hashtags (${hashtags.length})</span><button class="result-copy-btn" onclick="copyBlock('instaHashtagsRaw',this)">📋 Copy all</button></div><div class="result-body"><div id="instaHashtagsRaw" style="display:none;">${hashStr}</div><div class="insta-hashtags">${hashtags.map(h=>`<span class="hashtag">${h.startsWith('#')?h:'#'+h}</span>`).join('')}</div></div></div>`;}
+    if(content.story_text)html+=resultBlock('📱 Story Text',content.story_text,'storyText');
+  }else if(currentTool==='whatsapp'){
+    html+=resultBlock('💬 Message',content.message||content.text||'','waMsg');
+    if(content.cta)html+=resultBlock('🔗 Call-to-Action',content.cta,'waCta');
+  }else if(currentTool==='email'){
+    html+=`<div class="result-block"><div class="result-block-header"><span class="result-block-title">📌 Subject Line</span><button class="result-copy-btn" onclick="copyBlock('emailSubject',this)">📋 Copy</button></div><div class="result-body"><div class="email-subject-text" id="emailSubject">${content.subject||''}</div></div></div>`;
+    if(content.preheader)html+=resultBlock('👁️ Preview Text',content.preheader,'emailPreheader');
+    html+=resultBlock('📧 Email Body',content.body||content.text||'','emailBody');
+  }else if(currentTool==='sms'){
+    const msg=content.message||content.text||'',len=msg.length;
+    const cls=len>160?'over':len>140?'warn':'ok';
+    const icon=len>160?'⚠️':len>140?'⚡':'✓';
+    const note=len>160?` — ${len-160} chars over`:len>140?' — Near limit':' — Good length';
+    html+=`<div class="result-block"><div class="result-block-header"><span class="result-block-title">📱 SMS Message</span><button class="result-copy-btn" onclick="copyBlock('smsMsg',this)">📋 Copy</button></div><div class="result-body"><div class="result-content" id="smsMsg">${msg}</div><div class="char-counter ${cls}">${icon} ${len} / 160 characters${note}</div></div></div>`;
+  }
+  html+='</div>';
+  res.innerHTML=html;
+}
+
+function resultBlock(title,text,id){return`<div class="result-block"><div class="result-block-header"><span class="result-block-title">${title}</span><button class="result-copy-btn" onclick="copyBlock('${id}',this)">📋 Copy</button></div><div class="result-body"><div class="result-content" id="${id}">${text}</div></div></div>`;}
+function copyBlock(id,btn){const el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.textContent.trim()).then(()=>{const orig=btn.innerHTML;btn.innerHTML='✓ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);}).catch(()=>toast('Could not copy','error'));}
+</script>
+</body>
+</html>

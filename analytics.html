@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>eKart — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
+
+<script>
+;(function(){
+  var dark = localStorage.getItem('ekart_theme') === 'dark';
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.style.background = dark ? '#07080D' : '#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="shared.js"></script>
+<script src="nav.js"></script>
+
+<style>
+/* ── Skeleton extras ─────────────────────────────────────────── */
+.skel-body { gap: 20px; }
+
+/* ── Live badge ──────────────────────────────────────────────── */
+.live-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-border);font-size:11px;font-weight:700;color:var(--green)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:livePulse 2s ease infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ── Controls row ────────────────────────────────────────────── */
+.controls-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.controls-right{display:flex;align-items:center;gap:8px}
+.period-tabs{display:flex;background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-sm);padding:3px;gap:2px;box-shadow:var(--sh-sm)}
+.period-tab{padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:none;color:var(--text-3);font-family:var(--font);transition:var(--t);white-space:nowrap}
+.period-tab:hover{color:var(--text-2)}
+.period-tab.active{background:var(--accent);color:white;box-shadow:0 2px 8px var(--accent-glow)}
+
+/* ── KPI grid ────────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;position:relative;overflow:hidden;transition:var(--t);cursor:default;box-shadow:var(--sh-sm)}
+.kpi-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.02) 0%,transparent 60%);pointer-events:none}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--sh);border-color:var(--border-md)}
+.kpi-card.kpi-accent{border-color:rgba(124,111,255,.2);background:linear-gradient(135deg,var(--surface) 0%,rgba(124,111,255,.04) 100%)}
+.kpi-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.kpi-icon-wrap{width:38px;height:38px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:var(--t)}
+.kpi-card.kpi-accent .kpi-icon-wrap{background:var(--accent-dim);border-color:rgba(124,111,255,.15)}
+.kpi-delta{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.kpi-delta.up     {background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+.kpi-delta.down   {background:var(--red-dim);color:var(--red);border:1px solid rgba(224,82,82,.2)}
+.kpi-delta.neutral{background:var(--surface-3);color:var(--text-3);border:1px solid var(--border)}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-3);margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:5px}
+.kpi-glow-line{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5}
+
+/* ── Chart cards ─────────────────────────────────────────────── */
+.charts-row-main  {display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.charts-row-bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;transition:var(--t);position:relative;overflow:hidden;box-shadow:var(--sh-sm)}
+.chart-card:hover{border-color:var(--border-md)}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px}
+.chart-title-wrap{display:flex;flex-direction:column;gap:3px}
+.chart-title{font-size:13.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.chart-sub{font-size:11px;color:var(--text-3)}
+.chart-total-tag{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent-2);background:var(--accent-dim);border:1px solid rgba(124,111,255,.15);padding:4px 10px;border-radius:var(--r-xs);white-space:nowrap}
+
+/* ── Top products ────────────────────────────────────────────── */
+.tp-list{display:flex;flex-direction:column}
+.tp-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);transition:var(--t)}
+.tp-row:last-child{border-bottom:none;padding-bottom:0}
+.tp-row:first-child{padding-top:0}
+.tp-row:hover{padding-left:4px}
+.tp-rank{font-size:10px;font-weight:800;color:var(--text-3);width:16px;text-align:center;font-family:var(--mono);flex-shrink:0}
+.tp-thumb{width:30px;height:30px;border-radius:var(--r-xs);background:var(--surface-3);border:1px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.tp-thumb img{width:100%;height:100%;object-fit:cover}
+.tp-name{flex:1;font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-bar-wrap{width:60px;height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;flex-shrink:0}
+.tp-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),#a78bfa);transition:width .8s var(--ease)}
+.tp-rev{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--text-2);width:58px;text-align:right;flex-shrink:0}
+
+/* ── Status donut ────────────────────────────────────────────── */
+.status-wrap{display:flex;align-items:center;gap:20px}
+.status-canvas-wrap{flex-shrink:0}
+.status-legend{flex:1;display:flex;flex-direction:column;gap:8px}
+.status-row{display:flex;align-items:center;gap:8px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-name{flex:1;font-size:12.5px;font-weight:500;color:var(--text-2);text-transform:capitalize}
+.status-count{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text-3)}
+
+/* ── Drilldown panel ─────────────────────────────────────────── */
+.drilldown{background:var(--surface);border:1px solid rgba(124,111,255,.2);border-radius:var(--r-lg);padding:24px;margin-bottom:14px;box-shadow:var(--sh),0 0 0 1px var(--accent-glow);animation:slideDown .22s var(--ease) both;position:relative;overflow:hidden}
+.drilldown::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),#a78bfa,transparent)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.drilldown-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.drilldown-title{font-size:14px;font-weight:800;color:var(--text);flex:1}
+.drilldown-title code{font-family:var(--mono);font-size:13px;color:var(--accent-2);background:var(--accent-dim);padding:2px 7px;border-radius:5px}
+.drilldown-kpis{display:flex;gap:20px}
+.dd-kpi{text-align:center}
+.dd-kpi-val{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--text);display:block;line-height:1}
+.dd-kpi-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-top:4px;display:block}
+.drilldown-charts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ── AI Insights ─────────────────────────────────────────────── */
+.insights-panel{margin-bottom:14px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:10px;transition:var(--t);box-shadow:var(--sh-sm)}
+.insight-card:hover{border-color:var(--border-md)}
+.insight-heading{font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.insight-body{font-size:13.5px;color:var(--text-2);line-height:1.75}
+.insight-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-2);line-height:1.6}
+.insight-item:last-child{border-bottom:none;padding-bottom:0}
+.priority-badge{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:5px;flex-shrink:0;margin-top:1px}
+.ph{background:var(--red-dim);color:var(--red)}
+.pm{background:var(--amber-dim);color:var(--amber)}
+.pl{background:var(--green-dim);color:var(--green)}
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+/* ── Empty / loading states ──────────────────────────────────── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px;gap:12px;text-align:center}
+.empty-icon{font-size:44px;opacity:.35;margin-bottom:8px}
+.empty-title{font-size:16px;font-weight:700;color:var(--text)}
+.empty-sub{font-size:13.5px;color:var(--text-3);max-width:280px;line-height:1.6}
+.loading-card{display:flex;align-items:center;justify-content:center;padding:48px;gap:12px;color:var(--text-3);font-size:13.5px;font-weight:600}
+.loader-ring{width:22px;height:22px;border:2px solid var(--border-md);border-top-color:var(--accent);border-radius:50%;animation:storeSpin .7s linear infinite}
+.spinning{display:inline-block;animation:storeSpin .7s linear infinite}
+
+/* ── Buttons: base styles from shared.css · .btn-accent-ghost added there too ── */
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-row-main{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .charts-row-bottom{grid-template-columns:1fr}
+  .drilldown-charts{grid-template-columns:1fr}
+  .insights-grid{grid-template-columns:1fr}
+}
+@media(max-width:648px){
+  .skel-body{gap:14px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  .kpi-card{padding:14px}.kpi-value{font-size:21px}
+  .charts-row-main{grid-template-columns:1fr;gap:10px}
+  .charts-row-bottom{grid-template-columns:1fr;gap:10px}
+  .drilldown-kpis{display:none}
+  .status-wrap{flex-direction:column;align-items:flex-start}
+  .controls-right{width:100%;justify-content:flex-end}
+}
+@media(max-width:480px){
+  .kpi-grid{gap:8px}.kpi-card{padding:12px}.kpi-value{font-size:19px}
+  .period-tab{padding:5px 10px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar" id="mobileTopbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">e<span>K</span>art</a>
+  </div>
+  <div class="mob-right">
+    <div class="mob-store-wrap" id="mob-store-wrap">
+      <select class="mob-store-selector" id="mob-store-selector" onchange="onStoreChange(this.value)"></select>
+    </div>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:36px;height:36px;font-size:15px;">☀️</button>
+  </div>
+</div>
+
+<!-- SKELETON -->
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:14px;width:88px;border-radius:5px;"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="skel" style="height:36px;width:190px;border-radius:var(--r-sm);opacity:.8;"></div>
+      <div class="skel" style="height:24px;width:58px;border-radius:20px;opacity:.6;"></div>
+      <div class="skel" style="height:36px;width:36px;border-radius:var(--r-sm);opacity:.4;"></div>
+    </div>
+  </div>
+  <div class="skel-body">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="skel" style="height:38px;width:220px;border-radius:var(--r-sm);"></div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <div class="skel" style="height:36px;width:110px;border-radius:var(--r-sm);opacity:.7;"></div>
+        <div class="skel" style="height:36px;width:90px;border-radius:var(--r-sm);opacity:.5;"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+      <div class="skel" style="height:104px;border-radius:var(--r-lg);"></div>
+      <div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.8;"></div>
+      <div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.6;"></div>
+      <div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.45;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+      <div class="skel" style="height:220px;border-radius:var(--r-lg);opacity:.85;"></div>
+      <div class="skel" style="height:220px;border-radius:var(--r-lg);opacity:.65;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.5;"></div>
+      <div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.35;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
+  <div class="sidebar-user-skel" id="sidebar-user-skel">
+    <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+      <div class="skel" style="height:10px;width:90px;border-radius:4px;"></div>
+      <div class="skel" style="height:8px;width:120px;border-radius:3px;"></div>
+    </div>
+  </div>
+  <div class="sidebar-user loading" id="sidebar-user-real">
+    <div class="sidebar-avatar" id="nav-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name"  id="nav-user-name"></div>
+      <div class="sidebar-user-email" id="nav-user-email"></div>
+    </div>
+  </div>
+  <div id="sidebar-nav"></div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Analytics</span></div>
+    <div class="topbar-right">
+      <div class="store-select-wrap" id="store-select-wrap">
+        <span class="store-select-label">Store</span>
+        <select class="store-selector" id="store-selector" onchange="onStoreChange(this.value)"></select>
+      </div>
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+      <div id="topbar-actions"></div>
+    </div>
+  </div>
+  <div id="page-content" class="content" style="display:none;"></div>
+</div>
+
+<script>
+/* ── State ────────────────────────────────────────────────────── */
+let currentStoreId = '', analyticsDays = 7, _loadToken = 0;
+let _chartRev = null, _chartOrd = null, _chartStatus = null;
+let _ddHourly = null, _ddBar = null, _ddPie = null;
+
+/* ── Destroy all charts ──────────────────────────────────────── */
+function destroyAllCharts(){
+  [['_chartRev',v=>_chartRev=v],[' _chartOrd',v=>_chartOrd=v],['_chartStatus',v=>_chartStatus=v],
+   ['_ddHourly',v=>_ddHourly=v],['_ddBar',v=>_ddBar=v],['_ddPie',v=>_ddPie=v]]
+  .forEach(([,set])=>{});
+  [_chartRev,_chartOrd,_chartStatus,_ddHourly,_ddBar,_ddPie].forEach(c=>{if(c){try{c.destroy();}catch(_){}}});
+  _chartRev=_chartOrd=_chartStatus=_ddHourly=_ddBar=_ddPie=null;
+}
+
+/* ── Store selectors ─────────────────────────────────────────── */
+function buildStoreSel(stores, activeId){
+  const opts = stores.map(s=>`<option value="${s._id}"${s._id===activeId?' selected':''}>${s.name}</option>`).join('');
+  const desk = document.getElementById('store-selector');
+  const mob  = document.getElementById('mob-store-selector');
+  if(desk) desk.innerHTML = opts;
+  if(mob)  mob.innerHTML  = opts;
+}
+
+function onStoreChange(id){
+  if(!id || id === currentStoreId) return;
+  currentStoreId = id;
+  sessionStorage.setItem('ekart_current_store', id);
+  ['store-selector','mob-store-selector'].forEach(sid=>{const el=document.getElementById(sid);if(el&&el.value!==id)el.value=id;});
+  loadAnalyticsWithTransition();
+}
+
+/* ── Chart theme helpers ─────────────────────────────────────── */
+function chartTheme(){
+  const dark = document.documentElement.hasAttribute('data-theme');
+  return {
+    gridColor:     dark?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)',
+    tickColor:     dark?'#474B65':'#9EA3BB',
+    tooltipBg:     dark?'#111420':'#ffffff',
+    tooltipBorder: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)',
+  };
+}
+
+/* ── Init ─────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', async () => {
+  const nav = await renderNav('analytics', id => { onStoreChange(id); });
+  if(!nav){ dismissSkeleton(); return; }
+
+  currentStoreId = nav.currentStoreId;
+  if(nav.stores && nav.stores.length) buildStoreSel(nav.stores, currentStoreId);
+
+  renderShell();
+
+  if(currentStoreId){
+    await loadAnalyticsFirstLoad();
+  } else {
+    dismissSkeleton();
+    const pc = document.getElementById('page-content');
+    pc.innerHTML = `<div class="empty-state"><div class="empty-icon">🏪</div><div class="empty-title">No stores found</div><div class="empty-sub">Create a store first to see analytics.</div></div>`;
+    pc.style.display = '';
+  }
+});
+
+/* ── First load ──────────────────────────────────────────────── */
+async function loadAnalyticsFirstLoad(){
+  const token = ++_loadToken, pc = document.getElementById('page-content');
+  try{
+    const data = await apiFetch(`/stores/${currentStoreId}/analytics?days=${analyticsDays}`);
+    if(token !== _loadToken) return;
+    renderShell(); await renderAnalyticsData(data, token);
+    if(token !== _loadToken) return;
+    pc.style.display = ''; requestAnimationFrame(() => dismissSkeleton());
+  }catch(e){
+    if(token !== _loadToken) return;
+    dismissSkeleton(); pc.innerHTML = errorHTML(e.message); pc.style.display = '';
+    toast('Analytics error: '+e.message, 'error');
+  }
+}
+
+/* ── Transition load ─────────────────────────────────────────── */
+const FADE = 140;
+function fadeOut(el){ return new Promise(r=>{ el.style.transition=`opacity ${FADE}ms ease,transform ${FADE}ms ease`; el.style.opacity='0'; el.style.transform='translateY(-4px)'; el.style.pointerEvents='none'; setTimeout(r,FADE); }); }
+function fadeIn(el){ el.style.transition='none'; el.style.opacity='0'; el.style.transform='translateY(6px)'; el.style.display=''; requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transition=`opacity ${FADE+40}ms ease,transform ${FADE+40}ms ease`; el.style.opacity='1'; el.style.transform='translateY(0)'; el.style.pointerEvents=''; })); }
+
+async function loadAnalyticsWithTransition(){
+  const token = ++_loadToken, pc = document.getElementById('page-content');
+  if(pc.style.display === 'none'){ await loadAnalyticsFirstLoad(); return; }
+  destroyAllCharts();
+  await fadeOut(pc); if(token !== _loadToken) return;
+  pc.innerHTML = inlineSkelHTML(); fadeIn(pc);
+  try{
+    const data = await apiFetch(`/stores/${currentStoreId}/analytics?days=${analyticsDays}`);
+    if(token !== _loadToken) return;
+    await fadeOut(pc); if(token !== _loadToken) return;
+    renderShell(); await renderAnalyticsData(data, token);
+    if(token !== _loadToken) return; fadeIn(pc);
+  }catch(e){
+    if(token !== _loadToken) return;
+    pc.innerHTML = errorHTML(e.message); fadeIn(pc);
+    toast('Analytics error: '+e.message, 'error');
+  }
+}
+
+function inlineSkelHTML(){
+  return`<div style="display:flex;gap:8px;align-items:center;margin-bottom:20px;"><div class="skel" style="height:38px;width:220px;border-radius:var(--r-sm);"></div><div style="margin-left:auto;display:flex;gap:8px;"><div class="skel" style="height:36px;width:110px;border-radius:var(--r-sm);opacity:.7;"></div><div class="skel" style="height:36px;width:90px;border-radius:var(--r-sm);opacity:.5;"></div></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;"><div class="skel" style="height:104px;border-radius:var(--r-lg);"></div><div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.8;"></div><div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.6;"></div><div class="skel" style="height:104px;border-radius:var(--r-lg);opacity:.4;"></div></div><div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;"><div class="skel" style="height:220px;border-radius:var(--r-lg);"></div><div class="skel" style="height:220px;border-radius:var(--r-lg);opacity:.7;"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"><div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.55;"></div><div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.38;"></div></div>`;
+}
+function errorHTML(msg){ return`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load analytics</div><div class="empty-sub">${msg}</div></div>`; }
+
+/* ── Render shell ────────────────────────────────────────────── */
+function renderShell(){
+  document.getElementById('page-content').innerHTML = `
+    <div class="controls-row">
+      <div class="controls-left">
+        <div class="period-tabs">
+          <button class="period-tab ${analyticsDays===7?'active':''}"  onclick="setDays(7,this)">7D</button>
+          <button class="period-tab ${analyticsDays===14?'active':''}" onclick="setDays(14,this)">14D</button>
+          <button class="period-tab ${analyticsDays===30?'active':''}" onclick="setDays(30,this)">30D</button>
+          <button class="period-tab ${analyticsDays===90?'active':''}" onclick="setDays(90,this)">90D</button>
+        </div>
+      </div>
+      <div class="controls-right">
+        <button class="btn btn-accent-ghost" onclick="loadInsights()" id="insightsBtn">🧠 AI Insights</button>
+        <button class="btn btn-secondary" onclick="exportAnalyticsCSV()">⬇ Export</button>
+      </div>
+    </div>
+    <div id="insightsPanel" style="display:none;" class="insights-panel"></div>
+    <div class="kpi-grid" id="kpiGrid">
+      ${['💰','📦','🕐','🛍️'].map(icon=>`<div class="kpi-card"><div class="kpi-header"><div class="kpi-icon-wrap">${icon}</div><div class="kpi-delta neutral">—</div></div><div class="kpi-label" style="color:var(--text-3);">Loading…</div><div class="kpi-value" style="color:var(--text-3);">—</div></div>`).join('')}
+    </div>
+    <div class="charts-row-main">
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title-wrap"><div class="chart-title">📈 Daily Revenue</div><div class="chart-sub">Click any point to drill down by day</div></div><div class="chart-total-tag" id="revTotal">—</div></div>
+        <canvas id="revenueChart" height="115"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title-wrap"><div class="chart-title">📦 Order Volume</div><div class="chart-sub">Click any bar to drill down</div></div><div class="chart-total-tag" id="ordTotal">—</div></div>
+        <canvas id="ordersChart" height="115"></canvas>
+      </div>
+    </div>
+    <div class="charts-row-bottom">
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title-wrap"><div class="chart-title">🏆 Top Products</div><div class="chart-sub">By revenue in period</div></div></div>
+        <div id="topProdsChart" class="tp-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title-wrap"><div class="chart-title">🔄 Order Status</div><div class="chart-sub">Distribution breakdown</div></div></div>
+        <div class="status-wrap">
+          <div class="status-canvas-wrap"><canvas id="statusChart" width="150" height="150"></canvas></div>
+          <div class="status-legend" id="statusLegend"></div>
+        </div>
+      </div>
+    </div>
+    <div id="drilldownPanel" style="display:none;"></div>`;
+}
+
+function setDays(d, el){
+  analyticsDays = d;
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); closeDrilldown(); loadAnalyticsWithTransition();
+}
+
+/* ── Render data ─────────────────────────────────────────────── */
+async function renderAnalyticsData(data, token){
+  const {gridColor,tickColor,tooltipBg,tooltipBorder} = chartTheme();
+  const CUR = '₹', ACCENT = '#7C6FFF';
+  if(!document.getElementById('revenueChart')) return;
+
+  const kpis = document.querySelectorAll('.kpi-card');
+  const revDelta = (data.today_revenue||0) - (data.yesterday_revenue||0);
+  const ordDelta = (data.today_orders||0) - (data.yesterday_orders||0);
+  const dH = (val, pfx='') => { const c=val>0?'up':val<0?'down':'neutral', a=val>=0?'↑':'↓'; return`<div class="kpi-delta ${c}">${a} ${pfx}${Math.abs(val).toLocaleString('en-IN',{maximumFractionDigits:0})}</div>`; };
+  if(kpis[0]) kpis[0].innerHTML=`<div class="kpi-header"><div class="kpi-icon-wrap" style="background:var(--accent-dim);border-color:rgba(124,111,255,.15);">💰</div>${dH(revDelta,CUR)}</div><div class="kpi-label">Total Revenue</div><div class="kpi-value">${CUR}${(data.total_revenue||0).toLocaleString('en-IN',{maximumFractionDigits:0})}</div><div class="kpi-sub">vs yesterday · ${analyticsDays}d period</div><div class="kpi-glow-line"></div>`;
+  if(kpis[1]) kpis[1].innerHTML=`<div class="kpi-header"><div class="kpi-icon-wrap">📦</div>${dH(ordDelta)}</div><div class="kpi-label">Total Orders</div><div class="kpi-value">${(data.total_orders||0).toLocaleString()}</div><div class="kpi-sub">vs yesterday</div>`;
+  if(kpis[2]) kpis[2].innerHTML=`<div class="kpi-header"><div class="kpi-icon-wrap">🕐</div><div class="kpi-delta neutral">Today</div></div><div class="kpi-label">Today's Orders</div><div class="kpi-value">${data.today_orders||0}</div><div class="kpi-sub">Since midnight</div>`;
+  if(kpis[3]) kpis[3].innerHTML=`<div class="kpi-header"><div class="kpi-icon-wrap">🛍️</div><div class="kpi-delta neutral">Catalog</div></div><div class="kpi-label">Active Products</div><div class="kpi-value">${data.product_count||0}</div><div class="kpi-sub">Listed items</div>`;
+  kpis[0]?.classList.add('kpi-accent');
+
+  const filled=[], today=new Date();
+  for(let i=analyticsDays-1;i>=0;i--){
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const f=(data.daily_stats||[]).find(s=>s._id===key);
+    filled.push({date:key,label:key.slice(5),revenue:f?.revenue||0,orders:f?.orders||0});
+  }
+  const labels=filled.map(d=>d.label), revVals=filled.map(d=>d.revenue), ordVals=filled.map(d=>d.orders);
+  const rT=document.getElementById('revTotal'), oT=document.getElementById('ordTotal');
+  if(rT) rT.textContent = CUR+revVals.reduce((a,b)=>a+b,0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  if(oT) oT.textContent = ordVals.reduce((a,b)=>a+b,0)+' orders';
+  if(token !== undefined && token !== _loadToken) return;
+
+  // Revenue line chart
+  if(_chartRev){ _chartRev.destroy(); _chartRev=null; }
+  const rc = document.getElementById('revenueChart');
+  if(rc){ _chartRev=new Chart(rc,{type:'line',data:{labels,datasets:[{data:revVals,borderColor:ACCENT,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);g.addColorStop(0,ACCENT+'28');g.addColorStop(1,ACCENT+'00');return g;},borderWidth:2.5,pointBackgroundColor:ACCENT,pointBorderColor:'var(--surface)',pointBorderWidth:2,pointRadius:4,pointHoverRadius:7,fill:true,tension:0.42}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,titleFont:{family:'Plus Jakarta Sans',weight:'700',size:12},bodyFont:{family:'JetBrains Mono',size:13},callbacks:{label:ctx=>` ${CUR}${ctx.parsed.y.toLocaleString('en-IN',{maximumFractionDigits:0})}`,afterLabel:()=>'  Click to drill down'}}},scales:{x:{grid:{color:gridColor},ticks:{font:{family:'JetBrains Mono',size:10},color:tickColor,maxTicksLimit:8}},y:{grid:{color:gridColor},ticks:{font:{family:'JetBrains Mono',size:10},color:tickColor,callback:v=>CUR+(v>=1000?(v/1000).toFixed(1)+'k':v)}}},onClick:(evt,els)=>{if(els.length)loadDayDrilldown(filled[els[0].index].date,CUR);}}}); }
+
+  // Orders bar chart
+  if(_chartOrd){ _chartOrd.destroy(); _chartOrd=null; }
+  const oc = document.getElementById('ordersChart');
+  const blueC = document.documentElement.hasAttribute('data-theme') ? '#60a5fa' : '#3b82f6';
+  if(oc){ _chartOrd=new Chart(oc,{type:'bar',data:{labels,datasets:[{data:ordVals,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);g.addColorStop(0,blueC);g.addColorStop(1,blueC+'50');return g;},hoverBackgroundColor:document.documentElement.hasAttribute('data-theme')?'#3b82f6':'#2563eb',borderRadius:7,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,titleFont:{family:'Plus Jakarta Sans',weight:'700',size:12},bodyFont:{family:'JetBrains Mono',size:13},callbacks:{label:ctx=>` ${ctx.parsed.y} orders`,afterLabel:()=>'  Click to drill down'}}},scales:{x:{grid:{color:gridColor},ticks:{font:{family:'JetBrains Mono',size:10},color:tickColor,maxTicksLimit:8}},y:{grid:{color:gridColor},beginAtZero:true,ticks:{font:{family:'JetBrains Mono',size:10},color:tickColor,stepSize:1}}},onClick:(evt,els)=>{if(els.length)loadDayDrilldown(filled[els[0].index].date,CUR);}}}); }
+
+  // Top products
+  const tops = data.top_products||[], maxRev=Math.max(...tops.map(p=>p.revenue),1);
+  const tpW = document.getElementById('topProdsChart');
+  if(tpW){ tpW.innerHTML=tops.length?tops.map((p,i)=>`<div class="tp-row"><div class="tp-rank">#${i+1}</div><div class="tp-thumb">${p.image?`<img src="${p.image}" alt="">`:'📦'}</div><div class="tp-name" title="${p.name}">${p.name}</div><div class="tp-bar-wrap"><div class="tp-bar-fill" style="width:${Math.max((p.revenue/maxRev)*100,4)}%"></div></div><div class="tp-rev">${CUR}${p.revenue.toFixed(0)}</div></div>`).join(''):'<div class="empty-state" style="padding:32px 0;"><div class="empty-icon" style="font-size:32px;">📦</div><div class="empty-sub">No orders in this period</div></div>'; }
+
+  // Status donut
+  const SC = {pending:'#F5A523',confirmed:'#a78bfa',processing:'#60a5fa',shipped:'#38bdf8',delivered:'#34d399',cancelled:'#F26B6B'};
+  const bd = data.status_breakdown||[];
+  if(_chartStatus){ _chartStatus.destroy(); _chartStatus=null; }
+  const sc = document.getElementById('statusChart');
+  if(sc && bd.length){
+    _chartStatus=new Chart(sc,{type:'doughnut',data:{labels:bd.map(s=>s._id),datasets:[{data:bd.map(s=>s.count),backgroundColor:bd.map(s=>SC[s._id]||'#94a3b8'),borderWidth:0,hoverOffset:8,borderRadius:3}]},options:{responsive:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}}}}});
+    const leg=document.getElementById('statusLegend');
+    if(leg) leg.innerHTML=bd.map(s=>`<div class="status-row"><div class="status-dot" style="background:${SC[s._id]||'#94a3b8'};"></div><span class="status-name">${s._id}</span><span class="status-count">${s.count}</span></div>`).join('');
+  } else {
+    const leg=document.getElementById('statusLegend');
+    if(leg) leg.innerHTML='<div style="color:var(--text-3);font-size:13px;padding:10px 0;">No orders yet</div>';
+  }
+}
+
+/* ── Day drilldown ───────────────────────────────────────────── */
+async function loadDayDrilldown(date, cur='₹'){
+  if(!currentStoreId) return;
+  const panel = document.getElementById('drilldownPanel');
+  panel.style.display = 'block';
+  panel.innerHTML = `<div class="drilldown"><div class="loading-card"><div class="loader-ring"></div> Loading ${date}…</div></div>`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  try{
+    const data = await apiFetch(`/stores/${currentStoreId}/analytics/day?date=${date}`);
+    const {gridColor,tickColor,tooltipBg,tooltipBorder} = chartTheme();
+    const ACCENT='#7C6FFF', BARS=['#7C6FFF','#60a5fa','#34d399','#F5A523','#F26B6B','#a78bfa','#38bdf8','#fb923c'];
+    panel.innerHTML=`<div class="drilldown"><div class="drilldown-header"><div class="drilldown-title">🔎 Daily Breakdown — <code>${date}</code></div><div class="drilldown-kpis"><div class="dd-kpi"><span class="dd-kpi-val">${cur}${(data.total_revenue||0).toLocaleString('en-IN',{maximumFractionDigits:0})}</span><span class="dd-kpi-lbl">Revenue</span></div><div class="dd-kpi"><span class="dd-kpi-val">${data.total_orders||0}</span><span class="dd-kpi-lbl">Orders</span></div><div class="dd-kpi"><span class="dd-kpi-val">${data.total_qty||0}</span><span class="dd-kpi-lbl">Items</span></div></div><button class="btn btn-secondary" onclick="closeDrilldown()">✕ Close</button></div><div class="drilldown-charts"><div class="chart-card"><div class="chart-title" style="margin-bottom:14px;font-size:13px;font-weight:700;color:var(--text);">🕐 Hourly Activity</div><canvas id="ddHourly" height="130"></canvas></div><div class="chart-card"><div class="chart-title" style="margin-bottom:14px;font-size:13px;font-weight:700;color:var(--text);">📦 Products Sold</div><canvas id="ddBar" height="130"></canvas></div><div class="chart-card"><div class="chart-title" style="margin-bottom:14px;font-size:13px;font-weight:700;color:var(--text);">💰 Revenue Split</div><div style="display:flex;align-items:center;gap:14px;"><canvas id="ddPie" width="130" height="130" style="flex-shrink:0;"></canvas><div id="ddPieLegend" style="flex:1;overflow:hidden;"></div></div></div></div></div>`;
+
+    const hours=Array.from({length:24},(_,i)=>i);
+    const hO=hours.map(h=>(data.hourly_stats||[]).find(x=>x._id===h)?.orders||0);
+    const hR=hours.map(h=>(data.hourly_stats||[]).find(x=>x._id===h)?.revenue||0);
+    const hL=hours.map(h=>h===0?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p');
+    if(_ddHourly){_ddHourly.destroy();_ddHourly=null;}
+    _ddHourly=new Chart(document.getElementById('ddHourly'),{type:'bar',data:{labels:hL,datasets:[{type:'bar',label:'Orders',data:hO,backgroundColor:'#60a5fa55',borderRadius:3,borderSkipped:false,yAxisID:'yO'},{type:'line',label:'Revenue',data:hR,borderColor:ACCENT,backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.4,yAxisID:'yR'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top',labels:{font:{family:'Plus Jakarta Sans',size:11},boxWidth:10}},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,callbacks:{label:ctx=>ctx.dataset.label==='Revenue'?` ${cur}${ctx.parsed.y.toFixed(0)}`:`${ctx.parsed.y} orders`}}},scales:{x:{grid:{color:gridColor},ticks:{font:{family:'JetBrains Mono',size:9},color:tickColor,maxTicksLimit:12}},yO:{position:'left',beginAtZero:true,grid:{color:gridColor},ticks:{font:{family:'JetBrains Mono',size:9},color:tickColor,stepSize:1}},yR:{position:'right',beginAtZero:true,grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:9},color:tickColor,callback:v=>cur+(v>=1000?(v/1000).toFixed(1)+'k':v)}}}}});
+
+    const prods=(data.products_sold||[]).slice(0,8);
+    if(_ddBar){_ddBar.destroy();_ddBar=null;}
+    _ddBar=new Chart(document.getElementById('ddBar'),{type:'bar',data:{labels:prods.map(p=>p.name.length>14?p.name.slice(0,13)+'…':p.name),datasets:[{label:'Qty',data:prods.map(p=>p.qty),backgroundColor:BARS,borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,callbacks:{label:ctx=>` ${ctx.parsed.x} units`}}},scales:{x:{grid:{color:gridColor},beginAtZero:true,ticks:{font:{family:'JetBrains Mono',size:9},color:tickColor,stepSize:1}},y:{grid:{display:false},ticks:{font:{family:'Plus Jakarta Sans',size:10},color:tickColor}}}}});
+
+    const pieP=(data.products_sold||[]).slice(0,6);
+    if(_ddPie){_ddPie.destroy();_ddPie=null;}
+    if(pieP.length){
+      _ddPie=new Chart(document.getElementById('ddPie'),{type:'doughnut',data:{labels:pieP.map(p=>p.name),datasets:[{data:pieP.map(p=>p.revenue),backgroundColor:BARS,borderWidth:0,hoverOffset:6,borderRadius:3}]},options:{responsive:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,callbacks:{label:ctx=>` ${cur}${ctx.parsed.toFixed(0)}`}}}}});
+      document.getElementById('ddPieLegend').innerHTML=pieP.map((p,i)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;font-size:11.5px;"><div style="width:7px;height:7px;border-radius:50%;background:${BARS[i]};flex-shrink:0;"></div><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.name}">${p.name}</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-3);">${cur}${p.revenue.toFixed(0)}</span></div>`).join('');
+    }
+  }catch(e){ toast('Drill-down error: '+e.message, 'error'); }
+}
+
+function closeDrilldown(){
+  [_ddHourly,_ddBar,_ddPie].forEach(c=>{if(c){try{c.destroy();}catch(_){}}});
+  _ddHourly=_ddBar=_ddPie=null;
+  const panel=document.getElementById('drilldownPanel');
+  if(panel) panel.style.display='none';
+}
+
+/* ── AI Insights ─────────────────────────────────────────────── */
+async function loadInsights(){
+  if(!currentStoreId) return toast('Select a store first','error');
+  const btn=document.getElementById('insightsBtn'), panel=document.getElementById('insightsPanel');
+  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Analyzing…'; panel.style.display='none';
+  try{
+    const analytics = await apiFetch(`/stores/${currentStoreId}/analytics?days=30`);
+    const storesList = await apiFetch('/stores');
+    const store = storesList.find(s=>s._id===currentStoreId);
+    const r = await apiFetch('/ai/sales-insights',{method:'POST',body:JSON.stringify({analytics,store_name:store?.name||'Store',currency:store?.currency||'INR'})});
+    const d=r.insights, pc=p=>p==='high'?'ph':p==='medium'?'pm':'pl';
+    panel.innerHTML=`<div class="insight-card"><div class="insight-heading">📊 Performance Summary</div><div class="insight-body">${d.summary}</div></div><div class="insights-grid"><div class="insight-card"><div class="insight-heading">✅ What's Working</div>${(d.wins||[]).map(w=>`<div class="insight-item"><span>🟢</span><span>${w}</span></div>`).join('')}</div><div class="insight-card"><div class="insight-heading">🔧 Areas to Improve</div>${(d.improvements||[]).map(i=>`<div class="insight-item"><span>🔸</span><span>${i}</span></div>`).join('')}</div></div><div class="insight-card"><div class="insight-heading">🎯 Recommended Actions</div>${(d.actions||[]).map(a=>`<div class="insight-item"><span class="priority-badge ${pc(a.priority)}">${a.priority}</span><div><div style="font-weight:700;font-size:13px;margin-bottom:3px;color:var(--text);">${a.action}</div><div style="font-size:12px;color:var(--text-3);">${a.reason}</div></div></div>`).join('')}</div>`;
+    panel.style.display='block'; panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ toast('Insights failed: '+e.message,'error'); }
+  btn.disabled=false; btn.innerHTML='🧠 AI Insights';
+}
+
+/* ── Export CSV ──────────────────────────────────────────────── */
+function exportAnalyticsCSV(){
+  if(!_chartRev||!_chartOrd){ toast('Load analytics first','error'); return; }
+  const today=new Date(), dates=[];
+  for(let i=analyticsDays-1;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10));}
+  const rv=_chartRev.data.datasets[0].data, ov=_chartOrd.data.datasets[0].data;
+  const rows=[['Date','Revenue (₹)','Orders']];
+  dates.forEach((date,i)=>rows.push([date,(rv[i]||0).toFixed(2),ov[i]||0]));
+  const a=Object.assign(document.createElement('a'),{href:'data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n')),download:`analytics-${analyticsDays}d-${new Date().toISOString().slice(0,10)}.csv`});
+  a.click(); toast('CSV downloaded!','success');
+}
+</script>
+</body>
+</html>

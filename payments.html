@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>eKart — Payments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<!-- Light default — no _pageDarkDefault flag needed -->
+<script>
+;(function(){
+  var dark = localStorage.getItem('ekart_theme') === 'dark';
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.style.background = dark ? '#07080D' : '#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="shared.js"></script>
+<script src="nav.js"></script>
+
+<style>
+/* ── Skeleton extras ─────────────────────────────────────────── */
+.skel-tabsbar{height:44px;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:24px;padding:0 28px;}
+.skel-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.skel-two{display:grid;grid-template-columns:360px 1fr;gap:16px;}
+
+/* ── Tabs bar ────────────────────────────────────────────────── */
+.tabs-bar{height:44px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 24px;position:sticky;top:60px;z-index:40;flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{display:flex;align-items:center;gap:6px;padding:0 15px;font-size:12.5px;font-weight:600;color:var(--text-3);letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:var(--font);border-bottom:2px solid transparent;transition:var(--t);white-space:nowrap;flex-shrink:0;}
+.tab-btn:hover{color:var(--text-2)}.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── Stat cards ──────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;display:flex;align-items:flex-start;gap:14px;transition:var(--t);position:relative;overflow:hidden;box-shadow:var(--sh-sm);}
+.stat-card:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:var(--sh)}
+.stat-icon-wrap{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:var(--t);}
+.stat-card:hover .stat-icon-wrap{background:var(--accent-dim);border-color:rgba(124,111,255,.2)}
+.stat-info{flex:1;min-width:0}
+.stat-label{font-size:10px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.stat-value{font-size:22px;font-weight:700;letter-spacing:-.04em;font-family:var(--mono);color:var(--text);line-height:1;}
+.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}
+.stat-sub{font-size:10.5px;color:var(--text-3);margin-top:5px;}
+.stat-loading{animation:kpiPulse 1.4s ease-in-out infinite;color:var(--surface-4)!important;}
+
+/* ── Section card ────────────────────────────────────────────── */
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden;}
+.section-card-hd{padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+.section-card-title{font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.03em;display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.section-card-icon{width:28px;height:28px;border-radius:8px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.section-card-sub{font-size:12px;color:var(--text-2);line-height:1.6;}
+.section-card-bd{padding:20px 22px;}
+
+/* ── Form ────────────────────────────────────────────────────── */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:10.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.field label span{font-weight:400;text-transform:none;letter-spacing:0;opacity:.7;}
+.field input,.field textarea,.field select{width:100%;font-family:var(--font);font-size:13px;height:40px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border-md);background:var(--surface-2);color:var(--text);outline:none;transition:var(--t);}
+.field textarea{height:72px;padding:10px 12px;resize:vertical;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);background:var(--surface-3);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-3);}
+.field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%239EA3BB' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.field select option{background:var(--surface);color:var(--text);}
+.field input.mono{font-family:var(--mono);font-size:12.5px;}
+.field-hint{font-size:10.5px;color:var(--text-3);margin-top:5px;line-height:1.55;}
+.field-hint code{background:var(--surface-3);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--accent-2);}
+
+/* ── Toggle row ──────────────────────────────────────────────── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--border);margin-bottom:16px;transition:var(--t);}
+.toggle-row:hover{border-color:var(--border-md)}
+.toggle-label{font-size:13px;font-weight:700;color:var(--text);}
+.toggle-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:var(--surface-4);border:1px solid var(--border-md);border-radius:22px;cursor:pointer;transition:.22s ease;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.22s cubic-bezier(.34,1.56,.64,1);box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle input:checked + .toggle-slider{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(124,111,255,.4);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px);}
+
+/* ── Verify status ───────────────────────────────────────────── */
+.verify-status{padding:10px 13px;border-radius:var(--r-sm);font-size:12.5px;font-weight:600;display:none;align-items:center;gap:7px;margin-bottom:10px;}
+.verify-status.ok {background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);display:flex;}
+.verify-status.err{background:var(--red-dim);border:1px solid var(--red-border);color:var(--red);display:flex;}
+
+/* ── Setup steps ─────────────────────────────────────────────── */
+.setup-steps{list-style:none;display:flex;flex-direction:column;gap:18px;}
+.step{display:flex;gap:12px;align-items:flex-start;}
+.step-num{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:var(--accent-dim);border:1.5px solid rgba(124,111,255,.2);color:var(--accent-2);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.step-body h4{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.step-body p{font-size:12px;color:var(--text-2);line-height:1.65;}
+.step-body a{color:var(--accent-2);text-decoration:none;font-weight:600;}
+.step-body a:hover{text-decoration:underline}
+.step-body code{background:var(--surface-3);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--accent-2);}
+
+/* ── Table ───────────────────────────────────────────────────── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);}
+.table-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
+.table-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.search-wrap{position:relative;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none;}
+.search-input{padding:7px 12px 7px 30px;background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12.5px;outline:none;width:190px;transition:var(--t);}
+.search-input::placeholder{color:var(--text-3)}
+.search-input:focus{border-color:var(--accent);width:210px;box-shadow:0 0 0 3px var(--accent-dim);}
+.tbl-overflow{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:9px 14px;text-align:left;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:11px 14px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-2);transition:background .1s;}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(124,111,255,.03)}
+
+/* ── Payout cards ────────────────────────────────────────────── */
+.payout-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.payout-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 20px;text-align:center;transition:var(--t);box-shadow:var(--sh-sm);}
+.payout-card:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:var(--sh)}
+.payout-card-emoji{font-size:28px;display:block;margin-bottom:10px;}
+.payout-card-label{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:6px;}
+.payout-card-value{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.04em;color:var(--text);}
+.payout-card-value.green{color:var(--green)}.payout-card-value.red{color:var(--red)}.payout-card-value.amber{color:var(--amber)}
+.payout-card-sub{font-size:11px;color:var(--text-3);margin-top:5px;}
+
+/* ── Method bars ─────────────────────────────────────────────── */
+.method-row{display:flex;flex-direction:column;gap:14px;}
+.method-item{display:flex;flex-direction:column;gap:6px;}
+.method-top{display:flex;align-items:center;justify-content:space-between;}
+.method-name{font-size:12.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;text-transform:capitalize;}
+.method-amt{font-family:var(--mono);font-size:12px;color:var(--text-2);}
+.method-bar-bg{height:5px;background:var(--surface-3);border-radius:4px;overflow:hidden;}
+.method-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#a78bfa);border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+/* ── Payment links ───────────────────────────────────────────── */
+.links-grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
+.link-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:9px;transition:var(--t);}
+.link-card:hover{border-color:rgba(124,111,255,.3);transform:translateY(-2px);box-shadow:var(--sh)}
+.link-amount{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em;}
+.link-desc{font-size:12px;color:var(--text-2);}
+.link-url{font-family:var(--mono);font-size:11px;color:var(--accent-2);background:var(--accent-dim);border:1px solid rgba(124,111,255,.15);padding:7px 10px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:space-between;gap:7px;}
+.link-url-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.link-footer{display:flex;align-items:center;justify-content:space-between;}
+
+/* ── Extra buttons ───────────────────────────────────────────── */
+.btn-primary.full{width:100%;height:40px;justify-content:center;}
+.btn-secondary.full{width:100%;height:40px;justify-content:center;margin-bottom:10px;}
+.btn-refund{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 10px;border-radius:var(--r-xs);background:var(--red-dim);color:var(--red);border:1px solid rgba(224,82,82,.25);font-size:11.5px;font-weight:700;font-family:var(--font);cursor:pointer;transition:var(--t);}
+.btn-refund:hover{background:rgba(224,82,82,.16)}
+.btn-refund:disabled{opacity:.4;cursor:not-allowed}
+.btn-copy{background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;flex-shrink:0;padding:3px;border-radius:5px;transition:var(--t);}
+.btn-copy:hover{background:var(--accent-dim);transform:scale(1.1)}
+
+/* ── Not configured / empty ──────────────────────────────────── */
+.not-configured{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:60px 28px;text-align:center;box-shadow:var(--sh-sm);}
+.not-configured .nc-icon{font-size:40px;display:block;margin-bottom:14px;}
+.not-configured h3{font-size:15px;font-weight:800;color:var(--text);margin-bottom:7px;}
+.not-configured p{font-size:12.5px;color:var(--text-2);margin-bottom:20px;}
+.empty-state{padding:48px 18px;text-align:center;}
+.empty-icon{font-size:34px;margin-bottom:11px;opacity:.35;display:block;}
+.empty-state h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.empty-state p{font-size:12px;color:var(--text-2);}
+
+/* ── Two-col layout ──────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);padding:26px;width:100%;max-width:440px;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:var(--sh-lg);}
+.modal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.modal-title{font-size:16px;font-weight:800;letter-spacing:-.03em;color:var(--text);}
+.modal-sub{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.5;}
+.modal-close{width:30px;height:30px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border-md);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-2);transition:var(--t);flex-shrink:0;}
+.modal-close:hover{background:var(--red-dim);border-color:rgba(224,82,82,.3);color:var(--red)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* ── Animations ──────────────────────────────────────────────── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{display:inline-block;animation:spin .7s linear infinite}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-in{animation:cardIn .25s var(--ease) both}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:1200px){.stats-row{grid-template-columns:repeat(2,1fr)}.payout-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1000px){.two-col,.links-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.payout-grid{grid-template-columns:1fr}}
+@media(max-width:648px){
+  .skel-stats{grid-template-columns:repeat(2,1fr);gap:10px}
+  .skel-two{grid-template-columns:1fr}
+  .tabs-bar{top:56px}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .stat-card{padding:14px;gap:10px}.stat-value{font-size:18px!important}
+  .payout-grid{grid-template-columns:1fr}
+  .two-col,.links-grid{grid-template-columns:1fr}
+  th,td{padding:9px 10px}
+  .modal{padding:18px;border-radius:var(--r-lg)}
+  .modal-overlay{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar" id="mobileTopbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">e<span>K</span>art</a>
+  </div>
+  <div class="mob-right">
+    <div class="mob-store-wrap" id="mob-store-wrap" style="display:none;">
+      <select class="mob-store-selector" id="mob-store-selector" onchange="onStoreChange(this.value)"></select>
+    </div>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme" style="width:36px;height:36px;font-size:15px;">☀️</button>
+  </div>
+</div>
+
+<!-- SKELETON -->
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:14px;width:80px;border-radius:5px;"></div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="skel" style="height:36px;width:190px;border-radius:var(--r-sm);opacity:.7;"></div>
+      <div class="skel" style="height:36px;width:36px;border-radius:var(--r-sm);opacity:.45;"></div>
+    </div>
+  </div>
+  <div class="skel-tabsbar">
+    <div class="skel" style="height:13px;width:52px;border-radius:4px;opacity:.9;"></div>
+    <div class="skel" style="height:13px;width:80px;border-radius:4px;opacity:.6;"></div>
+    <div class="skel" style="height:13px;width:56px;border-radius:4px;opacity:.4;"></div>
+    <div class="skel" style="height:13px;width:96px;border-radius:4px;opacity:.28;"></div>
+  </div>
+  <div class="skel-body">
+    <div class="skel-stats">
+      <div class="skel" style="height:88px;border-radius:14px;"></div>
+      <div class="skel" style="height:88px;border-radius:14px;opacity:.75;"></div>
+      <div class="skel" style="height:88px;border-radius:14px;opacity:.55;"></div>
+      <div class="skel" style="height:88px;border-radius:14px;opacity:.38;"></div>
+    </div>
+    <div class="skel-two">
+      <div class="skel" style="height:420px;border-radius:18px;"></div>
+      <div class="skel" style="height:420px;border-radius:18px;opacity:.6;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
+  <div class="sidebar-user-skel" id="sidebar-user-skel">
+    <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+      <div class="skel" style="height:10px;width:90px;border-radius:4px;"></div>
+      <div class="skel" style="height:8px;width:120px;border-radius:3px;"></div>
+    </div>
+  </div>
+  <div class="sidebar-user loading" id="sidebar-user-real">
+    <div class="sidebar-avatar" id="nav-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name"  id="nav-user-name"></div>
+      <div class="sidebar-user-email" id="nav-user-email"></div>
+    </div>
+  </div>
+  <div id="sidebar-nav"></div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Payments</span></div>
+    <div class="topbar-right">
+      <div class="store-select-wrap" id="store-select-wrap" style="display:none;">
+        <span class="store-select-label">Store</span>
+        <select class="store-selector" id="store-selector" onchange="onStoreChange(this.value)"></select>
+      </div>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="setup"        onclick="switchTab('setup',this)">⚙️ Setup</button>
+    <button class="tab-btn"        data-tab="transactions" onclick="switchTab('transactions',this)">📄 Transactions</button>
+    <button class="tab-btn"        data-tab="payouts"      onclick="switchTab('payouts',this)">💰 Payouts</button>
+    <button class="tab-btn"        data-tab="links"        onclick="switchTab('links',this)">🔗 Payment Links</button>
+  </div>
+
+  <div id="page-content" class="content" style="display:none;">
+
+    <!-- SETUP -->
+    <div class="tab-panel active" id="tab-setup">
+      <div class="two-col">
+        <div>
+          <div class="section-card">
+            <div class="section-card-hd">
+              <div class="section-card-title"><div class="section-card-icon">💳</div>Razorpay Credentials</div>
+              <div class="section-card-sub">Connect your Razorpay account to start accepting payments on your storefront.</div>
+            </div>
+            <div class="section-card-bd">
+              <div class="toggle-row">
+                <div><div class="toggle-label">Enable Payments</div><div class="toggle-sub">Allow customers to pay online</div></div>
+                <label class="toggle"><input type="checkbox" id="pay-enabled" onchange="saveEnabled()"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="field"><label>Key ID</label><input class="mono" id="key-id" type="text" placeholder="rzp_live_xxxxxxxxxxxx" autocomplete="off"><div class="field-hint">Starts with <code>rzp_live_</code> (production) or <code>rzp_test_</code> (testing)</div></div>
+              <div class="field"><label>Key Secret</label><input id="key-secret" type="password" placeholder="••••••••••••••••••••" autocomplete="new-password" style="font-family:var(--mono);letter-spacing:.08em;font-size:12.5px;"><div class="field-hint">Never exposed to customers. Stored encrypted on the server.</div></div>
+              <div class="field"><label>Currency</label><select id="pay-currency"><option value="INR">INR — Indian Rupee ₹</option><option value="USD">USD — US Dollar $</option><option value="EUR">EUR — Euro €</option><option value="GBP">GBP — British Pound £</option><option value="SGD">SGD — Singapore Dollar S$</option><option value="AED">AED — UAE Dirham</option></select></div>
+              <button class="btn btn-secondary btn-secondary.full" id="btn-verify" onclick="verifyKeys()" style="width:100%;height:40px;justify-content:center;margin-bottom:10px;">🔍 Test Connection</button>
+              <div class="verify-status" id="verify-status"></div>
+              <button class="btn btn-primary btn-primary.full" id="btn-save" onclick="saveSettings()" style="width:100%;height:40px;justify-content:center;">💾 Save Settings</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-card">
+            <div class="section-card-hd">
+              <div class="section-card-title"><div class="section-card-icon">📋</div>How to get your API keys</div>
+              <div class="section-card-sub">Follow these steps to connect your Razorpay account.</div>
+            </div>
+            <div class="section-card-bd">
+              <ol class="setup-steps">
+                <li class="step"><div class="step-num">1</div><div class="step-body"><h4>Create a Razorpay account</h4><p>Sign up at <a href="https://dashboard.razorpay.com/signup" target="_blank" rel="noopener">dashboard.razorpay.com</a> and complete KYC for live payments.</p></div></li>
+                <li class="step"><div class="step-num">2</div><div class="step-body"><h4>Generate API keys</h4><p>Go to <strong>Settings → API Keys → Generate Key</strong>. Copy both the <code>Key ID</code> and <code>Key Secret</code> — the secret is shown only once.</p></div></li>
+                <li class="step"><div class="step-num">3</div><div class="step-body"><h4>Paste keys above</h4><p>Use <code>rzp_test_</code> keys while testing, switch to <code>rzp_live_</code> when you go live.</p></div></li>
+                <li class="step"><div class="step-num">4</div><div class="step-body"><h4>Set up Webhook <span style="color:var(--text-3);font-weight:400;">(recommended)</span></h4><p>In Razorpay → <strong>Settings → Webhooks</strong>, add:<br><code>https://apiv2.aasaitech.in/webhooks/razorpay</code><br>Events: <code>payment.captured</code>, <code>payment.failed</code>, <code>refund.processed</code></p></div></li>
+                <li class="step"><div class="step-num">5</div><div class="step-body"><h4>Test &amp; go live</h4><p>Toggle <strong>Enable Payments</strong> on, click <strong>Test Connection</strong> to verify, then <strong>Save Settings</strong>. You're live!</p></div></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="tab-panel" id="tab-transactions">
+      <div id="txn-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">💳</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to view transactions.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="txn-content">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-icon-wrap">💰</div><div class="stat-info"><div class="stat-label">Total Collected</div><div class="stat-value green stat-loading" id="stat-collected">—</div><div class="stat-sub">Last 30 days</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap">📊</div><div class="stat-info"><div class="stat-label">Transactions</div><div class="stat-value stat-loading" id="stat-count">—</div><div class="stat-sub">Total payments</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap">🔄</div><div class="stat-info"><div class="stat-label">Refunded</div><div class="stat-value red stat-loading" id="stat-refunded">—</div><div class="stat-sub">Amount refunded</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap">⚠️</div><div class="stat-info"><div class="stat-label">Failed</div><div class="stat-value amber stat-loading" id="stat-failed">—</div><div class="stat-sub">Failed payments</div></div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-hd">
+            <span class="table-title">Payment History</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div class="search-wrap"><svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="txn-search" placeholder="Search ID or email…" oninput="filterTxns()"></div>
+              <button class="btn btn-secondary btn-sm" onclick="loadTransactions()">↻ Refresh</button>
+            </div>
+          </div>
+          <div class="tbl-overflow"><table><thead><tr><th>Payment ID</th><th>Amount</th><th>Method</th><th>Customer</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="txn-tbody"><tr><td colspan="7" style="text-align:center;padding:36px;color:var(--text-3);">Loading transactions…</td></tr></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYOUTS -->
+    <div class="tab-panel" id="tab-payouts">
+      <div id="payout-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">💰</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to view payout summary.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="payout-content">
+        <div class="payout-grid">
+          <div class="payout-card"><span class="payout-card-emoji">💰</span><div class="payout-card-label">Net Collected</div><div class="payout-card-value green" id="payout-net">—</div><div class="payout-card-sub" id="payout-period">INR · Last 30 days</div></div>
+          <div class="payout-card"><span class="payout-card-emoji">🔄</span><div class="payout-card-label">Total Refunded</div><div class="payout-card-value red" id="payout-refunded">—</div><div class="payout-card-sub">Refunds issued</div></div>
+          <div class="payout-card"><span class="payout-card-emoji">❌</span><div class="payout-card-label">Failed Payments</div><div class="payout-card-value amber" id="payout-failed">—</div><div class="payout-card-sub">Not collected</div></div>
+        </div>
+        <div class="section-card"><div class="section-card-hd"><div class="section-card-title"><div class="section-card-icon">📊</div>Payment Method Breakdown</div></div><div class="section-card-bd"><div class="method-row" id="method-breakdown"><div style="color:var(--text-3);font-size:12.5px;">Loading breakdown…</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- PAYMENT LINKS -->
+    <div class="tab-panel" id="tab-links">
+      <div id="links-not-configured" class="not-configured" style="display:none;"><span class="nc-icon">🔗</span><h3>Razorpay not configured</h3><p>Set up your Razorpay credentials in the Setup tab to generate payment links.</p><button class="btn btn-primary" onclick="switchTab('setup',document.querySelector('[data-tab=setup]'))">Go to Setup</button></div>
+      <div id="links-content">
+        <div class="links-grid">
+          <div>
+            <div class="section-card">
+              <div class="section-card-hd"><div class="section-card-title"><div class="section-card-icon">🔗</div>Create Payment Link</div></div>
+              <div class="section-card-bd">
+                <div class="field"><label>Amount (₹)</label><input class="mono" id="link-amount" type="number" min="1" placeholder="999"></div>
+                <div class="field"><label>Description</label><input id="link-desc" type="text" placeholder="e.g. Custom order #1234"></div>
+                <div class="field"><label>Customer Name <span>(optional)</span></label><input id="link-name" type="text" placeholder="John Doe"></div>
+                <div class="field"><label>Customer Email <span>(optional)</span></label><input id="link-email" type="email" placeholder="john@example.com"></div>
+                <div class="field"><label>Customer Phone <span>(optional)</span></label><input class="mono" id="link-phone" type="tel" placeholder="+91 98765 43210"></div>
+                <div class="field"><label>Expires in</label><select id="link-expiry"><option value="">Never</option><option value="24">24 hours</option><option value="48">48 hours</option><option value="72">72 hours</option><option value="168">7 days</option><option value="720">30 days</option></select></div>
+                <button class="btn btn-primary" id="btn-create-link" onclick="createPaymentLink()" style="width:100%;height:40px;justify-content:center;">✨ Generate Payment Link</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="table-wrap">
+              <div class="table-hd"><span class="table-title">Recent Links</span><button class="btn btn-secondary btn-sm" onclick="loadLinks()">↻ Refresh</button></div>
+              <div id="links-list" style="padding:12px;display:flex;flex-direction:column;gap:8px;"><div style="color:var(--text-3);font-size:12.5px;padding:18px;text-align:center;">Loading links…</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#page-content -->
+</div><!-- /.main-wrap -->
+
+<!-- REFUND MODAL -->
+<div class="modal-overlay" id="modal-refund">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title">💸 Issue Refund</div><div class="modal-sub">Processing refund for <span id="refund-pid" style="font-family:var(--mono);font-size:11px;color:var(--accent-2);"></span></div></div>
+      <button class="modal-close" onclick="closeModal('modal-refund')">✕</button>
+    </div>
+    <div class="field"><label>Refund Amount (₹) <span>— leave blank for full refund</span></label><input class="mono" id="refund-amount" type="number" min="1" placeholder="Full refund"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-refund')">Cancel</button>
+      <button class="btn btn-danger" id="btn-confirm-refund" onclick="confirmRefund()">💸 Confirm Refund</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── State ────────────────────────────────────────────────────── */
+let currentStoreId = '', paymentSettings = null, allTxns = [], refundTarget = null, _activeTab = 'setup';
+
+/* ── Init ─────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', async () => {
+  const nav = await renderNav('payments');
+  if(!nav){ dismissSkeleton(); return; }
+
+  const stores = nav.stores || [];
+  currentStoreId = nav.currentStoreId || (stores[0]?._id || '');
+  buildStoreSelector(stores, currentStoreId);
+
+  await loadAll();
+});
+
+/* ── Store selectors ─────────────────────────────────────────── */
+function buildStoreSelector(stores, activeId){
+  if(!stores.length) return;
+  const opts = stores.map(s=>`<option value="${s._id}"${s._id===activeId?' selected':''}>${s.name}</option>`).join('');
+  const dw=document.getElementById('store-select-wrap'), ds=document.getElementById('store-selector');
+  const mw=document.getElementById('mob-store-wrap'),    ms=document.getElementById('mob-store-selector');
+  if(dw){ dw.style.display='inline-flex'; ds.innerHTML=opts; }
+  if(mw){ mw.style.display='inline-flex'; ms.innerHTML=opts; }
+}
+
+function onStoreChange(id){
+  currentStoreId = id;
+  ['store-selector','mob-store-selector'].forEach(sid=>{const el=document.getElementById(sid);if(el&&el.value!==id)el.value=id;});
+  loadAll();
+}
+
+/* ── Load all ────────────────────────────────────────────────── */
+async function loadAll(){
+  if(!currentStoreId) return;
+  try{
+    await loadSettings();
+    document.getElementById('page-content').style.display = '';
+    dismissSkeleton();
+    if(_activeTab==='transactions') loadTransactions();
+    else if(_activeTab==='payouts') loadPayouts();
+    else if(_activeTab==='links')   loadLinks();
+  }catch(e){ dismissSkeleton(); toast(e.message||'Failed to load','error'); }
+}
+
+/* ── Settings ────────────────────────────────────────────────── */
+async function loadSettings(){
+  try{
+    const d = await apiFetch(`/stores/${currentStoreId}/payment-settings`);
+    paymentSettings = d;
+    const g = id => document.getElementById(id);
+    if(g('pay-enabled')) g('pay-enabled').checked = d.enabled;
+    if(g('key-id'))      g('key-id').value = d.razorpay_key_id || '';
+    if(g('key-secret'))  g('key-secret').value = d.has_secret ? '••••••••••••••••••••' : '';
+    if(g('pay-currency'))g('pay-currency').value = d.currency || 'INR';
+  }catch{ paymentSettings = null; }
+}
+
+async function saveEnabled(){
+  const en = document.getElementById('pay-enabled').checked;
+  try{ await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify({enabled:en})}); toast(en?'Payments enabled':'Payments disabled',en?'success':'info'); }
+  catch(e){ toast(e.message||'Failed','error'); }
+}
+
+async function saveSettings(){
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Saving…';
+  try{
+    const ks=document.getElementById('key-secret').value;
+    const body={razorpay_key_id:document.getElementById('key-id').value.trim(),currency:document.getElementById('pay-currency').value,enabled:document.getElementById('pay-enabled').checked};
+    if(ks&&!ks.startsWith('•')) body.razorpay_key_secret=ks.trim();
+    await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify(body)});
+    toast('Settings saved successfully!','success'); await loadSettings();
+  }catch(e){ toast(e.message||'Failed to save','error'); }
+  finally{ btn.disabled=false; btn.innerHTML='💾 Save Settings'; }
+}
+
+async function verifyKeys(){
+  const btn=document.getElementById('btn-verify'), status=document.getElementById('verify-status');
+  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Testing…';
+  status.className='verify-status'; status.style.display='none';
+  const ki=document.getElementById('key-id').value.trim(), ks=document.getElementById('key-secret').value;
+  if(ki&&ks&&!ks.startsWith('•')){ try{await apiFetch(`/stores/${currentStoreId}/payment-settings`,{method:'PUT',body:JSON.stringify({razorpay_key_id:ki,razorpay_key_secret:ks})});}catch{} }
+  try{ const d=await apiFetch(`/stores/${currentStoreId}/payment-settings/verify`,{method:'POST'}); status.className='verify-status ok'; status.innerHTML='✅ '+d.message; }
+  catch(e){ status.className='verify-status err'; status.innerHTML='❌ '+(e.message||'Verification failed'); }
+  finally{ btn.disabled=false; btn.innerHTML='🔍 Test Connection'; }
+}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+function switchTab(name, btn){
+  _activeTab = name;
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else { const b=document.querySelector(`[data-tab="${name}"]`); if(b) b.classList.add('active'); }
+  const panel = document.getElementById('tab-'+name); if(panel) panel.classList.add('active');
+  if(name==='transactions') loadTransactions();
+  else if(name==='payouts') loadPayouts();
+  else if(name==='links')   loadLinks();
+}
+
+/* ── Transactions ────────────────────────────────────────────── */
+async function loadTransactions(){
+  const nc=document.getElementById('txn-not-configured'), ct=document.getElementById('txn-content');
+  if(!nc||!ct) return;
+  if(!paymentSettings?.razorpay_key_id){ nc.style.display=''; ct.style.display='none'; return; }
+  nc.style.display='none'; ct.style.display='';
+  ['stat-collected','stat-count','stat-refunded','stat-failed'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='—';el.classList.add('stat-loading');}});
+  const tbody=document.getElementById('txn-tbody');
+  if(tbody) tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3);">Loading transactions…</td></tr>`;
+  try{
+    const [txns,sum]=await Promise.all([apiFetch(`/stores/${currentStoreId}/payments`),apiFetch(`/stores/${currentStoreId}/payments/summary`)]);
+    allTxns=txns.items||[]; const cur=sum.currency||'INR';
+    setStatVal('stat-collected',fmtAmt(sum.total_collected,cur)); setStatVal('stat-count',sum.total_transactions||0);
+    setStatVal('stat-refunded',fmtAmt(sum.total_refunded,cur)); setStatVal('stat-failed',sum.failed_count||0);
+    renderTxns(allTxns);
+  }catch(e){ if(tbody) tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--red);">⚠️ ${e.message}</td></tr>`; toast('Failed to load transactions','error'); }
+}
+function setStatVal(id,val){const el=document.getElementById(id);if(el){el.textContent=val;el.classList.remove('stat-loading');}}
+function renderTxns(items){
+  const tbody=document.getElementById('txn-tbody'); if(!tbody) return;
+  if(!items.length){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">📄</span><h3>No transactions yet</h3><p>Transactions will appear here once customers start paying.</p></div></td></tr>`; return; }
+  const sm={captured:'badge-green',refunded:'badge-amber',failed:'badge-red'};
+  tbody.innerHTML=items.map(p=>{
+    const amt=(p.amount/100).toFixed(2), date=new Date(p.created_at*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return`<tr><td><span style="font-family:var(--mono);font-size:11px;color:var(--accent-2);">${p.id}</span></td><td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);">₹${amt}</span></td><td style="text-transform:capitalize;font-weight:600;font-size:12.5px;">${p.method||'—'}</td><td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.email||p.contact||'—'}</td><td><span class="badge ${sm[p.status]||'badge-gray'}">● ${p.status}</span></td><td style="font-size:11.5px;white-space:nowrap;">${date}</td><td>${p.status==='captured'?`<button class="btn-refund" onclick="openRefund('${p.id}',${p.amount})">💸 Refund</button>`:'—'}</td></tr>`;
+  }).join('');
+}
+function filterTxns(){ const q=document.getElementById('txn-search').value.toLowerCase(); renderTxns(q?allTxns.filter(p=>p.id.toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q)||(p.contact||'').includes(q)):allTxns); }
+
+/* ── Payouts ─────────────────────────────────────────────────── */
+async function loadPayouts(){
+  const nc=document.getElementById('payout-not-configured'), ct=document.getElementById('payout-content');
+  if(!nc||!ct) return;
+  if(!paymentSettings?.razorpay_key_id){ nc.style.display=''; ct.style.display='none'; return; }
+  nc.style.display='none'; ct.style.display='';
+  try{
+    const [sum,txns]=await Promise.all([apiFetch(`/stores/${currentStoreId}/payments/summary`),apiFetch(`/stores/${currentStoreId}/payments`)]);
+    const cur=sum.currency||'INR';
+    document.getElementById('payout-net').textContent     = fmtAmt(sum.total_collected,cur);
+    document.getElementById('payout-refunded').textContent = fmtAmt(sum.total_refunded,cur);
+    document.getElementById('payout-failed').textContent   = sum.failed_count||0;
+    document.getElementById('payout-period').textContent   = `${cur} · Last 30 days`;
+    const methods={};
+    (txns.items||[]).filter(p=>p.status==='captured').forEach(p=>{const m=p.method||'other';methods[m]=(methods[m]||0)+p.amount/100;});
+    const total=Object.values(methods).reduce((a,b)=>a+b,0)||1;
+    const icons={upi:'📱',card:'💳',netbanking:'🏦',wallet:'👛',emi:'📅',other:'💰'};
+    const bd=document.getElementById('method-breakdown');
+    const sorted=Object.entries(methods).sort((a,b)=>b[1]-a[1]);
+    if(bd) bd.innerHTML=sorted.length?sorted.map(([m,amt])=>{const pct=Math.round((amt/total)*100);return`<div class="method-item card-in"><div class="method-top"><span class="method-name">${icons[m]||'💰'} ${m}</span><span class="method-amt">${fmtAmt(amt,cur)} <span style="color:var(--text-3);font-size:10px;">(${pct}%)</span></span></div><div class="method-bar-bg"><div class="method-bar-fill" style="width:${pct}%;"></div></div></div>`;}).join(''):`<div style="color:var(--text-3);font-size:12.5px;text-align:center;padding:20px;">No captured payments yet</div>`;
+  }catch(e){ toast('Failed to load payout data','error'); }
+}
+
+/* ── Payment links ───────────────────────────────────────────── */
+async function loadLinks(){
+  const nc=document.getElementById('links-not-configured'), ct=document.getElementById('links-content');
+  if(!nc||!ct) return;
+  if(!paymentSettings?.razorpay_key_id){ nc.style.display=''; ct.style.display='none'; return; }
+  nc.style.display='none'; ct.style.display='';
+  const container=document.getElementById('links-list');
+  if(container) container.innerHTML=`<div style="color:var(--text-3);font-size:12.5px;padding:18px;text-align:center;">Loading links…</div>`;
+  try{
+    const data=await apiFetch(`/stores/${currentStoreId}/payment-links`), items=data.items||[];
+    if(!container) return;
+    if(!items.length){ container.innerHTML=`<div class="empty-state"><span class="empty-icon">🔗</span><h3>No payment links yet</h3><p>Create your first payment link using the form.</p></div>`; return; }
+    const sm={created:'badge-amber',paid:'badge-green',cancelled:'badge-red',expired:'badge-gray'};
+    container.innerHTML=items.map((l,i)=>{
+      const amt=(l.amount/100).toFixed(2), date=new Date(l.created_at*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}), url=l.short_url||l.id||'';
+      return`<div class="link-card card-in" style="animation-delay:${i*0.04}s;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div><div class="link-amount">₹${amt}</div><div class="link-desc">${l.description||'No description'}</div></div><span class="badge ${sm[l.status]||'badge-gray'}">● ${l.status}</span></div>${url?`<div class="link-url"><span class="link-url-text">${url}</span><button class="btn-copy" onclick="copyText('${url}')" title="Copy link">📋</button></div>`:''}<div class="link-footer"><span style="font-size:11px;color:var(--text-3);">${date}</span>${l.customer?.name?`<span style="font-size:11.5px;color:var(--text-2);">👤 ${l.customer.name}</span>`:''}</div></div>`;
+    }).join('');
+  }catch(e){ toast('Failed to load links','error'); }
+}
+
+async function createPaymentLink(){
+  const btn=document.getElementById('btn-create-link');
+  const amount=parseFloat(document.getElementById('link-amount').value), desc=document.getElementById('link-desc').value.trim();
+  if(!amount||amount<1){ toast('Enter a valid amount','error'); return; }
+  if(!desc){ toast('Enter a description','error'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Generating…';
+  try{
+    const body={amount,description:desc,customer_name:document.getElementById('link-name').value.trim(),customer_email:document.getElementById('link-email').value.trim(),customer_phone:document.getElementById('link-phone').value.trim(),expire_hours:parseInt(document.getElementById('link-expiry').value)||undefined};
+    const d=await apiFetch(`/stores/${currentStoreId}/payment-links`,{method:'POST',body:JSON.stringify(body)});
+    toast('Payment link created!','success');
+    if(d.link?.short_url){ navigator.clipboard.writeText(d.link.short_url).catch(()=>{}); toast('Link copied to clipboard!','info'); }
+    ['link-amount','link-desc','link-name','link-email','link-phone'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('link-expiry').value=''; await loadLinks();
+  }catch(e){ toast(e.message||'Failed to create link','error'); }
+  finally{ btn.disabled=false; btn.innerHTML='✨ Generate Payment Link'; }
+}
+
+/* ── Refunds ─────────────────────────────────────────────────── */
+function openRefund(pid, ap){
+  refundTarget={paymentId:pid,maxAmount:ap/100};
+  document.getElementById('refund-pid').textContent=pid;
+  document.getElementById('refund-amount').value='';
+  document.getElementById('refund-amount').placeholder=`Full refund (₹${(ap/100).toFixed(2)})`;
+  openModal('modal-refund');
+}
+async function confirmRefund(){
+  if(!refundTarget) return;
+  const btn=document.getElementById('btn-confirm-refund'), amount=parseFloat(document.getElementById('refund-amount').value)||undefined;
+  btn.disabled=true; btn.innerHTML='<span class="spinning">⏳</span> Processing…';
+  try{
+    await apiFetch(`/stores/${currentStoreId}/payments/${refundTarget.paymentId}/refund`,{method:'POST',body:JSON.stringify({amount})});
+    toast('Refund issued successfully!','success'); closeModal('modal-refund'); await loadTransactions();
+  }catch(e){ toast(e.message||'Refund failed','error'); }
+  finally{ btn.disabled=false; btn.innerHTML='💸 Confirm Refund'; }
+}
+
+/* ── Utils ───────────────────────────────────────────────────── */
+function fmtAmt(amount,currency){ const sym={INR:'₹',USD:'$',EUR:'€',GBP:'£',SGD:'S$',AED:'AED '}; return(sym[currency]||'')+(amount||0).toFixed(2); }
+
+document.querySelectorAll('.modal-overlay').forEach(ov=>{ ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>closeModal(ov.id)); });
+</script>
+</body>
+</html>
