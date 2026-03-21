@@ -115,14 +115,31 @@ select.filter-pill{padding-right:28px;background-image:url("data:image/svg+xml,%
 .btn-ai-fill:hover{border-color:rgba(124,111,255,.45);background:rgba(124,111,255,.18)}
 .btn-ai-fill:disabled{opacity:.5;cursor:not-allowed}
 
-/* ── Drawer overlay — matches home.html modal-overlay exactly ─── */
+/* ── Drawer overlay — exactly like home.html .modal-overlay ───── */
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:500;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
 .drawer-overlay.open{display:flex}
 [data-theme="dark"] .drawer-overlay{background:rgba(0,0,0,.55)}
-/* Drawer box — desktop: centered dialog */
-.drawer{position:relative;width:640px;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);display:flex;flex-direction:column;transform:scale(.93);opacity:0;transition:transform .24s cubic-bezier(.34,1.28,.64,1),opacity .18s ease;box-sizing:border-box;overflow:hidden}
+
+/* Drawer — hidden by default (display:none), NOT opacity:0
+   So the overlay only ever has ONE visible flex child → always centred */
+.drawer{
+  display:none;
+  position:relative;
+  width:640px;
+  max-width:calc(100vw - 40px);
+  max-height:calc(100vh - 40px);
+  max-height:calc(100dvh - 40px);
+  background:var(--surface);
+  border:1px solid var(--border-md);
+  border-radius:var(--r-xl);
+  box-shadow:0 24px 64px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.08);
+  flex-direction:column;
+  overflow:hidden;
+  box-sizing:border-box;
+}
 [data-theme="dark"] .drawer{box-shadow:0 24px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3)}
-.drawer.open{transform:scale(1);opacity:1}
+.drawer.open{display:flex;animation:drawerIn .22s cubic-bezier(.34,1.28,.64,1) both}
+@keyframes drawerIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:none}}
 #productDrawer{width:760px}
 .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
 .drawer-title{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.025em;display:flex;align-items:center;gap:9px}
@@ -278,22 +295,22 @@ input:checked+.toggle-track::before{transform:translateX(16px);background:#fff}
   .pf-row{grid-template-columns:1fr}
   .cats-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
 }
-@media(max-width:860px){#productDrawer{width:100%}.drawer{width:100%!important;max-width:calc(100vw - 40px)!important}}
+@media(max-width:860px){#productDrawer{width:100%!important}.drawer{width:100%!important;max-width:calc(100vw - 40px)!important}}
 @media(max-width:648px){
-  /* Drawer overlay → full screen, bottom-aligned (exactly like home.html modal-overlay on mobile) */
+  /* Overlay → full-screen, items anchored to bottom */
   .drawer-overlay{padding:0!important;align-items:flex-end!important}
-  /* Drawer → true bottom sheet, anchored to edge, no side gaps */
+  /* Drawer → true full-width bottom sheet, slide up from bottom */
   .drawer{
-    width:100%!important;max-width:100%!important;
-    max-height:90vh!important;max-height:90dvh!important;
+    width:100%!important;
+    max-width:100%!important;
+    max-height:90vh!important;
+    max-height:90dvh!important;
     border-radius:var(--r-xl) var(--r-xl) 0 0!important;
     border-bottom:none!important;
-    /* opacity stays 1 — only transform drives the animation, matching home.html */
-    opacity:1!important;
-    transform:translateY(100%)!important;
-    transition:transform .28s cubic-bezier(.4,0,.2,1)!important;
+    overflow-y:auto!important;
   }
-  .drawer.open{transform:translateY(0)!important}
+  .drawer.open{animation:drawerSlideUp .25s cubic-bezier(.4,0,.2,1) both!important}
+  @keyframes drawerSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   .drawer-header{border-radius:0}
   .drawer-footer{
     border-radius:0;
