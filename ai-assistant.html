@@ -267,9 +267,10 @@
   border-top-color:var(--accent);border-radius:50%;
   animation:storeSpin .7s linear infinite;
 }
+@keyframes storeSpin{to{transform:rotate(360deg)}}
 .store-switch-label{font-size:12px;font-weight:600;color:var(--text-2)}
 
-/* ── Action panel ────────────────────────────────────────────── */
+/* ── Action panel (DESKTOP) ──────────────────────────────────── */
 .action-panel{
   display:flex;flex-direction:column;gap:0;
   overflow-y:auto;overflow-x:hidden;height:100%;padding-bottom:4px;
@@ -388,27 +389,131 @@
 .insight-section h4{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:7px}
 .insight-summary-box{font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:12px;padding:12px;background:var(--surface-2);border-radius:var(--r-sm);border:1px solid var(--border)}
 
-/* ── Responsive ──────────────────────────────────────────────── */
-@media(max-width:1100px){.ai-root{grid-template-columns:1fr 340px}}
-@media(max-width:900px){
-  .ai-root{grid-template-columns:1fr;height:auto;gap:14px}
-  .chat-panel{height:65vh;min-height:420px}
-  .action-panel{overflow-y:visible;height:auto}
-  .content{padding:14px}
+/* ════════════════════════════════════════════════════════════════
+   MOBILE / TABLET ACTION DRAWER + FAB
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── FAB — floating action button (mobile/tablet only) ────────── */
+.action-fab{
+  display:none; /* hidden on desktop */
+  position:fixed;bottom:24px;right:20px;z-index:800;
+  align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--accent),#7c73ff);
+  border:none;border-radius:999px;padding:12px 18px 12px 14px;
+  color:white;font-size:13px;font-weight:700;font-family:var(--font);
+  cursor:pointer;box-shadow:0 6px 24px var(--accent-glow);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s,box-shadow .2s;
+  user-select:none;-webkit-tap-highlight-color:transparent;
 }
+.action-fab:active{transform:scale(.94)}
+.action-fab.hidden{opacity:0;pointer-events:none;transform:scale(.8) translateY(10px)}
+.action-fab.visible{opacity:1;pointer-events:all;transform:scale(1) translateY(0);animation:fabPop .35s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes fabPop{from{opacity:0;transform:scale(.7) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.action-fab-icon{font-size:17px;line-height:1}
+.action-fab-label{line-height:1}
+.action-fab-badge{
+  width:18px;height:18px;border-radius:50%;
+  background:#ef4444;color:white;font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  border:2px solid white;margin-left:2px;
+  animation:badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}60%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+
+/* ── Bottom drawer backdrop ───────────────────────────────────── */
+.drawer-backdrop{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:850;opacity:0;transition:opacity .25s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.drawer-backdrop.open{display:block;opacity:1}
+[data-theme="dark"] .drawer-backdrop{background:rgba(0,0,0,.65)}
+
+/* ── Bottom drawer ────────────────────────────────────────────── */
+.action-drawer{
+  display:none;position:fixed;
+  left:0;right:0;bottom:0;z-index:900;
+  background:var(--surface);
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -8px 40px rgba(0,0,0,.25);
+  max-height:90vh;
+  flex-direction:column;
+  overflow:hidden;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.32,.72,0,1);
+}
+.action-drawer.open{transform:translateY(0)}
+.drawer-pill{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--border-md);margin:10px auto 0;flex-shrink:0;
+}
+.drawer-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.drawer-title{
+  font-size:14px;font-weight:800;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.drawer-title-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#7c73ff);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.drawer-close{
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:var(--surface-2);color:var(--text-2);font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:var(--t);-webkit-tap-highlight-color:transparent;
+}
+.drawer-close:hover{background:var(--surface-3);color:var(--text)}
+.drawer-scroll{
+  flex:1;overflow-y:auto;padding:14px;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+}
+.drawer-scroll::-webkit-scrollbar{width:3px}
+.drawer-scroll::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:3px}
+
+/* ── Touch drag for drawer ────────────────────────────────────── */
+.drawer-drag-handle{
+  padding:6px 0 2px;cursor:grab;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* ── Responsive layout ───────────────────────────────────────── */
+@media(max-width:1100px){.ai-root{grid-template-columns:1fr 340px}}
+
+@media(max-width:900px){
+  /* Switch to single-column — action panel is in the drawer */
+  .ai-root{
+    grid-template-columns:1fr;
+    height:calc(100vh - 56px - 28px);  /* account for mobile topbar */
+    gap:0;
+  }
+  /* Desktop action panel becomes invisible — drawer takes over */
+  .action-panel{display:none!important}
+  /* Chat panel fills the whole grid */
+  .chat-panel{height:100%;min-height:0}
+  /* Show FAB */
+  .action-fab{display:flex}
+  /* Show drawer */
+  .action-drawer{display:flex}
+  .content{padding:14px 14px 14px}
+}
+
 @media(max-width:648px){
-  .content{padding:12px 12px 80px}
-  .ai-root{gap:12px}
-  .chat-panel{height:60vh;min-height:380px;border-radius:var(--r)}
-  .action-card,.action-empty{border-radius:var(--r)}
-  .chat-header{padding:12px 14px}
+  .ai-root{height:calc(100vh - 56px - 24px)}
+  .content{padding:10px 10px 10px}
+  .chat-header{padding:11px 14px}
   .chat-header-avatar{width:34px;height:34px;font-size:16px}
   .chat-header-info h2{font-size:12.5px}
   .chat-header-info p{display:none}
   .chat-messages{padding:14px;gap:12px}
   .msg-bubble{font-size:13px;padding:9px 13px}
   .lang-btn{min-width:58px}
+  .action-fab{bottom:18px;right:14px;padding:11px 15px 11px 12px}
 }
+
 @media(max-width:380px){
   .chat-input{font-size:13px}
   .chat-send-btn,.chat-mic-btn-solo{width:40px;height:40px}
@@ -569,9 +674,9 @@
         </div>
       </div>
 
-      <!-- RIGHT: Actions -->
+      <!-- RIGHT: Actions (desktop only — on mobile, the drawer takes over) -->
       <div class="action-panel" id="actionPanel">
-        <div class="action-empty">
+        <div class="action-empty" id="actionEmpty">
           <div class="action-empty-icon">💬</div>
           <h3>Start a conversation</h3>
           <p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p>
@@ -582,12 +687,131 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE / TABLET: FAB + BOTTOM DRAWER
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Backdrop -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeActionDrawer()"></div>
+
+<!-- Bottom drawer -->
+<div class="action-drawer" id="actionDrawer" aria-modal="true" role="dialog" aria-label="Action Card">
+  <div class="drawer-drag-handle" id="drawerHandle">
+    <div class="drawer-pill"></div>
+  </div>
+  <div class="drawer-header">
+    <div class="drawer-title">
+      <div class="drawer-title-icon">🤖</div>
+      <span id="drawerTitle">Action Card</span>
+    </div>
+    <button class="drawer-close" onclick="closeActionDrawer()" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-scroll" id="drawerScroll">
+    <!-- Action card injected here on mobile -->
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="action-fab hidden" id="actionFab" onclick="openActionDrawer()" aria-label="View action card">
+  <span class="action-fab-icon" id="fabIcon">📦</span>
+  <span class="action-fab-label" id="fabLabel">Action Card</span>
+  <span class="action-fab-badge">1</span>
+</button>
+
 <script>
-/* ── State ────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════════ */
 let currentStoreId = '', allProducts = [], allCategories = [];
 let conversationHistory = [], isTyping = false, userName = '', _storeSwitching = false;
 
-/* ── Store selectors ─────────────────────────────────────────── */
+/* ── Detect mobile/tablet ───────────────────────────────────── */
+function isMobileLayout(){ return window.innerWidth <= 900; }
+
+/* ══════════════════════════════════════════════════════════════
+   DRAWER — open / close / drag
+══════════════════════════════════════════════════════════════ */
+let _drawerOpen = false;
+let _lastCardAction = null;  // store last rendered action for drawer re-open
+
+function openActionDrawer(){
+  const drawer   = document.getElementById('actionDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  if(!drawer) return;
+  drawer.classList.add('open');
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _drawerOpen = true;
+}
+
+function closeActionDrawer(){
+  const drawer   = document.getElementById('actionDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  if(!drawer) return;
+  drawer.classList.remove('open');
+  backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+  _drawerOpen = false;
+}
+
+/* Touch drag-to-dismiss */
+(function(){
+  let startY = 0, curY = 0, dragging = false;
+  function onStart(e){
+    const handle = document.getElementById('drawerHandle');
+    if(!handle) return;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+    curY = startY; dragging = true;
+  }
+  function onMove(e){
+    if(!dragging) return;
+    curY = (e.touches ? e.touches[0].clientY : e.clientY);
+    const dy = Math.max(0, curY - startY);
+    const drawer = document.getElementById('actionDrawer');
+    if(drawer) drawer.style.transform = `translateY(${dy}px)`;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    const drawer = document.getElementById('actionDrawer');
+    if(!drawer) return;
+    const dy = curY - startY;
+    drawer.style.transform = '';
+    drawer.style.transition = '';
+    if(dy > 100) closeActionDrawer();
+  }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const handle = document.getElementById('drawerHandle');
+    if(handle){
+      handle.addEventListener('touchstart', onStart, {passive:true});
+      handle.addEventListener('touchmove',  onMove,  {passive:false});
+      handle.addEventListener('touchend',   onEnd,   {passive:true});
+    }
+  });
+})();
+
+/* Show/hide FAB */
+function showFab(icon, label){
+  const fab = document.getElementById('actionFab');
+  const fabIcon  = document.getElementById('fabIcon');
+  const fabLabel = document.getElementById('fabLabel');
+  if(!fab) return;
+  if(fabIcon)  fabIcon.textContent  = icon  || '📦';
+  if(fabLabel) fabLabel.textContent = label || 'Action Card';
+  fab.classList.remove('hidden');
+  fab.classList.add('visible');
+}
+function hideFab(){
+  const fab = document.getElementById('actionFab');
+  if(!fab) return;
+  fab.classList.add('hidden');
+  fab.classList.remove('visible');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STORE SELECTORS
+══════════════════════════════════════════════════════════════ */
 function buildStoreSel(stores, activeId){
   const opts = stores.map(s=>`<option value="${s._id}"${s._id===activeId?' selected':''}>${s.name}</option>`).join('');
   const desk = document.getElementById('store-selector');
@@ -604,7 +828,9 @@ function onStoreChange(id){
   triggerStoreSwitch();
 }
 
-/* ── Init ─────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
   const nav = await renderNav('ai-assistant', id => { onStoreChange(id); });
   if(!nav) return;
@@ -623,7 +849,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   dismissSkeleton();
 });
 
-/* ── Store switch ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   STORE SWITCH
+══════════════════════════════════════════════════════════════ */
 async function triggerStoreSwitch(){
   if(_storeSwitching) return;
   _storeSwitching = true;
@@ -640,13 +868,22 @@ async function triggerStoreSwitch(){
   await loadStoreData();
   await new Promise(r=>setTimeout(r,320));
   conversationHistory = [];
+  _lastCardAction = null;
+  hideFab();
+  closeActionDrawer();
   if(msgs){
     msgs.style.transition='opacity .18s ease'; msgs.style.opacity='0';
     await new Promise(r=>setTimeout(r,200));
     msgs.innerHTML=''; addWelcomeMessage(); msgs.style.opacity='1';
   }
   showQuickChips(getInitialChips());
-  if(actionPanel) actionPanel.innerHTML=`<div class="action-empty" id="actionEmpty"><div class="action-empty-icon">💬</div><h3>Start a conversation</h3><p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p></div>`;
+  // Reset desktop panel
+  if(actionPanel){
+    actionPanel.innerHTML=`<div class="action-empty" id="actionEmpty"><div class="action-empty-icon">💬</div><h3>Start a conversation</h3><p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p></div>`;
+  }
+  // Reset drawer
+  const drawerScroll = document.getElementById('drawerScroll');
+  if(drawerScroll) drawerScroll.innerHTML = '';
   overlay?.classList.remove('active');
   msgs?.classList.remove('store-switching');
   chips?.classList.remove('store-switching');
@@ -665,25 +902,29 @@ async function loadStoreData(){
   }catch{}
 }
 
-/* ── Welcome message ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   WELCOME + CHIPS
+══════════════════════════════════════════════════════════════ */
 function addWelcomeMessage(){
   const first = (userName||'there').split(' ')[0];
   addAIMessage(`Hi ${first}! 👋 I'm your eKart AI assistant. I can help you with:\n\n• **Add products** — describe a product and I'll fill in the details\n• **Create categories** — organise your catalogue effortlessly\n• **Store setup** — name, description, and category ideas\n• **Coupons & discounts** — create offers for your customers\n• **Sales insights** — understand your store performance\n\nYou can talk to me in any language — just type naturally!`);
 }
-
-/* ── Quick chips ─────────────────────────────────────────────── */
 function getInitialChips(){ return ['➕ Add a product','🗂️ Create a category','🏷️ Make a coupon','🏪 Setup my store','📊 Analyse my sales']; }
 function showQuickChips(chips){ document.getElementById('quickChips').innerHTML=chips.map(c=>`<span class="chip" onclick="chipClick(this)">${c}</span>`).join(''); }
 function chipClick(el){ document.getElementById('chatInput').value=el.textContent.trim(); sendMessage(); }
 
-/* ── Input setup ─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   INPUT
+══════════════════════════════════════════════════════════════ */
 function setupInput(){
   const inp=document.getElementById('chatInput');
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
   inp.addEventListener('input',()=>{ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,120)+'px'; });
 }
 
-/* ── Send ────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   SEND + CLAUDE API
+══════════════════════════════════════════════════════════════ */
 async function sendMessage(){
   if(_recActive) _stopVoice(false);
   if(_storeSwitching) return;
@@ -712,7 +953,6 @@ async function sendMessage(){
   document.getElementById('sendBtn').disabled=false;
 }
 
-/* ── Claude API ──────────────────────────────────────────────── */
 async function callClaudeAPI(history){
   const systemPrompt=buildSystemPrompt();
   const lastMsg=history[history.length-1]?.content||'';
@@ -762,7 +1002,9 @@ Always generate 2-4 relevant follow-up chips in the user's language.
 Be warm, concise, helpful. Use emojis sparingly.`;
 }
 
-/* ── Chat rendering ──────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   CHAT RENDERING
+══════════════════════════════════════════════════════════════ */
 function addUserMessage(text){ const initials=(userName||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); appendMessage('user',text,initials); }
 function addAIMessage(text){ if(text===null||text===undefined)text=''; if(typeof text!=='string')text=JSON.stringify(text); const html=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); appendMessage('ai',html,'🤖',true); }
 function appendMessage(role,content,avatarContent,isHTML=false){ const wrap=document.getElementById('chatMessages'); const div=document.createElement('div'); div.className=`msg ${role}`; div.innerHTML=`<div class="msg-avatar">${avatarContent}</div><div class="msg-bubble">${isHTML?content:escHtml(content)}</div>`; wrap.appendChild(div); scrollChat(); }
@@ -772,30 +1014,110 @@ function scrollChat(){ const wrap=document.getElementById('chatMessages'); setTi
 function escHtml(s){ if(s===null||s===undefined)return''; if(typeof s!=='string')s=String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 function escAttr(s){ if(s===null||s===undefined)return''; if(typeof s!=='string')s=String(s); return s.replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* ── Action cards ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   ACTION CARDS — unified renderer for desktop + mobile
+══════════════════════════════════════════════════════════════ */
+const TYPE_META = {
+  product:  { icon:'📦', fabIcon:'📦', label:'Add New Product',  color:'var(--accent-dim)' },
+  category: { icon:'🗂️', fabIcon:'🗂️', label:'New Categories',   color:'rgba(59,130,246,.1)' },
+  store:    { icon:'🏪', fabIcon:'🏪', label:'Store Setup',       color:'var(--amber-dim)' },
+  coupon:   { icon:'🏷️', fabIcon:'🏷️', label:'New Coupon',        color:'var(--green-dim)' },
+  insights: { icon:'📊', fabIcon:'📊', label:'Sales Insights',    color:'var(--amber-dim)' },
+};
+
 function renderActionCard(action){
-  const panel=document.getElementById('actionPanel');
-  document.getElementById('actionEmpty')?.remove();
-  const existing=panel.querySelector('.action-card');
-  if(existing){ existing.style.transition='opacity .15s,transform .15s'; existing.style.opacity='0'; existing.style.transform='translateX(20px)'; setTimeout(()=>existing.remove(),160); }
-  const card=document.createElement('div'); card.className='action-card';
-  const id='ac_'+Date.now(); card.id=id;
+  if(!action || !action.type) return;
+  _lastCardAction = action;
+
+  const id = 'ac_' + Date.now();
+  const meta = TYPE_META[action.type] || { icon:'📦', fabIcon:'📦', label:'Action Card', color:'var(--accent-dim)' };
+
+  let cardHTML = '';
   switch(action.type){
-    case 'product':  card.innerHTML=buildProductCard(id,action);  break;
-    case 'category': card.innerHTML=buildCategoryCard(id,action); break;
-    case 'store':    card.innerHTML=buildStoreCard(id,action);    break;
-    case 'coupon':   card.innerHTML=buildCouponCard(id,action);   break;
-    case 'insights': card.innerHTML=buildInsightsCard(id,action); break;
+    case 'product':  cardHTML = buildProductCard(id, action);  break;
+    case 'category': cardHTML = buildCategoryCard(id, action); break;
+    case 'store':    cardHTML = buildStoreCard(id, action);    break;
+    case 'coupon':   cardHTML = buildCouponCard(id, action);   break;
+    case 'insights': cardHTML = buildInsightsCard(id, action); break;
     default: return;
   }
-  setTimeout(()=>{ panel.appendChild(card); panel.scrollTop=0; if(action.type==='coupon')updateCouponBanner(id); }, existing?170:0);
+
+  if(isMobileLayout()){
+    /* ── MOBILE/TABLET: inject into drawer ── */
+    const drawerScroll = document.getElementById('drawerScroll');
+    const drawerTitle  = document.getElementById('drawerTitle');
+    if(!drawerScroll) return;
+
+    // Update drawer title
+    if(drawerTitle) drawerTitle.textContent = action.title || meta.label;
+
+    // Animate out existing card
+    const existing = drawerScroll.querySelector('.action-card');
+    if(existing){
+      existing.style.transition = 'opacity .15s,transform .15s';
+      existing.style.opacity = '0';
+      existing.style.transform = 'translateX(20px)';
+      setTimeout(()=>existing.remove(), 160);
+    }
+
+    setTimeout(()=>{
+      const card = document.createElement('div');
+      card.className = 'action-card';
+      card.id = id;
+      card.innerHTML = cardHTML;
+      drawerScroll.innerHTML = '';
+      drawerScroll.appendChild(card);
+      drawerScroll.scrollTop = 0;
+      if(action.type === 'coupon') updateCouponBanner(id);
+    }, existing ? 170 : 0);
+
+    // Show FAB + auto-open drawer
+    showFab(meta.fabIcon, action.title || meta.label);
+    setTimeout(()=> openActionDrawer(), existing ? 200 : 80);
+
+  } else {
+    /* ── DESKTOP: inject into right panel ── */
+    const panel = document.getElementById('actionPanel');
+    document.getElementById('actionEmpty')?.remove();
+    const existing = panel.querySelector('.action-card');
+    if(existing){
+      existing.style.transition = 'opacity .15s,transform .15s';
+      existing.style.opacity = '0';
+      existing.style.transform = 'translateX(20px)';
+      setTimeout(()=>existing.remove(), 160);
+    }
+    setTimeout(()=>{
+      const card = document.createElement('div');
+      card.className = 'action-card';
+      card.id = id;
+      card.innerHTML = cardHTML;
+      panel.appendChild(card);
+      panel.scrollTop = 0;
+      if(action.type === 'coupon') updateCouponBanner(id);
+    }, existing ? 170 : 0);
+  }
 }
 
+/* Re-render when screen resizes across 900px breakpoint */
+let _lastWidth = window.innerWidth;
+window.addEventListener('resize', ()=>{
+  const nowMobile = window.innerWidth <= 900;
+  const wasMobile = _lastWidth <= 900;
+  _lastWidth = window.innerWidth;
+  if(nowMobile === wasMobile) return;
+  // Breakpoint crossed — re-render last card in correct location
+  if(_lastCardAction) renderActionCard(_lastCardAction);
+  if(!nowMobile){ closeActionDrawer(); hideFab(); }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   CARD BUILDERS
+══════════════════════════════════════════════════════════════ */
 function buildProductCard(id,action){
   const d=action.data;
   const catOpts=allCategories.map(c=>`<option value="${c._id}" ${c.name===d.category?'selected':''}>${c.name}</option>`).join('');
   const tags=(Array.isArray(d.tags)?d.tags:[]).map(t=>String(t||'')).join(', ');
-  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--accent-dim);">📦</div><div><div class="action-card-title">${action.title||'New Product'}</div><div class="action-card-sub">Review & save to your store</div></div></div>
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--accent-dim);">📦</div><div><div class="action-card-title">${action.title||'New Product'}</div><div class="action-card-sub">Review &amp; save to your store</div></div></div>
     <div class="action-card-body">
       <div class="ac-field"><label>Product Name</label><input id="${id}_name" value="${escAttr(d.name||'')}"></div>
       <div class="ac-field-row">
@@ -823,7 +1145,7 @@ function buildCategoryCard(id,action){
 function buildStoreCard(id,action){
   const d=action.data;
   const names=(Array.isArray(d.name_suggestions)?d.name_suggestions:[]).slice(0,4).map(n=>String(n||''));
-  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--amber-dim);">🏪</div><div><div class="action-card-title">${action.title||'Store Setup'}</div><div class="action-card-sub">Pick a name & description</div></div></div>
+  return`<div class="action-card-header"><div class="action-card-icon" style="background:var(--amber-dim);">🏪</div><div><div class="action-card-title">${action.title||'Store Setup'}</div><div class="action-card-sub">Pick a name &amp; description</div></div></div>
     <div class="action-card-body">
       ${names.length?`<div class="ac-field"><label>Suggested Names — tap to use</label><div class="name-suggestions">${names.map(n=>`<div class="name-suggestion" onclick="pickStoreName('${id}',this)">${escHtml(n)}<span style="color:var(--text-3);font-size:11px;">tap</span></div>`).join('')}</div></div>`:''}
       <div class="ac-field" style="margin-top:10px;"><label>Store Name</label><input id="${id}_sname" placeholder="Enter or pick above"></div>
@@ -877,11 +1199,15 @@ function buildInsightsCard(id,action){
     </div>`;
 }
 
-/* ── Coupon helpers ──────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   COUPON HELPERS
+══════════════════════════════════════════════════════════════ */
 function _buildBadgeText(code,type,value){ const v=parseFloat(value); if(!isNaN(v)&&v>0) return type==='percent'?`${v}% Off`:`₹${v} Off`; return type==='percent'?'% Off':'₹ Off'; }
 function updateCouponBanner(id){ const codeEl=document.getElementById(`${id}_code`),typeEl=document.getElementById(`${id}_dtype`),valEl=document.getElementById(`${id}_dval`),bCode=document.getElementById(`${id}_banner_code`),bBadge=document.getElementById(`${id}_banner_badge`); if(!codeEl||!typeEl||!valEl||!bCode||!bBadge)return; bCode.textContent=(codeEl.value||'').toUpperCase()||'CODE'; bBadge.textContent=_buildBadgeText(codeEl.value,typeEl.value,valEl.value); }
 
-/* ── Save handlers ───────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   SAVE HANDLERS
+══════════════════════════════════════════════════════════════ */
 async function saveProduct(id){
   const btn=document.querySelector(`#${id} .btn-save`),msg=document.getElementById(`${id}_msg`);
   btn.disabled=true; btn.textContent='⏳ Saving…';
@@ -947,14 +1273,34 @@ async function saveCoupon(id){
 
 function exportInsights(id){ const card=document.getElementById(id);if(!card)return;navigator.clipboard.writeText(card.querySelector('.action-card-body').innerText).then(()=>toast('Copied to clipboard!','success')); }
 
-/* ── Card helpers ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   CARD HELPERS
+══════════════════════════════════════════════════════════════ */
 function showCardMsg(el,text,type){ if(!el)return; const ok=type==='success'; const s=ok?'background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);':'background:var(--red-dim);border:1px solid rgba(224,82,82,.25);color:var(--red);'; el.innerHTML=`<div style="${s}border-radius:var(--r-sm);padding:9px 12px;font-size:12.5px;font-weight:600;margin-top:10px;">${escHtml(text)}</div>`; }
-function dismissCard(id){ const el=document.getElementById(id);if(el){el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .25s';setTimeout(()=>el.remove(),250);} }
+function dismissCard(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .25s';
+  setTimeout(()=>{
+    el.remove();
+    // On mobile, close drawer and hide FAB when dismissed
+    if(isMobileLayout()){ closeActionDrawer(); hideFab(); _lastCardAction=null; }
+    else{
+      // Restore empty state on desktop if no more cards
+      const panel=document.getElementById('actionPanel');
+      if(panel&&!panel.querySelector('.action-card')){
+        panel.innerHTML=`<div class="action-empty" id="actionEmpty"><div class="action-empty-icon">💬</div><h3>Start a conversation</h3><p>As you chat with the AI, smart action cards will appear here — ready for you to review and save with one click.</p></div>`;
+      }
+    }
+  },250);
+}
 function pickStoreName(id,el){ const name=el.firstChild.textContent.trim(); document.getElementById(`${id}_sname`).value=name; document.querySelectorAll(`#${id} .name-suggestion`).forEach(n=>{n.style.borderColor='';n.style.color='';n.style.background='';}); el.style.borderColor='var(--accent)';el.style.color='var(--accent-2)';el.style.background='var(--accent-dim)'; }
 function toggleCat(el){ el.classList.toggle('selected'); }
 function copyCoupon(id){ const code=document.getElementById(`${id}_code`)?.value; if(code) navigator.clipboard.writeText(code.toUpperCase()).then(()=>toast('Coupon code copied!','success')); }
 
-/* ── Voice engine ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   VOICE ENGINE
+══════════════════════════════════════════════════════════════ */
 const VOICE_LANGS=[
   {code:'en-IN',flag:'🇮🇳',label:'English (India)'},{code:'ta-IN',flag:'🇮🇳',label:'Tamil'},
   {code:'hi-IN',flag:'🇮🇳',label:'Hindi'},{code:'te-IN',flag:'🇮🇳',label:'Telugu'},
