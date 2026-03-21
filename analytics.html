@@ -463,7 +463,7 @@ async function renderAnalyticsData(data, token){
   if(_chartStatus){ _chartStatus.destroy(); _chartStatus=null; }
   const sc = document.getElementById('statusChart');
   if(sc && bd.length){
-    _chartStatus=new Chart(sc,{type:'doughnut',data:{labels:bd.map(s=>s._id),datasets:[{data:bd.map(s=>s.count),backgroundColor:bd.map(s=>SC[s._id]||'#94a3b8'),borderWidth:0,hoverOffset:8,borderRadius:3}]},options:{responsive:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,displayColors:false,callbacks:{title:ctx=>ctx[0]?`${ctx[0].label}: ${ctx[0].parsed}`:'',label:()=>''}}}}});
+    _chartStatus=new Chart(sc,{type:'doughnut',data:{labels:bd.map(s=>s._id),datasets:[{data:bd.map(s=>s.count),backgroundColor:bd.map(s=>SC[s._id]||'#94a3b8'),borderWidth:0,hoverOffset:8,borderRadius:3}]},options:{responsive:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
     const leg=document.getElementById('statusLegend');
     if(leg) leg.innerHTML=bd.map(s=>`<div class="status-row"><div class="status-dot" style="background:${SC[s._id]||'#94a3b8'};"></div><span class="status-name">${s._id}</span><span class="status-count">${s.count}</span></div>`).join('');
   } else {
@@ -499,7 +499,7 @@ async function loadDayDrilldown(date, cur='₹'){
     const pieP=(data.products_sold||[]).slice(0,6);
     if(_ddPie){_ddPie.destroy();_ddPie=null;}
     if(pieP.length){
-      _ddPie=new Chart(document.getElementById('ddPie'),{type:'doughnut',data:{labels:pieP.map(p=>p.name),datasets:[{data:pieP.map(p=>p.revenue),backgroundColor:BARS,borderWidth:0,hoverOffset:6,borderRadius:3}]},options:{responsive:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:tooltipBg,borderColor:tooltipBorder,borderWidth:1,padding:10,displayColors:false,callbacks:{title:ctx=>ctx[0]?`${ctx[0].label}`:'' ,label:ctx=>`${cur}${ctx.parsed.toFixed(0)}`}}}}});
+      _ddPie=new Chart(document.getElementById('ddPie'),{type:'doughnut',data:{labels:pieP.map(p=>p.name),datasets:[{data:pieP.map(p=>p.revenue),backgroundColor:BARS,borderWidth:0,hoverOffset:6,borderRadius:3}]},options:{responsive:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
       document.getElementById('ddPieLegend').innerHTML=pieP.map((p,i)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;font-size:11.5px;"><div style="width:7px;height:7px;border-radius:50%;background:${BARS[i]};flex-shrink:0;"></div><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.name}">${p.name}</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-3);">${cur}${p.revenue.toFixed(0)}</span></div>`).join('');
     }
   }catch(e){ toast('Drill-down error: '+e.message, 'error'); }
