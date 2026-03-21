@@ -993,6 +993,8 @@ Store: ${currentStoreId||'none'} | Categories: ${cats} | Products: ${prods}
 
 SCOPE: Only help with products, categories, coupons, store setup, sales insights. Anything else → redirect warmly: "I can help with your store — products, coupons, setup or sales insights. What do you need? 😊" and set action:null.
 
+CARD RULE: As soon as the user expresses intent (e.g. "create a product", "add category", "make a coupon") — ALWAYS render the action card immediately with whatever fields the user mentioned filled in, and empty strings/0/[] for everything else. Never wait for more info before showing the card. Ask follow-up questions in the message alongside the card.
+
 FILL RULE: Only populate fields the user explicitly mentioned. Leave everything else "" or 0 or []. Never hallucinate names, descriptions, prices or tags.
 
 Response format:
@@ -1035,9 +1037,23 @@ function renderActionCard(action){
   if(!action || !action.type) return;
   _lastCardAction = action;
 
-  const id = 'ac_' + Date.now();
   const meta = TYPE_META[action.type] || { icon:'📦', fabIcon:'📦', label:'Action Card', color:'var(--accent-dim)' };
 
+  /* ── Try to patch existing card of same type in-place ────────
+     If the same action type is already displayed, just update
+     the form fields with any newly provided values instead of
+     replacing the whole card. This preserves anything the user
+     has already typed and avoids a jarring re-render.           */
+  const existingCard = isMobileLayout()
+    ? document.getElementById('drawerScroll')?.querySelector('.action-card')
+    : document.getElementById('actionPanel')?.querySelector('.action-card');
+
+  if(existingCard && existingCard.dataset.type === action.type){
+    patchCardFields(existingCard.id, action);
+    return;
+  }
+
+  const id = 'ac_' + Date.now();
   let cardHTML = '';
   switch(action.type){
     case 'product':  cardHTML = buildProductCard(id, action);  break;
@@ -1049,58 +1065,84 @@ function renderActionCard(action){
   }
 
   if(isMobileLayout()){
-    /* ── MOBILE/TABLET: inject into drawer ── */
     const drawerScroll = document.getElementById('drawerScroll');
     const drawerTitle  = document.getElementById('drawerTitle');
     if(!drawerScroll) return;
-
-    // Update drawer title
     if(drawerTitle) drawerTitle.textContent = action.title || meta.label;
-
-    // Animate out existing card
     const existing = drawerScroll.querySelector('.action-card');
     if(existing){
       existing.style.transition = 'opacity .15s,transform .15s';
-      existing.style.opacity = '0';
-      existing.style.transform = 'translateX(20px)';
+      existing.style.opacity = '0'; existing.style.transform = 'translateX(20px)';
       setTimeout(()=>existing.remove(), 160);
     }
-
     setTimeout(()=>{
       const card = document.createElement('div');
-      card.className = 'action-card';
-      card.id = id;
+      card.className = 'action-card'; card.id = id; card.dataset.type = action.type;
       card.innerHTML = cardHTML;
       drawerScroll.innerHTML = '';
       drawerScroll.appendChild(card);
       drawerScroll.scrollTop = 0;
       if(action.type === 'coupon') updateCouponBanner(id);
     }, existing ? 170 : 0);
-
-    // Show FAB + auto-open drawer
     showFab(meta.fabIcon, action.title || meta.label);
     setTimeout(()=> openActionDrawer(), existing ? 200 : 80);
 
   } else {
-    /* ── DESKTOP: inject into right panel ── */
     const panel = document.getElementById('actionPanel');
     document.getElementById('actionEmpty')?.remove();
     const existing = panel.querySelector('.action-card');
     if(existing){
       existing.style.transition = 'opacity .15s,transform .15s';
-      existing.style.opacity = '0';
-      existing.style.transform = 'translateX(20px)';
+      existing.style.opacity = '0'; existing.style.transform = 'translateX(20px)';
       setTimeout(()=>existing.remove(), 160);
     }
     setTimeout(()=>{
       const card = document.createElement('div');
-      card.className = 'action-card';
-      card.id = id;
+      card.className = 'action-card'; card.id = id; card.dataset.type = action.type;
       card.innerHTML = cardHTML;
       panel.appendChild(card);
       panel.scrollTop = 0;
       if(action.type === 'coupon') updateCouponBanner(id);
     }, existing ? 170 : 0);
+  }
+}
+
+/* Patch only the fields that have new non-empty values — leaves
+   user-typed values and uploaded files completely untouched.    */
+function patchCardFields(cardId, action){
+  const d = action.data || {};
+  const set = (elId, val) => {
+    const el = document.getElementById(elId);
+    if(el && val !== '' && val !== null && val !== undefined) el.value = val;
+  };
+  if(action.type === 'product'){
+    set(`${cardId}_name`,  d.name);
+    set(`${cardId}_price`, d.price || '');
+    set(`${cardId}_desc`,  d.description);
+    set(`${cardId}_tags`,  Array.isArray(d.tags) ? d.tags.join(', ') : d.tags);
+    // category: match by name
+    if(d.category){
+      const sel = document.getElementById(`${cardId}_cat`);
+      if(sel){
+        const opt = Array.from(sel.options).find(o => o.text === d.category);
+        if(opt) sel.value = opt.value;
+      }
+    }
+  } else if(action.type === 'store'){
+    set(`${cardId}_sname`,   d.name_suggestions?.[0] || '');
+    set(`${cardId}_sdesc`,   d.description);
+    set(`${cardId}_tagline`, d.tagline);
+  } else if(action.type === 'coupon'){
+    set(`${cardId}_code`,   d.code);
+    set(`${cardId}_dval`,   d.discount_value);
+    set(`${cardId}_minord`, d.min_order);
+    set(`${cardId}_days`,   d.valid_days);
+    set(`${cardId}_cdesc`,  d.description);
+    if(d.discount_type){
+      const dt = document.getElementById(`${cardId}_dtype`);
+      if(dt) dt.value = d.discount_type;
+    }
+    updateCouponBanner(cardId);
   }
 }
 
