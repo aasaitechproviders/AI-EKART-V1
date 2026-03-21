@@ -488,92 +488,162 @@
     .undo-dismiss{padding:5px 8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px}
   </style>
 <style>
-/* WEBSITE-BUILDER MOBILE ≤768px */
-.mob-builder-bar{display:none}
-@media(max-width:768px){
-  body{overscroll-behavior:none!important}
-  #topbar{padding:0 8px!important;gap:5px!important;height:var(--topbar-h)!important;flex-shrink:0!important;overflow:visible!important}
-  .tb-page-label,.tb-device-group,.tb-shortcut{display:none!important}
-  .tb-btn-ghost{display:none!important}
-  .tb-unsaved{display:none!important}
-  .tb-logo{font-size:15px!important;padding-right:7px!important}
-  .tb-store-pill{padding:4px 7px!important;gap:4px!important;max-width:110px!important}
-  .tb-store-name{max-width:70px!important;font-size:11.5px!important}
-  .tb-spacer{flex:1!important;min-width:4px!important}
-  .theme-toggle{width:30px!important;height:30px!important;min-width:30px!important;font-size:13px!important}
-  #save-btn{padding:6px 10px!important;font-size:12px!important;flex-shrink:0!important;white-space:nowrap!important}
-  #save-btn .tb-shortcut{display:none!important}
-  .store-dropdown{left:8px!important}
-  #builder-wrap{flex-direction:column!important;overflow:hidden!important}
-  #left-panel{width:100%!important;min-width:unset!important;height:calc(100dvh - var(--topbar-h) - 48px)!important;flex-shrink:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;border-right:none!important;border-bottom:1px solid var(--border)!important}
-  #center-panel{position:fixed!important;top:var(--topbar-h)!important;left:0!important;right:0!important;bottom:48px!important;z-index:100!important;background:#111118!important;transform:translateX(100%)!important;transition:transform .25s cubic-bezier(.4,0,.2,1)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
-  #center-panel.mob-preview-active{transform:translateX(0)!important}
-  .panel-tabs{flex-shrink:0!important}
-  .panel-tab{font-size:11px!important;padding:10px 4px!important}
-  .panel-body{flex:1!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain!important}
-  .preview-bar{padding:0 10px!important;gap:7px!important;height:42px!important;flex-shrink:0!important}
-  .preview-hint{display:none!important}
-  .preview-url{max-width:none!important;flex:1!important;padding:4px 9px!important}
-  .preview-zoom-wrap{display:none!important}
-  .preview-canvas{padding:10px!important;flex:1!important;min-height:0!important;overflow:auto!important;-webkit-overflow-scrolling:touch}
-  .device-shell.desktop{max-width:100%!important}
-  .add-section-drawer{left:0!important;right:0!important;bottom:48px!important;z-index:10001!important;max-height:65dvh!important;padding:14px 16px 16px!important;overflow-y:auto!important}
-  .add-section-types{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
-  .section-row{padding:6px 7px!important}
-  .section-row-label{font-size:11.5px!important}
-  .panel-group-label{font-size:9px!important}
-  .field-input,.field-select{font-size:12px!important;padding:6px 8px!important}
+/* ══════════════════════════════════════════════════════
+   WEBSITE-BUILDER  ≤768px  — FINAL MOBILE LAYOUT
+   
+   KEY DESIGN: #mob-builder-bar is a NORMAL FLEX ITEM
+   at the bottom of body. NOT position:fixed.
+   No z-index fights. No stacking context issues.
+   Guaranteed visible because it's in the page flow.
+   
+   add-section-drawer CSS is NOT touched — its own
+   transform:translateY(100%) hide works correctly.
+   JS sets bottom:48px only when drawer is opened.
+══════════════════════════════════════════════════════ */
 
-  /* ─── BOTTOM BAR ────────────────────────────────────────────
-     Static HTML, not JS-created.
-     ID selector (#mob-builder-bar) has higher specificity than
-     class selector (.mob-builder-bar) so overrides display:none
-     more reliably on certain browser engines.                   */
-  #mob-builder-bar{
-    display:flex!important;
-    position:fixed!important;
-    bottom:0!important;
-    left:0!important;
-    right:0!important;
-    height:48px!important;
-    background:var(--surface)!important;
-    border-top:1.5px solid var(--border-md,rgba(0,0,0,.11))!important;
-    z-index:10000!important;
-    align-items:stretch!important;
-    box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -4px 20px rgba(0,0,0,.1)!important;
-    -webkit-transform:translateZ(0)!important;
-    transform:translateZ(0)!important;
+/* Desktop: bar takes no space */
+#mob-builder-bar { display: none; }
+
+@media (max-width: 768px) {
+
+  /* 1. body: use dvh, keep overflow:hidden */
+  body {
+    height: 100dvh !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
   }
-  .mob-bar-tab{
-    flex:1!important;
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:3px!important;
-    font-size:10px!important;
-    font-weight:700!important;
-    letter-spacing:.04em!important;
-    text-transform:uppercase!important;
-    color:var(--text-3,#9ca3af)!important;
-    cursor:pointer!important;
-    border:none!important;
-    background:transparent!important;
-    font-family:'Plus Jakarta Sans',sans-serif!important;
-    border-top:2.5px solid transparent!important;
-    padding:0!important;
-    -webkit-tap-highlight-color:transparent;
-    touch-action:manipulation;
-    user-select:none;
-    transition:background .15s,color .15s,border-color .15s;
+
+  /* 2. Topbar: compact — overflow:visible for store dropdown */
+  #topbar {
+    padding: 0 8px !important;
+    gap: 5px !important;
+    height: var(--topbar-h) !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 200 !important;
   }
-  .mob-bar-tab.active{
-    color:var(--accent-2,#818cf8)!important;
-    background:rgba(91,92,246,.07)!important;
-    border-top-color:var(--accent,#5b5cf6)!important;
+  .tb-page-label, .tb-device-group, .tb-shortcut { display: none !important; }
+  .tb-btn-ghost  { display: none !important; }
+  .tb-unsaved    { display: none !important; }
+  .tb-logo       { font-size: 15px !important; padding-right: 7px !important; }
+  .tb-store-pill { padding: 4px 7px !important; gap: 4px !important; max-width: 110px !important; }
+  .tb-store-name { max-width: 70px !important; font-size: 11.5px !important; }
+  .tb-spacer     { flex: 1 !important; min-width: 4px !important; }
+  .theme-toggle  { width: 30px !important; height: 30px !important; min-width: 30px !important; font-size: 13px !important; }
+  #save-btn      { padding: 6px 10px !important; font-size: 12px !important; flex-shrink: 0 !important; white-space: nowrap !important; }
+  #save-btn .tb-shortcut { display: none !important; }
+  .store-dropdown { left: 8px !important; z-index: 600 !important; }
+
+  /* 3. builder-wrap: flex col, fills middle between topbar and bar */
+  #builder-wrap {
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
-  .mob-bar-tab-icon{font-size:20px!important;line-height:1!important;display:block!important}
-  .mob-bar-tab-label{font-size:9.5px!important;font-weight:700!important;line-height:1!important}
+
+  /* 4. left-panel: fills all of builder-wrap */
+  #left-panel {
+    width: 100% !important;
+    min-width: unset !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  /* 5. Panel tabs + body scroll */
+  .panel-tabs { flex-shrink: 0 !important; }
+  .panel-tab  { font-size: 11px !important; padding: 10px 4px !important; }
+  .panel-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain !important;
+  }
+
+  /* 6. Center/preview panel: fixed overlay slides from right */
+  #center-panel {
+    position: fixed !important;
+    top: var(--topbar-h) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 48px !important;
+    z-index: 100 !important;
+    background: #111118 !important;
+    transform: translateX(100%) !important;
+    transition: transform .25s cubic-bezier(.4,0,.2,1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  #center-panel.mob-preview-active { transform: translateX(0) !important; }
+
+  /* 7. Preview bar/canvas */
+  .preview-bar        { padding: 0 10px !important; gap: 7px !important; height: 42px !important; flex-shrink: 0 !important; }
+  .preview-hint       { display: none !important; }
+  .preview-url        { max-width: none !important; flex: 1 !important; padding: 4px 9px !important; }
+  .preview-zoom-wrap  { display: none !important; }
+  .preview-canvas     { padding: 10px !important; flex: 1 !important; min-height: 0 !important; overflow: auto !important; -webkit-overflow-scrolling: touch; }
+  .device-shell.desktop { max-width: 100% !important; }
+
+  /* 8. Section editor */
+  .section-row        { padding: 6px 7px !important; }
+  .section-row-label  { font-size: 11.5px !important; }
+  .panel-group-label  { font-size: 9px !important; }
+  .field-input, .field-select { font-size: 12px !important; padding: 6px 8px !important; }
+
+  /* 9. BOTTOM BAR — normal flow flex item, NOT position:fixed
+     Lives at the bottom of body flex column.
+     flex-shrink:0 ensures it always gets its 48px.
+     No z-index needed. No stacking context. Always visible. */
+  #mob-builder-bar {
+    display: flex !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    height: 48px !important;
+    background: var(--surface) !important;
+    border-top: 1.5px solid var(--border-md, rgba(0,0,0,.11)) !important;
+    align-items: stretch !important;
+    box-shadow: 0 -1px 0 rgba(0,0,0,.06), 0 -4px 12px rgba(0,0,0,.1) !important;
+    flex-direction: row !important;
+  }
+  .mob-bar-tab {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    color: var(--text-3, #9ca3af) !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    border-top: 2.5px solid transparent !important;
+    padding: 0 !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .mob-bar-tab.active {
+    color: var(--accent-2, #818cf8) !important;
+    background: rgba(91,92,246,.07) !important;
+    border-top-color: var(--accent, #5b5cf6) !important;
+  }
+  .mob-bar-tab-icon  { font-size: 20px !important; line-height: 1 !important; display: block !important; }
+  .mob-bar-tab-label { font-size: 9.5px !important; font-weight: 700 !important; line-height: 1 !important; }
 }
 </style>
 </head>
@@ -1130,58 +1200,62 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
   </button>
 </div>
 <script>
-/* ── Website Builder Mobile — event listeners only ──
-   Bar is static HTML above. JS just wires up behaviour.  */
-(function(){
+/* Website Builder — mobile behaviour only, no layout JS */
+(function () {
+  /* Shorten save button */
+  var sb = document.getElementById('save-btn');
+  if (sb && !sb.dataset.full) {
+    sb.dataset.full = sb.innerHTML;
+    sb.innerHTML = '&#128190;&nbsp;Save';
+  }
 
-  /* Shorten Save button */
-  var sb=document.getElementById('save-btn');
-  if(sb&&!sb.dataset.full){sb.dataset.full=sb.innerHTML;sb.innerHTML='&#128190;&nbsp;Save';}
-
-  /* Toggle */
-  window.mobBuilderTab=function(tab){
-    var cp=document.getElementById('center-panel');
-    var t1=document.getElementById('mob-tab-editor');
-    var t2=document.getElementById('mob-tab-preview');
-    if(tab==='preview'){
-      if(cp)cp.classList.add('mob-preview-active');
-      if(t1){t1.classList.remove('active');t1.setAttribute('aria-selected','false');}
-      if(t2){t2.classList.add('active');t2.setAttribute('aria-selected','true');}
-      if(typeof renderPreview==='function')renderPreview();
-    }else{
-      if(cp)cp.classList.remove('mob-preview-active');
-      if(t1){t1.classList.add('active');t1.setAttribute('aria-selected','true');}
-      if(t2){t2.classList.remove('active');t2.setAttribute('aria-selected','false');}
+  /* Toggle editor / preview */
+  window.mobBuilderTab = function (tab) {
+    var cp = document.getElementById('center-panel');
+    var t1 = document.getElementById('mob-tab-editor');
+    var t2 = document.getElementById('mob-tab-preview');
+    if (tab === 'preview') {
+      if (cp) cp.classList.add('mob-preview-active');
+      if (t1) { t1.classList.remove('active'); t1.setAttribute('aria-selected','false'); }
+      if (t2) { t2.classList.add('active');    t2.setAttribute('aria-selected','true');  }
+      if (typeof renderPreview === 'function') renderPreview();
+    } else {
+      if (cp) cp.classList.remove('mob-preview-active');
+      if (t1) { t1.classList.add('active');    t1.setAttribute('aria-selected','true');  }
+      if (t2) { t2.classList.remove('active'); t2.setAttribute('aria-selected','false'); }
     }
   };
 
-  var t1=document.getElementById('mob-tab-editor');
-  var t2=document.getElementById('mob-tab-preview');
-  if(t1)t1.addEventListener('click',function(){mobBuilderTab('editor');});
-  if(t2)t2.addEventListener('click',function(){mobBuilderTab('preview');});
+  var t1 = document.getElementById('mob-tab-editor');
+  var t2 = document.getElementById('mob-tab-preview');
+  if (t1) t1.addEventListener('click', function () { mobBuilderTab('editor'); });
+  if (t2) t2.addEventListener('click', function () { mobBuilderTab('preview'); });
 
-  /* Fix drawer position when opened */
-  var _oad=window.openAddDrawer;
-  if(typeof _oad==='function'){
-    window.openAddDrawer=function(){
-      _oad.apply(this,arguments);
-      var d=document.getElementById('add-section-drawer');
-      if(d){
-        d.style.setProperty('bottom','48px','important');
-        d.style.setProperty('left','0','important');
-        d.style.setProperty('right','0','important');
-        d.style.setProperty('z-index','10001','important');
+  /* Add Section drawer: only fix position when actually opened */
+  var _oad = window.openAddDrawer;
+  if (typeof _oad === 'function') {
+    window.openAddDrawer = function () {
+      _oad.apply(this, arguments);
+      var d = document.getElementById('add-section-drawer');
+      if (d && window.innerWidth <= 768) {
+        d.style.setProperty('bottom', '48px', 'important');
+        d.style.setProperty('left',   '0',    'important');
+        d.style.setProperty('right',  '0',    'important');
+        d.style.setProperty('z-index','9999',  'important');
       }
     };
   }
 
-  var _oe=window.openSectionEditor;
-  if(typeof _oe==='function'){window.openSectionEditor=function(){_oe.apply(this,arguments);mobBuilderTab('editor');};}
-  var _sl=window.showSectionsListView;
-  if(typeof _sl==='function'){window.showSectionsListView=function(){_sl.apply(this,arguments);mobBuilderTab('editor');};}
-  var _st=window.switchLeftTab;
-  if(typeof _st==='function'){window.switchLeftTab=function(){_st.apply(this,arguments);mobBuilderTab('editor');};}
-
+  /* Stay on editor tab when navigating */
+  ['openSectionEditor','showSectionsListView','switchLeftTab'].forEach(function (fn) {
+    var orig = window[fn];
+    if (typeof orig === 'function') {
+      window[fn] = function () {
+        orig.apply(this, arguments);
+        mobBuilderTab('editor');
+      };
+    }
+  });
 })();
 </script>
 </body>
