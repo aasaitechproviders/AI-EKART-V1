@@ -76,7 +76,8 @@
   <h1>Launch your<br>online store<br>with <em>eKart</em></h1>
   <p class="sub">Create a beautiful online store, add your products, and start selling — all from one simple dashboard.</p>
 
-  <a href="https://apiv2.aasaitech.in/auth/google" class="btn-google" id="loginBtn">
+  <!-- ── FIX: button calls startLogin() instead of direct href ── -->
+  <button class="btn-google" id="loginBtn" onclick="startLogin()">
     <svg viewBox="0 0 24 24">
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -84,7 +85,7 @@
       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
     </svg>
     Continue with Google
-  </a>
+  </button>
 
   <div class="msg-bar" id="msgBar"></div>
 
@@ -101,6 +102,9 @@
 <script>
 const API = 'https://apiv2.aasaitech.in'
 
+// ── The origin this page is served from (e.g. https://ekartv1.aasaitech.in) ──
+const SELF_ORIGIN = window.location.origin
+
 function showMsg(text, type = 'error') {
   const bar = document.getElementById('msgBar')
   bar.textContent = text
@@ -113,6 +117,26 @@ function showLoading(text = 'Signing you in...') {
   document.getElementById('loadingOverlay').classList.add('show')
 }
 
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show')
+}
+
+// ── Redirect to home.html on THIS origin, not a hardcoded domain ──
+function goHome() {
+  window.location.replace(SELF_ORIGIN + '/home.html')
+}
+
+// ── FIX: pass redirect_origin so the backend sends the token back here ──
+function startLogin() {
+  const btn = document.getElementById('loginBtn')
+  btn.disabled = true
+  btn.textContent = 'Redirecting to Google...'
+
+  // Tell the backend: after OAuth, redirect back to THIS origin
+  const redirectOrigin = encodeURIComponent(SELF_ORIGIN)
+  window.location.href = `${API}/auth/google?redirect_origin=${redirectOrigin}`
+}
+
 async function tryExistingToken(token) {
   try {
     const res = await fetch(API + '/auth/me', {
@@ -120,14 +144,14 @@ async function tryExistingToken(token) {
     })
     if (res.ok) {
       showLoading('Welcome back! Redirecting...')
-      window.location.replace('/home.html')
+      goHome()
       return true
     } else {
       localStorage.removeItem('ekart_token')
       return false
     }
   } catch {
-    // Network error — don't remove token, just let user try again
+    // Network error — don't remove token, let user retry
     return false
   }
 }
@@ -140,22 +164,21 @@ async function init() {
   if (tokenFromUrl) {
     showLoading('Signing you in...')
     localStorage.setItem('ekart_token', tokenFromUrl)
-    // Clean the token from URL immediately so it's not visible / bookmarked
-    window.history.replaceState({}, '', '/index.html')
-    // Verify it actually works
+    // Clean token from URL immediately
+    window.history.replaceState({}, '', SELF_ORIGIN + '/index.html')
     try {
       const res = await fetch(API + '/auth/me', {
         headers: { Authorization: 'Bearer ' + tokenFromUrl }
       })
       if (res.ok) {
-        window.location.replace('/home.html')
+        goHome()  // ← always goes to THIS origin's home.html
       } else {
         localStorage.removeItem('ekart_token')
-        document.getElementById('loadingOverlay').classList.remove('show')
+        hideLoading()
         showMsg('Authentication failed. Please try again.')
       }
     } catch {
-      document.getElementById('loadingOverlay').classList.remove('show')
+      hideLoading()
       showMsg('Network error. Please check your connection and try again.', 'error')
     }
     return
@@ -164,11 +187,11 @@ async function init() {
   // ── 2. Error from OAuth callback ─────────────────────────────────────────
   const error = params.get('error')
   if (error) {
-    window.history.replaceState({}, '', '/index.html')
+    window.history.replaceState({}, '', SELF_ORIGIN + '/index.html')
     const msgs = {
-      auth_failed: 'Login failed. Please try again.',
+      auth_failed:   'Login failed. Please try again.',
       access_denied: 'Access denied. Please allow permissions to continue.',
-      no_user: 'Could not retrieve your account. Please try again.'
+      no_user:       'Could not retrieve your account. Please try again.'
     }
     showMsg(msgs[error] || 'Something went wrong: ' + error)
     return
@@ -179,14 +202,11 @@ async function init() {
   if (existingToken) {
     showLoading('Welcome back! Redirecting...')
     const valid = await tryExistingToken(existingToken)
-    if (!valid) {
-      document.getElementById('loadingOverlay').classList.remove('show')
-    }
+    if (!valid) hideLoading()
     return
   }
 
   // ── 4. No token — show login page normally ───────────────────────────────
-  // Nothing to do, page shows as-is
 }
 
 init()
