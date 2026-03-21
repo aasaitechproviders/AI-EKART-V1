@@ -489,79 +489,86 @@
   </style>
 <style>
 /* ══════════════════════════════════════════════════════════════
-   WEBSITE-BUILDER — MOBILE RESPONSIVE  (≤ 768px)
-   Bottom bar is position:fixed — always visible like a native
-   app tab bar. html+body both locked to prevent iOS bounce.
+   WEBSITE-BUILDER — MOBILE (≤ 768px)
+   Static bottom nav bar — always visible, native-app style
 ══════════════════════════════════════════════════════════════ */
 
-/* Default: bar hidden on desktop/tablet */
-.mob-builder-bar { display: none; }
+.mob-builder-bar { display: none; }   /* hidden on desktop */
 
 @media (max-width: 768px) {
 
-  /* ── 1. Lock html + body to viewport — stops iOS bounce scroll ── */
+  /* ── 1. Viewport lock (iOS-safe — no html position:fixed) ── */
   html {
-    height: 100dvh !important;
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
-    position: fixed !important;
-    width: 100% !important;
+    height: 100%;
+    overflow: hidden;
   }
   body {
     height: 100dvh !important;
+    max-height: 100dvh !important;
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    position: relative !important;
   }
 
-  /* ── 2. Topbar: compact ── */
+  /* ── 2. Topbar: compact, single row ── */
   #topbar {
-    padding: 0 10px;
-    gap: 6px;
+    padding: 0 8px;
+    gap: 4px;
     height: var(--topbar-h);
     flex-shrink: 0;
-    position: relative;
-    z-index: 10;
+    overflow: hidden;
   }
+  /* Hide non-essential items */
   .tb-page-label,
   .tb-device-group,
   .tb-shortcut    { display: none !important; }
   .tb-btn-ghost   { display: none !important; }
-  .tb-logo        { font-size: 16px; padding-right: 8px; }
-  .tb-store-name  { max-width: 80px; font-size: 12px; }
-  .tb-store-pill  { padding: 4px 8px; gap: 5px; }
-  .tb-btn-primary { padding: 6px 11px; font-size: 12px; }
-  .theme-toggle   { width: 30px; height: 30px; font-size: 14px; }
-  .tb-unsaved     { padding: 3px 7px; font-size: 10px; gap: 4px; }
-  .store-dropdown { left: 10px !important; }
+  .tb-unsaved     { display: none !important; }   /* hidden — save btn implies unsaved */
 
-  /* ── 3. Builder wrap: fills space between topbar and bottom bar ── */
+  /* Compact remaining items */
+  .tb-logo        { font-size: 15px; padding-right: 7px; flex-shrink: 0; }
+  .tb-store-pill  { padding: 4px 7px; gap: 4px; min-width: 0; flex-shrink: 1; max-width: 110px; }
+  .tb-store-name  { max-width: 75px; font-size: 11.5px; }
+  .tb-spacer      { flex: 1; min-width: 4px; }
+  .theme-toggle   { width: 30px; height: 30px; min-width: 30px; font-size: 13px; flex-shrink: 0; }
+  .store-dropdown { left: 8px !important; }
+
+  /* Save button: short label on mobile */
+  #save-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  /* Replace long label with short one via content trick on the span */
+  #save-btn .tb-shortcut { display: none !important; }
+
+  /* ── 3. Builder wrap: fill between topbar and bottom bar ── */
   #builder-wrap {
     flex-direction: column;
     flex: 1;
-    height: calc(100dvh - var(--topbar-h) - 48px);
+    min-height: 0;
     overflow: hidden;
     overscroll-behavior: none;
   }
 
-  /* ── 4. Left panel: full-width flex column, no overflow ── */
+  /* ── 4. Left panel: full-width flex column ── */
   #left-panel {
     width: 100%      !important;
     min-width: unset !important;
-    height: 100%     !important;
     flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-right: none !important;
-    border-bottom: none;
+    border-right: none    !important;
+    border-bottom: 1px solid var(--border);
   }
 
-  /* ── 5. Panel tabs: fixed height, no shrink ── */
+  /* ── 5. Panel tabs: no shrink ── */
   .panel-tabs { flex-shrink: 0; }
   .panel-tab  { font-size: 11px; padding: 10px 4px; }
 
-  /* ── 6. Panel body: the ONLY scrollable element ── */
+  /* ── 6. Panel body: only scrollable element inside left-panel ── */
   .panel-body {
     flex: 1;
     min-height: 0;
@@ -571,13 +578,13 @@
     overscroll-behavior-y: contain;
   }
 
-  /* ── 7. Center/preview panel: fixed overlay, slides from right ── */
+  /* ── 7. Preview / center panel: fixed overlay, slides from right ── */
   #center-panel {
     position: fixed !important;
     top:      var(--topbar-h);
     left:     0;
     right:    0;
-    bottom:   48px;
+    bottom:   calc(48px + env(safe-area-inset-bottom, 0px));
     z-index:  100;
     background: #111118;
     transform: translateX(100%);
@@ -595,11 +602,25 @@
   .preview-hint       { display: none !important; }
   .preview-url        { max-width: none; flex: 1; padding: 4px 9px; }
   .preview-zoom-wrap  { display: none !important; }
-  .preview-canvas     { flex: 1; padding: 10px; overflow: auto; -webkit-overflow-scrolling: touch; }
+  .preview-canvas     { flex: 1; min-height: 0; padding: 10px; overflow: auto;
+                        -webkit-overflow-scrolling: touch; }
   .device-shell.desktop { max-width: 100%; }
 
-  /* ── 9. Add-section drawer: above bottom bar ── */
-  .add-section-drawer { left: 0 !important; bottom: 48px; }
+  /* ── 9. Add Section drawer: sits above bottom bar, uses z-index > bar ── */
+  .add-section-drawer {
+    left:    0 !important;
+    right:   0 !important;
+    bottom:  calc(48px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 10000 !important;    /* above bottom bar (9999) */
+    padding: 14px 16px 18px;
+    max-height: 70dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .add-section-types {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
 
   /* ── 10. Section rows & editor fields ── */
   .section-row        { padding: 6px 7px; }
@@ -609,35 +630,32 @@
   .field-select       { font-size: 12px; padding: 6px 8px; }
   .editor-fields      { min-height: 0; }
 
-  /* ── 11. BOTTOM BAR — always visible, native-app style ──────────
-     position:fixed  → stays at bottom regardless of any scroll
-     padding-bottom  → respects iPhone home indicator (safe area)
-     z-index: 9999   → above every other element
+  /* ── 11. Bottom bar: static footer, always visible ────────────
+     • position:fixed + will-change:transform = stays put on iOS
+     • z-index:9999 — only add-section-drawer (10000) sits above it
+     • env(safe-area-inset-bottom) — respects iPhone home indicator
   ────────────────────────────────────────────────────────────── */
   .mob-builder-bar {
-    display:         flex !important;
-    position:        fixed;
-    bottom:          0;
-    left:            0;
-    right:           0;
-    height:          48px;
-    /* Add safe-area padding for iPhone home indicator */
-    padding-bottom:  env(safe-area-inset-bottom, 0px);
-    height:          calc(48px + env(safe-area-inset-bottom, 0px));
-    background:      var(--surface);
-    border-top:      1.5px solid var(--border-md, rgba(0,0,0,.1));
-    z-index:         9999;
-    align-items:     stretch;
-    /* Crisp native shadow */
-    box-shadow:      0 -1px 0 rgba(0,0,0,.06),
-                     0 -4px 20px rgba(0,0,0,.08);
-    /* Prevent bar from scrolling on iOS */
+    display:       flex !important;
+    position:      fixed;
+    bottom:        0;
+    left:          0;
+    right:         0;
+    height:        calc(48px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background:    var(--surface);
+    border-top:    1.5px solid var(--border-md, rgba(0,0,0,.1));
+    z-index:       9999;
+    align-items:   stretch;
+    box-shadow:    0 -1px 0 rgba(0,0,0,.06), 0 -4px 20px rgba(0,0,0,.1);
+    /* GPU layer — bar cannot be scrolled off-screen */
     -webkit-transform: translateZ(0);
-    transform:       translateZ(0);
-    will-change:     transform;
+    transform:     translateZ(0);
+    will-change:   transform;
+    /* Prevent tap delay */
+    touch-action:  manipulation;
   }
 
-  /* Tab buttons */
   .mob-bar-tab {
     flex:             1;
     display:          flex;
@@ -656,36 +674,19 @@
     background:       transparent;
     font-family:      'Plus Jakarta Sans', sans-serif;
     border-top:       2.5px solid transparent;
-    padding:          0 0 2px;
-    margin-top:       -1.5px; /* overlap the border-top hairline */
+    padding:          0;
+    margin-top:       -1.5px;
     -webkit-tap-highlight-color: transparent;
     touch-action:     manipulation;
     user-select:      none;
   }
   .mob-bar-tab.active {
     color:            var(--accent-2, #818cf8);
-    background:       rgba(91, 92, 246, 0.06);
+    background:       rgba(91, 92, 246, 0.07);
     border-top-color: var(--accent, #5b5cf6);
   }
-  .mob-bar-tab-icon {
-    font-size: 20px;
-    line-height: 1;
-    display: block;
-  }
-  .mob-bar-tab-label {
-    font-size:   9.5px;
-    font-weight: 700;
-    line-height: 1;
-  }
-}
-
-/* ── Safe-area for non-media-query context (iPhone notch) ── */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  @media (max-width: 768px) {
-    #center-panel { bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
-    #builder-wrap { height: calc(100dvh - var(--topbar-h) - 48px - env(safe-area-inset-bottom, 0px)); }
-    .add-section-drawer { bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
-  }
+  .mob-bar-tab-icon  { font-size: 20px; line-height: 1; display: block; }
+  .mob-bar-tab-label { font-size: 9.5px; font-weight: 700; line-height: 1; }
 }
 </style>
 </head>
@@ -1232,51 +1233,44 @@ function highlightSectionInPreview(id){
 function clearHighlight(){try{document.getElementById('preview-iframe').contentDocument?.querySelectorAll('[data-section-id]').forEach(el=>el.classList.remove('sec-active'))}catch(e){}}
 </script>
 <script>
-/* ── Website Builder — Mobile Bottom Navigation Bar ────────────
-   • Bar always created (no innerWidth guard) — CSS hides/shows it
-   • This ensures DevTools responsive mode, resize, real phones
-     all work without re-running JS
+/* ── Website Builder — Mobile Bottom Nav Bar ──────────────────
+   Bar always created (no innerWidth guard).
+   CSS display:none hides on desktop; @media shows on mobile.
+   This ensures DevTools responsive mode + real phones both work.
 ─────────────────────────────────────────────────────────────── */
 (function () {
 
-  /* Create bar container */
-  var bar = document.createElement('div');
-  bar.className = 'mob-builder-bar';
-  bar.setAttribute('role', 'tablist');
-  bar.setAttribute('aria-label', 'Builder navigation');
-
-  /* Helper: build a tab button */
-  function makeTab(id, icon, label, isActive) {
-    var btn = document.createElement('button');
-    btn.id = id;
-    btn.className = 'mob-bar-tab' + (isActive ? ' active' : '');
-    btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    btn.setAttribute('aria-label', label);
-    btn.innerHTML =
+  function makeTab(id, icon, label, active) {
+    var b = document.createElement('button');
+    b.id = id;
+    b.className = 'mob-bar-tab' + (active ? ' active' : '');
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+    b.innerHTML =
       '<span class="mob-bar-tab-icon">' + icon + '</span>' +
       '<span class="mob-bar-tab-label">' + label + '</span>';
-    return btn;
+    return b;
   }
+
+  var bar  = document.createElement('div');
+  bar.className = 'mob-builder-bar';
+  bar.setAttribute('role', 'tablist');
 
   var btn1 = makeTab('mob-tab-editor',  '&#9998;',   'Editor',  true);
   var btn2 = makeTab('mob-tab-preview', '&#128065;', 'Preview', false);
-
   bar.appendChild(btn1);
   bar.appendChild(btn2);
   document.body.appendChild(bar);
 
-  /* ── Core toggle ── */
+  /* ── Toggle ── */
   window.mobBuilderTab = function (tab) {
     var cp = document.getElementById('center-panel');
     var t1 = document.getElementById('mob-tab-editor');
     var t2 = document.getElementById('mob-tab-preview');
-
     if (tab === 'preview') {
       if (cp) cp.classList.add('mob-preview-active');
       if (t1) { t1.classList.remove('active'); t1.setAttribute('aria-selected','false'); }
       if (t2) { t2.classList.add('active');    t2.setAttribute('aria-selected','true');  }
-      /* Always re-render so preview is fresh */
       if (typeof renderPreview === 'function') renderPreview();
     } else {
       if (cp) cp.classList.remove('mob-preview-active');
@@ -1288,7 +1282,7 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
   btn1.addEventListener('click', function () { mobBuilderTab('editor'); });
   btn2.addEventListener('click', function () { mobBuilderTab('preview'); });
 
-  /* ── Intercept openSectionEditor → stay on editor ── */
+  /* Keep on editor when opening section editor */
   var _oe = window.openSectionEditor;
   if (typeof _oe === 'function') {
     window.openSectionEditor = function () {
@@ -1297,7 +1291,7 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
     };
   }
 
-  /* ── Intercept showSectionsListView → stay on editor ── */
+  /* Keep on editor when returning to section list */
   var _sl = window.showSectionsListView;
   if (typeof _sl === 'function') {
     window.showSectionsListView = function () {
@@ -1306,14 +1300,39 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
     };
   }
 
-  /* ── Intercept switchLeftTab → stay on editor tab view ── */
+  /* Keep on editor when switching Sections/Themes/Settings tabs */
   var _st = window.switchLeftTab;
   if (typeof _st === 'function') {
     window.switchLeftTab = function (tab, el) {
       _st.apply(this, arguments);
-      /* If user switches sections/themes/settings, ensure we're in editor view */
       mobBuilderTab('editor');
     };
+  }
+
+  /* Shorten Save button label on mobile */
+  var saveBtn = document.getElementById('save-btn');
+  if (saveBtn) {
+    /* Keep function but shorten visible text */
+    saveBtn.addEventListener('DOMContentLoaded', function(){});
+    /* Use MutationObserver or just set after load */
+    function shortenSaveBtn() {
+      if (window.innerWidth <= 768 && saveBtn) {
+        /* Store original for resize */
+        if (!saveBtn.dataset.fullHtml) {
+          saveBtn.dataset.fullHtml = saveBtn.innerHTML;
+        }
+        saveBtn.innerHTML = '&#128190; Save';
+      } else if (saveBtn && saveBtn.dataset.fullHtml) {
+        saveBtn.innerHTML = saveBtn.dataset.fullHtml;
+      }
+    }
+    /* Run on load and on resize */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', shortenSaveBtn);
+    } else {
+      shortenSaveBtn();
+    }
+    window.addEventListener('resize', shortenSaveBtn);
   }
 
 })();
