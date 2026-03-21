@@ -488,71 +488,171 @@
     .undo-dismiss{padding:5px 8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px}
   </style>
 <style>
-/* ═══════════════════════════════════════════════════════════
-   WEBSITE-BUILDER MOBILE  ≤768px  — cosmetic only
-   Layout is enforced by JS inline styles below
-═══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   WEBSITE-BUILDER MOBILE  ≤768px
+   Injected after main stylesheet so source order wins.
+   Bar default has NO !important so @media can override it.
+══════════════════════════════════════════════════════════ */
 
-/* ── Topbar compact ── */
-@media (max-width: 768px) {
-  .tb-page-label,
-  .tb-device-group,
-  .tb-shortcut  { display: none !important; }
-  .tb-btn-ghost { display: none !important; }
-  .tb-unsaved   { display: none !important; }
-  .tb-logo      { font-size: 15px !important; padding-right: 7px !important; }
-  .tb-store-pill{ padding: 4px 7px !important; gap: 4px !important; max-width: 110px !important; }
-  .tb-store-name{ max-width: 70px !important; font-size: 11.5px !important; }
-  .theme-toggle { width: 30px !important; height: 30px !important; font-size: 13px !important; flex-shrink: 0 !important; }
-  #save-btn     { padding: 6px 10px !important; font-size: 12px !important; flex-shrink: 0 !important; }
-  #save-btn .tb-shortcut { display: none !important; }
+/* Bar hidden on desktop — plain display:none, no !important */
+.mob-builder-bar { display:none; }
 
-  /* Panel tabs */
-  .panel-tab { font-size: 11px !important; padding: 10px 4px !important; }
+@media(max-width:768px){
 
-  /* Section list */
-  .section-row       { padding: 6px 7px !important; }
-  .section-row-label { font-size: 11.5px !important; }
-  .panel-group-label { font-size: 9px !important; }
-  .field-input,
-  .field-select      { font-size: 12px !important; padding: 6px 8px !important; }
-
-  /* Preview panel slide animation */
-  #center-panel {
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+  /* 1 ── Body: lock to viewport */
+  body{
+    height:100dvh!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
   }
 
-  /* Bottom bar cosmetics */
-  .mob-bar-tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-3, #9ca3af);
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    border-top: 2.5px solid transparent;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    user-select: none;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  /* 2 ── Topbar: compact — NO overflow:hidden (store dropdown must show) */
+  #topbar{
+    padding:0 8px!important;
+    gap:5px!important;
+    height:var(--topbar-h)!important;
+    flex-shrink:0!important;
   }
-  .mob-bar-tab.active {
-    color: var(--accent-2, #818cf8) !important;
-    background: rgba(91,92,246,0.07) !important;
-    border-top-color: var(--accent, #5b5cf6) !important;
+  .tb-page-label,.tb-device-group,.tb-shortcut{display:none!important}
+  .tb-btn-ghost{display:none!important}
+  .tb-unsaved{display:none!important}
+  .tb-logo{font-size:15px!important;padding-right:7px!important}
+  .tb-store-pill{padding:4px 7px!important;gap:4px!important;max-width:110px!important}
+  .tb-store-name{max-width:70px!important;font-size:11.5px!important}
+  .tb-spacer{flex:1!important;min-width:4px!important}
+  .theme-toggle{width:30px!important;height:30px!important;min-width:30px!important;font-size:13px!important}
+  #save-btn{padding:6px 10px!important;font-size:12px!important;flex-shrink:0!important}
+  #save-btn .tb-shortcut{display:none!important}
+  .store-dropdown{left:8px!important}
+
+  /* 3 ── Builder wrap: stack vertically, shrink to leave room for bar */
+  #builder-wrap{
+    flex-direction:column!important;
+    height:calc(100dvh - var(--topbar-h) - 48px)!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    flex:none!important;
   }
-  .mob-bar-tab-icon  { font-size: 20px; line-height: 1; display: block; }
-  .mob-bar-tab-label { font-size: 9.5px; font-weight: 700; line-height: 1; }
+
+  /* 4 ── Left panel: fill builder-wrap as flex column */
+  #left-panel{
+    width:100%!important;
+    min-width:unset!important;
+    height:100%!important;
+    flex:1!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    border-right:none!important;
+    border-bottom:1px solid var(--border)!important;
+  }
+
+  /* 5 ── Panel tabs: no shrink */
+  .panel-tabs{flex-shrink:0!important}
+  .panel-tab{font-size:11px!important;padding:10px 4px!important}
+
+  /* 6 ── Panel body: the only scrollable zone */
+  .panel-body{
+    flex:1!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain!important;
+  }
+
+  /* 7 ── Center/preview panel: fixed overlay, slides from right */
+  #center-panel{
+    position:fixed!important;
+    top:var(--topbar-h)!important;
+    left:0!important;
+    right:0!important;
+    bottom:48px!important;
+    z-index:100!important;
+    background:#111118!important;
+    transform:translateX(100%)!important;
+    transition:transform .28s cubic-bezier(.4,0,.2,1)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+  }
+  #center-panel.mob-preview-active{
+    transform:translateX(0)!important;
+  }
+
+  /* 8 ── Preview bar/canvas tweaks */
+  .preview-bar{padding:0 10px!important;gap:7px!important;height:42px!important;flex-shrink:0!important}
+  .preview-hint{display:none!important}
+  .preview-url{max-width:none!important;flex:1!important;padding:4px 9px!important}
+  .preview-zoom-wrap{display:none!important}
+  .preview-canvas{padding:10px!important;flex:1!important;min-height:0!important;overflow:auto!important;-webkit-overflow-scrolling:touch}
+  .device-shell.desktop{max-width:100%!important}
+
+  /* 9 ── Add Section drawer: above bar */
+  .add-section-drawer{
+    left:0!important;
+    right:0!important;
+    bottom:48px!important;
+    z-index:10000!important;
+    max-height:65dvh!important;
+    padding:14px 16px 16px!important;
+    overflow-y:auto!important;
+  }
+  .add-section-types{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+
+  /* 10 ── Section rows */
+  .section-row{padding:6px 7px!important}
+  .section-row-label{font-size:11.5px!important}
+  .panel-group-label{font-size:9px!important}
+  .field-input,.field-select{font-size:12px!important;padding:6px 8px!important}
+
+  /* 11 ── Bottom bar: shown on mobile */
+  .mob-builder-bar{
+    display:flex!important;
+    position:fixed!important;
+    bottom:0!important;
+    left:0!important;
+    right:0!important;
+    height:48px!important;
+    background:var(--surface)!important;
+    border-top:1.5px solid var(--border-md,rgba(0,0,0,.11))!important;
+    z-index:9999!important;
+    align-items:stretch!important;
+    box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -4px 20px rgba(0,0,0,.1)!important;
+    -webkit-transform:translateZ(0)!important;
+    transform:translateZ(0)!important;
+    will-change:transform;
+    touch-action:manipulation;
+  }
+  .mob-bar-tab{
+    flex:1!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    font-size:10px!important;
+    font-weight:700!important;
+    letter-spacing:.04em!important;
+    text-transform:uppercase!important;
+    color:var(--text-3,#9ca3af)!important;
+    cursor:pointer!important;
+    border:none!important;
+    background:transparent!important;
+    font-family:'Plus Jakarta Sans',sans-serif!important;
+    border-top:2.5px solid transparent!important;
+    padding:0!important;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    user-select:none;
+  }
+  .mob-bar-tab.active{
+    color:var(--accent-2,#818cf8)!important;
+    background:rgba(91,92,246,.07)!important;
+    border-top-color:var(--accent,#5b5cf6)!important;
+  }
+  .mob-bar-tab-icon{font-size:20px!important;line-height:1!important;display:block!important}
+  .mob-bar-tab-label{font-size:9.5px!important;font-weight:700!important;line-height:1!important}
 }
 </style>
 </head>
@@ -1099,272 +1199,77 @@ function highlightSectionInPreview(id){
 function clearHighlight(){try{document.getElementById('preview-iframe').contentDocument?.querySelectorAll('[data-section-id]').forEach(el=>el.classList.remove('sec-active'))}catch(e){}}
 </script>
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   WEBSITE-BUILDER MOBILE NAV  — pure JS inline styles
-   Inline styles beat ALL CSS cascade rules unconditionally.
-   Runs after DOM ready so all elements exist.
-═══════════════════════════════════════════════════════════════ */
-(function () {
+/* ── Website Builder mobile bar — mirrors ai-builder pattern ── */
+(function(){
+  if(window.innerWidth>768)return;
 
-  var BAR_H = 48;          /* px — bottom bar height        */
-  var TB_H  = 52;          /* px — topbar height             */
-  var BREAK = 768;         /* px — mobile breakpoint         */
+  /* Create bar */
+  var bar=document.createElement('div');
+  bar.className='mob-builder-bar';
+  bar.id='mob-builder-bar';
 
-  /* ── Helpers ─────────────────────────────────────────────── */
-  function isMobile() { return window.innerWidth <= BREAK; }
+  var btn1=document.createElement('button');
+  btn1.className='mob-bar-tab active';
+  btn1.id='mob-tab-editor';
+  btn1.innerHTML='<span class="mob-bar-tab-icon">&#9998;</span><span class="mob-bar-tab-label">Editor</span>';
 
-  function css(el, props) {
-    if (!el) return;
-    Object.keys(props).forEach(function (k) {
-      el.style.setProperty(k, props[k], 'important');
-    });
-  }
+  var btn2=document.createElement('button');
+  btn2.className='mob-bar-tab';
+  btn2.id='mob-tab-preview';
+  btn2.innerHTML='<span class="mob-bar-tab-icon">&#128065;</span><span class="mob-bar-tab-label">Preview</span>';
 
-  function uncss(el, props) {
-    if (!el) return;
-    props.forEach(function (k) { el.style.removeProperty(k); });
-  }
-
-  /* ── Create bottom bar ──────────────────────────────────── */
-  function makeTab(id, icon, label, active) {
-    var b = document.createElement('button');
-    b.id = id;
-    b.className = 'mob-bar-tab' + (active ? ' active' : '');
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', active ? 'true' : 'false');
-    b.innerHTML =
-      '<span class="mob-bar-tab-icon">' + icon + '</span>' +
-      '<span class="mob-bar-tab-label">' + label + '</span>';
-    return b;
-  }
-
-  var bar  = document.createElement('div');
-  bar.id   = 'mob-builder-bar';
-  bar.setAttribute('role', 'tablist');
-  var btn1 = makeTab('mob-tab-editor',  '&#9998;',   'Editor',  true);
-  var btn2 = makeTab('mob-tab-preview', '&#128065;', 'Preview', false);
   bar.appendChild(btn1);
   bar.appendChild(btn2);
   document.body.appendChild(bar);
 
-  /* ── Apply all layout inline styles ──────────────────────── */
-  function applyMobileLayout() {
-    if (!isMobile()) {
-      removeMobileLayout();
-      return;
-    }
+  /* Shorten Save button */
+  var sb=document.getElementById('save-btn');
+  if(sb){sb.dataset.full=sb.innerHTML;sb.innerHTML='&#128190;&nbsp;Save';}
 
-    /* topbar: compact, NO overflow:hidden (store dropdown must show) */
-    css(document.getElementById('topbar'), {
-      'padding': '0 8px',
-      'gap': '4px',
-      'height': TB_H + 'px',
-      'flex-shrink': '0',
-      'overflow': 'visible'   /* CRITICAL: lets dropdown appear */
-    });
-
-    /* store dropdown: fix position on mobile */
-    css(document.getElementById('store-dropdown'), {
-      'left': '8px',
-      'right': 'auto'
-    });
-
-    /* builder-wrap: vertical, exact height */
-    css(document.getElementById('builder-wrap'), {
-      'flex-direction': 'column',
-      'height': 'calc(100dvh - ' + TB_H + 'px - ' + BAR_H + 'px)',
-      'overflow': 'hidden',
-      'overscroll-behavior': 'none'
-    });
-
-    /* left-panel: fill builder-wrap */
-    css(document.getElementById('left-panel'), {
-      'width': '100%',
-      'min-width': 'unset',
-      'height': '100%',
-      'min-height': '0',
-      'display': 'flex',
-      'flex-direction': 'column',
-      'overflow': 'hidden',
-      'border-right': 'none',
-      'border-bottom': '1px solid var(--border)',
-      'flex': '1'
-    });
-
-    /* panel-body: only element that scrolls */
-    document.querySelectorAll('.panel-body').forEach(function (pb) {
-      css(pb, {
-        'flex': '1',
-        'min-height': '0',
-        'overflow-y': 'auto',
-        'overflow-x': 'hidden',
-        '-webkit-overflow-scrolling': 'touch',
-        'overscroll-behavior-y': 'contain'
-      });
-    });
-
-    /* center/preview panel: fixed overlay off-screen right */
-    css(document.getElementById('center-panel'), {
-      'position': 'fixed',
-      'top': TB_H + 'px',
-      'left': '0',
-      'right': '0',
-      'bottom': BAR_H + 'px',
-      'z-index': '100',
-      'background': '#111118',
-      'transform': 'translateX(100%)',
-      'display': 'flex',
-      'flex-direction': 'column',
-      'overflow': 'hidden'
-    });
-
-    /* bottom bar */
-    css(bar, {
-      'display': 'flex',
-      'position': 'fixed',
-      'bottom': '0',
-      'left': '0',
-      'right': '0',
-      'height': BAR_H + 'px',
-      'background': 'var(--surface)',
-      'border-top': '1.5px solid var(--border-md, rgba(0,0,0,.11))',
-      'z-index': '9999',
-      'align-items': 'stretch',
-      'box-shadow': '0 -1px 0 rgba(0,0,0,.06), 0 -4px 20px rgba(0,0,0,.1)',
-      '-webkit-transform': 'translateZ(0)',
-      'transform': 'translateZ(0)',
-      'will-change': 'transform',
-      'touch-action': 'manipulation'
-    });
-
-    /* body: lock scroll */
-    css(document.body, {
-      'height': '100dvh',
-      'max-height': '100dvh',
-      'overflow': 'hidden',
-      'overscroll-behavior': 'none'
-    });
-
-    /* html: lock scroll */
-    css(document.documentElement, {
-      'height': '100%',
-      'overflow': 'hidden'
-    });
-  }
-
-  function removeMobileLayout() {
-    var keys = ['padding','gap','height','flex-shrink','overflow','flex-direction',
-                'min-height','min-width','width','display','flex','border-right',
-                'border-bottom','position','top','left','right','bottom','z-index',
-                'background','transform','-webkit-transform','will-change',
-                'touch-action','box-shadow','border-top','align-items',
-                'flex-direction','overflow-x','overflow-y','-webkit-overflow-scrolling',
-                'overscroll-behavior','overscroll-behavior-y','max-height',
-                'overscroll-behavior-n'];
-    [document.getElementById('topbar'),
-     document.getElementById('store-dropdown'),
-     document.getElementById('builder-wrap'),
-     document.getElementById('left-panel'),
-     document.getElementById('center-panel'),
-     bar, document.body, document.documentElement
-    ].forEach(function (el) { uncss(el, keys); });
-    document.querySelectorAll('.panel-body').forEach(function (pb) { uncss(pb, keys); });
-    css(bar, { 'display': 'none' });
-  }
-
-  /* ── Toggle editor / preview ──────────────────────────────── */
-  window.mobBuilderTab = function (tab) {
-    var cp = document.getElementById('center-panel');
-    var t1 = document.getElementById('mob-tab-editor');
-    var t2 = document.getElementById('mob-tab-preview');
-    if (tab === 'preview') {
-      if (cp) cp.style.setProperty('transform', 'translateX(0)', 'important');
-      if (t1) { t1.classList.remove('active'); t1.setAttribute('aria-selected','false'); }
-      if (t2) { t2.classList.add('active');    t2.setAttribute('aria-selected','true');  }
-      if (typeof renderPreview === 'function') renderPreview();
-    } else {
-      if (cp) cp.style.setProperty('transform', 'translateX(100%)', 'important');
-      if (t1) { t1.classList.add('active');    t1.setAttribute('aria-selected','true');  }
-      if (t2) { t2.classList.remove('active'); t2.setAttribute('aria-selected','false'); }
+  /* Toggle function */
+  window.mobBuilderTab=function(tab){
+    var cp=document.getElementById('center-panel');
+    var e1=document.getElementById('mob-tab-editor');
+    var e2=document.getElementById('mob-tab-preview');
+    if(tab==='preview'){
+      if(cp)cp.classList.add('mob-preview-active');
+      if(e1){e1.classList.remove('active');e1.setAttribute('aria-selected','false');}
+      if(e2){e2.classList.add('active');e2.setAttribute('aria-selected','true');}
+      if(typeof renderPreview==='function')renderPreview();
+    }else{
+      if(cp)cp.classList.remove('mob-preview-active');
+      if(e1){e1.classList.add('active');e1.setAttribute('aria-selected','true');}
+      if(e2){e2.classList.remove('active');e2.setAttribute('aria-selected','false');}
     }
   };
 
-  btn1.addEventListener('click', function () { mobBuilderTab('editor'); });
-  btn2.addEventListener('click', function () { mobBuilderTab('preview'); });
+  btn1.addEventListener('click',function(){mobBuilderTab('editor');});
+  btn2.addEventListener('click',function(){mobBuilderTab('preview');});
 
-  /* ── Intercept openAddDrawer: position drawer above bar ────── */
-  var _oad = window.openAddDrawer;
-  if (typeof _oad === 'function') {
-    window.openAddDrawer = function () {
-      _oad.apply(this, arguments);
-      if (isMobile()) {
-        var d = document.getElementById('add-section-drawer');
-        if (d) {
-          d.style.setProperty('bottom', BAR_H + 'px', 'important');
-          d.style.setProperty('left',   '0',          'important');
-          d.style.setProperty('right',  '0',          'important');
-          d.style.setProperty('z-index','10000',       'important');
-        }
+  /* Stay on editor tab when navigating sections */
+  var _oe=window.openSectionEditor;
+  if(typeof _oe==='function'){window.openSectionEditor=function(){_oe.apply(this,arguments);mobBuilderTab('editor');};}
+
+  var _sl=window.showSectionsListView;
+  if(typeof _sl==='function'){window.showSectionsListView=function(){_sl.apply(this,arguments);mobBuilderTab('editor');};}
+
+  var _st=window.switchLeftTab;
+  if(typeof _st==='function'){window.switchLeftTab=function(){_st.apply(this,arguments);mobBuilderTab('editor');};}
+
+  /* Intercept Add Section drawer to fix its position */
+  var _oad=window.openAddDrawer;
+  if(typeof _oad==='function'){
+    window.openAddDrawer=function(){
+      _oad.apply(this,arguments);
+      var d=document.getElementById('add-section-drawer');
+      if(d){
+        d.style.setProperty('bottom','48px','important');
+        d.style.setProperty('left','0','important');
+        d.style.setProperty('right','0','important');
+        d.style.setProperty('z-index','10000','important');
       }
     };
   }
-
-  /* ── Intercept section functions ──────────────────────────── */
-  var _oe = window.openSectionEditor;
-  if (typeof _oe === 'function') {
-    window.openSectionEditor = function () {
-      _oe.apply(this, arguments);
-      if (isMobile()) mobBuilderTab('editor');
-    };
-  }
-  var _sl = window.showSectionsListView;
-  if (typeof _sl === 'function') {
-    window.showSectionsListView = function () {
-      _sl.apply(this, arguments);
-      if (isMobile()) mobBuilderTab('editor');
-    };
-  }
-  var _st = window.switchLeftTab;
-  if (typeof _st === 'function') {
-    window.switchLeftTab = function () {
-      _st.apply(this, arguments);
-      if (isMobile()) mobBuilderTab('editor');
-    };
-  }
-
-  /* ── Shorten Save button on mobile ────────────────────────── */
-  function patchSaveBtn() {
-    var btn = document.getElementById('save-btn');
-    if (!btn) return;
-    if (isMobile()) {
-      if (!btn.dataset.full) btn.dataset.full = btn.innerHTML;
-      btn.innerHTML = '&#128190;&nbsp;Save';
-    } else if (btn.dataset.full) {
-      btn.innerHTML = btn.dataset.full;
-    }
-  }
-
-  /* ── Init on DOMContentLoaded ─────────────────────────────── */
-  function init() {
-    applyMobileLayout();
-    patchSaveBtn();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  /* ── Re-apply on resize ────────────────────────────────────── */
-  var _resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(_resizeTimer);
-    _resizeTimer = setTimeout(function () {
-      applyMobileLayout();
-      patchSaveBtn();
-    }, 100);
-  });
 
 })();
 </script>
