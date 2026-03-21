@@ -232,20 +232,37 @@ input:checked+.toggle-track{background:var(--accent);border-color:var(--accent)}
 input:checked+.toggle-track::before{transform:translateX(16px);background:#fff}
 
 /* ── Inventory inputs ─────────────────────────────────────────── */
-.stock-input{width:68px;padding:5px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;text-align:center;outline:none;height:32px;transition:border-color .2s,box-shadow .2s}
+.stock-input{width:72px;padding:5px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;text-align:center;outline:none;height:32px;transition:border-color .2s,box-shadow .2s}
 .stock-input:focus{border-color:rgba(124,111,255,.5);box-shadow:0 0 0 2px var(--accent-dim)}
-.stock-input.changed{border-color:rgba(124,111,255,.5);background:var(--accent-dim)}
-.note-input{width:130px;padding:5px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;height:32px;transition:border-color .2s}
-.note-input:focus{border-color:rgba(124,111,255,.5)}
+.stock-input.changed{border-color:var(--green);box-shadow:0 0 0 2px var(--green-dim);background:var(--green-dim)}
+/* Per-row update button — hidden until value changes */
+.btn-inv-update{
+  display:none;align-items:center;gap:4px;
+  padding:0 10px;height:28px;font-size:11px;font-weight:700;
+  background:var(--green-dim);color:var(--green);
+  border:1px solid var(--green-border);border-radius:7px;
+  cursor:pointer;font-family:var(--font);
+  transition:var(--t);white-space:nowrap;flex-shrink:0;
+}
+.btn-inv-update.visible{display:inline-flex}
+.btn-inv-update:hover{background:rgba(25,163,122,.22);border-color:var(--green);transform:translateY(-1px)}
+.btn-inv-update:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-inv-reset{
+  display:none;align-items:center;
+  padding:0 7px;height:28px;font-size:13px;
+  background:none;color:var(--text-3);
+  border:1px solid var(--border-md);border-radius:7px;
+  cursor:pointer;transition:var(--t);flex-shrink:0;
+}
+.btn-inv-reset.visible{display:inline-flex}
+.btn-inv-reset:hover{color:var(--red);border-color:var(--red-border);background:var(--red-dim)}
+.inv-cell-wrap{display:flex;align-items:center;gap:6px}
 .threshold-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:500}
 .threshold-wrap input{width:52px;padding:5px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;text-align:center;outline:none;height:32px;transition:border-color .15s}
 .threshold-wrap input:focus{border-color:rgba(124,111,255,.5)}
 
 /* ── Save sticky bar ──────────────────────────────────────────── */
-.save-sticky{display:none;position:sticky;bottom:16px;z-index:50;background:var(--surface);border:1px solid rgba(124,111,255,.25);border-radius:var(--r);padding:12px 18px;align-items:center;justify-content:space-between;gap:14px;box-shadow:var(--sh-lg),0 4px 20px rgba(124,111,255,.18);margin-top:12px;flex-wrap:wrap;animation:slideUp .2s var(--ease);backdrop-filter:blur(12px)}
-@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.save-sticky.visible{display:flex}
-.save-sticky-label{font-size:12.5px;font-weight:600;color:var(--accent)}
+/* threshold wrap */
 
 /* ── Category edit modal ──────────────────────────────────────── */
 .cat-modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
@@ -667,13 +684,13 @@ const _SVG_PROD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 
 /* ── State ────────────────────────────────────────────────────── */
 let currentStoreId='', storeCurrency='INR', activeTab='products';
-let allProducts=[], allCategories=[], catMap={}, allCoupons=[], invProducts=[], invChanges={}, activeInvFilter='all', _catEditRemoveImg=false;
+let allProducts=[], allCategories=[], catMap={}, allCoupons=[], invProducts=[], activeInvFilter='all', _catEditRemoveImg=false;
 
 /* ── Store change ────────────────────────────────────────────── */
 async function onStoreChange(id){
   if(id===currentStoreId)return;
   currentStoreId=id; storeCurrency='INR';
-  closeProductForm(); invChanges={};
+  closeProductForm();
   const ov=document.getElementById('switch-overlay');
   if(ov){ov.style.display='block';requestAnimationFrame(()=>{ov.style.opacity='.55';ov.style.pointerEvents='all';});}
   await loadAll();
@@ -956,7 +973,7 @@ async function loadInventory(){
     const upd={statTotal:total,statLow:lowCnt,statOut:outCnt,statHealthy:Math.max(0,total-lowCnt-outCnt)};
     Object.entries(upd).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
     const sub=document.getElementById('statLowSub');if(sub)sub.textContent=`Below ${threshold} units`;
-    invChanges={};updateInvSaveBar();
+    
     if(!document.getElementById('invBody'))renderInventoryPanel(total,lowCnt,outCnt,threshold);else renderInvTable(invProducts);
   }catch(e){const el=document.getElementById('inventory-content');if(el)el.innerHTML=`<div class="empty-state"><div class="empty-icon-wrap">⚠️</div><h3>Failed to load</h3><p>${e.message}</p></div>`;}
 }
@@ -977,24 +994,17 @@ function renderInventoryPanel(total,lowCnt,outCnt,threshold){
     <button class="btn btn-secondary btn-sm" onclick="exportInvCSV()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
   </div>
   <div class="data-card">
-    <div class="data-card-header"><span class="data-card-title">Stock Levels</span><span style="font-size:12px;color:var(--text-3);">Edit quantity cells, then save</span></div>
+    <div class="data-card-header"><span class="data-card-title">Stock Levels</span><span style="font-size:12px;color:var(--text-3);">Click a quantity to edit, then hit Update</span></div>
     <div class="table-scroll"><table>
-      <thead><tr><th>Product</th><th>SKU</th><th>Status</th><th>Tracking</th><th>Current</th><th>New Qty</th><th>Note</th></tr></thead>
+      <thead><tr><th>Product</th><th>SKU</th><th>Status</th><th>Tracking</th><th style="min-width:180px">Stock Qty</th></tr></thead>
       <tbody id="invBody"></tbody>
     </table></div>
-  </div>
-  <div class="save-sticky" id="invSaveBar">
-    <span class="save-sticky-label" id="invChangesCount">0 changes pending</span>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-secondary btn-sm" onclick="discardInvChanges()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard</button>
-      <button class="btn btn-primary" onclick="saveInvChanges()" id="btnInvSave"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Changes</button>
-    </div>
   </div>`;
   renderInvTable(invProducts);
 }
 function renderInvTable(products){
   const body=document.getElementById('invBody');if(!body)return;
-  if(!products.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon-wrap">📦</div><h3>No products found</h3></div></td></tr>`;return;}
+  if(!products.length){body.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon-wrap">📦</div><h3>No products found</h3></div></td></tr>`;return;}
   body.innerHTML=products.map(p=>{
     const thumb=p.images?.[0]?`<img class="product-thumb" src="${p.images[0]}" alt="" onerror="this.classList.add('broken');var n=this.nextElementSibling;if(n)n.classList.remove('ph-hidden');"><div class="product-ph ph-hidden">${_SVG_PROD}</div>`:`<div class="product-ph">${_SVG_PROD}</div>`;
     const isOut=p.is_out_of_stock,isLow=p.is_low_stock;
@@ -1004,24 +1014,59 @@ function renderInvTable(products){
       <td><div style="display:flex;align-items:center;gap:10px;">${thumb}<div><div class="prod-name-main">${p.name}</div>${p.status!=='active'?`<span style="font-size:10px;color:var(--text-3);text-transform:uppercase;">${p.status}</span>`:''}</div></div></td>
       <td style="font-family:var(--mono);font-size:12px;color:var(--text-3);letter-spacing:.03em;">${p.sku||'—'}</td>
       <td><span class="status-badge" style="${stStyle}">${stLabel}</span></td>
-      <td style="color:var(--text-3);">${p.track_inventory?'✅':'—'}</td>
-      <td style="font-family:var(--mono);font-weight:600;font-size:13px;color:${isOut?'var(--red)':isLow?'var(--amber)':'var(--text)'};">${p.track_inventory?p.stock_qty:'∞'}</td>
-      <td>${p.track_inventory?`<input class="stock-input" type="number" min="0" data-id="${p._id}" data-orig="${p.stock_qty}" value="${p.stock_qty}" onchange="onStockChange(this)" oninput="onStockChange(this)">`:`<span style="font-size:12px;color:var(--text-3);">Not tracked</span>`}</td>
-      <td>${p.track_inventory?`<input class="note-input" type="text" data-note="${p._id}" placeholder="Reason…" oninput="onNoteChange('${p._id}',this.value)">`:' —'}</td>
+      <td style="color:var(--text-3);">${p.track_inventory?'<span style="color:var(--green);font-weight:600;">✓ Tracked</span>':'—'}</td>
+      <td>
+        ${p.track_inventory
+          ? `<div class="inv-cell-wrap">
+              <input class="stock-input" type="number" min="0"
+                id="inv-input-${p._id}"
+                data-id="${p._id}" data-orig="${p.stock_qty}"
+                value="${p.stock_qty}"
+                oninput="onStockInput(this)">
+              <button class="btn-inv-update" id="inv-upd-${p._id}"
+                onclick="saveSingleStock('${p._id}')">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Update
+              </button>
+              <button class="btn-inv-reset" id="inv-rst-${p._id}"
+                onclick="resetSingleStock('${p._id}',${p.stock_qty})">✕</button>
+            </div>`
+          : `<span style="font-size:12px;color:var(--text-3);">Not tracked</span>`}
+      </td>
     </tr>`;
   }).join('');
 }
-function onStockChange(el){const id=el.dataset.id,orig=parseInt(el.dataset.orig),newVal=parseInt(el.value);el.classList.toggle('changed',newVal!==orig);if(newVal!==orig)invChanges[id]={qty:newVal,note:invChanges[id]?.note||''};else{delete invChanges[id];const n=document.querySelector(`[data-note="${id}"]`);if(n?.value)invChanges[id]={qty:newVal,note:n.value};}updateInvSaveBar();}
-function onNoteChange(id,val){if(invChanges[id])invChanges[id].note=val;}
-function updateInvSaveBar(){const count=Object.keys(invChanges).length;const bar=document.getElementById('invSaveBar');if(bar)bar.classList.toggle('visible',count>0);const el=document.getElementById('invChangesCount');if(el)el.textContent=`${count} change${count!==1?'s':''} pending`;}
-async function saveInvChanges(){
-  const pending=Object.entries(invChanges);if(!pending.length)return;
-  const btn=document.getElementById('btnInvSave');btn.disabled=true;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Saving…';
-  try{const updates=pending.map(([id,{qty,note}])=>({product_id:id,stock_qty:qty,note:note||'Manual adjustment'}));const result=await apiFetch(`/stores/${currentStoreId}/inventory/bulk`,{method:'POST',body:JSON.stringify({updates})});toast(`Updated ${result.updated} product${result.updated!==1?'s':''}!`,'success');if(result.errors?.length)toast(`${result.errors.length} errors`,'error');await loadInventory();}
-  catch(e){toast(e.message||'Save failed','error');}
-  finally{btn.disabled=false;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Changes';}
+function onStockInput(el){
+  const id=el.dataset.id, orig=parseInt(el.dataset.orig), val=parseInt(el.value);
+  const changed = !isNaN(val) && val !== orig;
+  el.classList.toggle('changed', changed);
+  document.getElementById('inv-upd-'+id)?.classList.toggle('visible', changed);
+  document.getElementById('inv-rst-'+id)?.classList.toggle('visible', changed);
 }
-function discardInvChanges(){invChanges={};loadInventory();}
+function resetSingleStock(id, orig){
+  const inp=document.getElementById('inv-input-'+id);
+  if(inp){inp.value=orig;inp.classList.remove('changed');}
+  document.getElementById('inv-upd-'+id)?.classList.remove('visible');
+  document.getElementById('inv-rst-'+id)?.classList.remove('visible');
+}
+async function saveSingleStock(id){
+  const inp=document.getElementById('inv-input-'+id);
+  const updBtn=document.getElementById('inv-upd-'+id);
+  if(!inp||!updBtn)return;
+  const qty=parseInt(inp.value);
+  if(isNaN(qty)||qty<0)return toast('Enter a valid quantity','error');
+  const origHtml=updBtn.innerHTML;
+  updBtn.disabled=true;
+  updBtn.innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+  try{
+    await apiFetch(`/stores/${currentStoreId}/inventory/bulk`,{method:'POST',body:JSON.stringify({updates:[{product_id:id,stock_qty:qty,note:'Manual adjustment'}]})});
+    // Update the orig so further edits compare against new value
+    inp.dataset.orig=qty;
+    inp.classList.remove('changed');
+    document.getElementById('inv-rst-'+id)?.classList.remove('visible');
+    toast('Stock updated!','success');
+  }catch(e){toast(e.message||'Save failed','error');}
+  finally{updBtn.disabled=false;updBtn.innerHTML=origHtml;updBtn.classList.remove('visible');}
+}
 function setInvFilter(f){activeInvFilter=f;['all','low','out'].forEach(k=>{const el=document.getElementById('f'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('active',k===f);});loadInventory();}
 function applyInvSearch(){const q=document.getElementById('invSearch')?.value.toLowerCase()||'';if(!q){renderInvTable(invProducts);return;}renderInvTable(invProducts.filter(p=>p.name.toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q)));}
 function exportInvCSV(){if(!invProducts.length)return toast('No data to export','error');const rows=[['Product','SKU','Stock','Tracked','Status','Low Stock','Out of Stock']];invProducts.forEach(p=>rows.push([p.name,p.sku||'',p.track_inventory?p.stock_qty:'∞',p.track_inventory?'Yes':'No',p.status,p.is_low_stock?'Yes':'No',p.is_out_of_stock?'Yes':'No']));const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`inventory-${new Date().toISOString().slice(0,10)}.csv`;a.click();toast('CSV downloaded!','success');}
