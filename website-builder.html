@@ -488,49 +488,63 @@
     .undo-dismiss{padding:5px 8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px}
   </style>
 <style>
-/* ── WEBSITE-BUILDER MOBILE (≤768px) ─────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   WEBSITE-BUILDER — MOBILE RESPONSIVE  (≤ 768px)
+   Bottom bar is position:fixed — always visible like a native
+   app tab bar. html+body both locked to prevent iOS bounce.
+══════════════════════════════════════════════════════════════ */
 
-/* Bottom bar: hidden by default, shown only at ≤768px via media  */
-.mob-builder-bar {
-  display: none;
-}
+/* Default: bar hidden on desktop/tablet */
+.mob-builder-bar { display: none; }
 
 @media (max-width: 768px) {
 
-  /* 1 ── body: use dynamic viewport height, lock scroll */
+  /* ── 1. Lock html + body to viewport — stops iOS bounce scroll ── */
+  html {
+    height: 100dvh !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
   body {
     height: 100dvh !important;
     overflow: hidden !important;
+    overscroll-behavior: none !important;
+    position: relative !important;
   }
 
-  /* 2 ── Topbar: compact */
+  /* ── 2. Topbar: compact ── */
   #topbar {
     padding: 0 10px;
     gap: 6px;
     height: var(--topbar-h);
     flex-shrink: 0;
+    position: relative;
+    z-index: 10;
   }
   .tb-page-label,
   .tb-device-group,
-  .tb-shortcut  { display: none !important; }
-  .tb-btn-ghost { display: none !important; }
-  .tb-logo      { font-size: 16px; padding-right: 8px; }
-  .tb-store-name{ max-width: 80px; font-size: 12px; }
-  .tb-store-pill{ padding: 4px 8px; gap: 5px; }
+  .tb-shortcut    { display: none !important; }
+  .tb-btn-ghost   { display: none !important; }
+  .tb-logo        { font-size: 16px; padding-right: 8px; }
+  .tb-store-name  { max-width: 80px; font-size: 12px; }
+  .tb-store-pill  { padding: 4px 8px; gap: 5px; }
   .tb-btn-primary { padding: 6px 11px; font-size: 12px; }
-  .theme-toggle { width: 30px; height: 30px; font-size: 14px; }
-  .tb-unsaved   { padding: 3px 7px; font-size: 10px; gap: 4px; }
+  .theme-toggle   { width: 30px; height: 30px; font-size: 14px; }
+  .tb-unsaved     { padding: 3px 7px; font-size: 10px; gap: 4px; }
   .store-dropdown { left: 10px !important; }
 
-  /* 3 ── Builder wrap: stack vertically, fills remaining height */
+  /* ── 3. Builder wrap: fills space between topbar and bottom bar ── */
   #builder-wrap {
     flex-direction: column;
+    flex: 1;
     height: calc(100dvh - var(--topbar-h) - 48px);
     overflow: hidden;
-    flex: 1;
+    overscroll-behavior: none;
   }
 
-  /* 4 ── Left panel: full-width flex column */
+  /* ── 4. Left panel: full-width flex column, no overflow ── */
   #left-panel {
     width: 100%      !important;
     min-width: unset !important;
@@ -540,103 +554,138 @@
     flex-direction: column;
     overflow: hidden;
     border-right: none !important;
-    border-bottom: 1px solid var(--border);
+    border-bottom: none;
   }
 
-  /* 5 ── Panel tabs row */
+  /* ── 5. Panel tabs: fixed height, no shrink ── */
   .panel-tabs { flex-shrink: 0; }
   .panel-tab  { font-size: 11px; padding: 10px 4px; }
 
-  /* 6 ── Panel body: fills remaining height, scrolls */
+  /* ── 6. Panel body: the ONLY scrollable element ── */
   .panel-body {
     flex: 1;
-    min-height: 0;       /* critical: allows flex child to shrink below content size */
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
-  /* 7 ── Preview / center panel: fixed overlay, off-screen right */
+  /* ── 7. Center/preview panel: fixed overlay, slides from right ── */
   #center-panel {
     position: fixed !important;
-    top:    var(--topbar-h);
-    left:   0;
-    right:  0;
-    bottom: 48px;
-    z-index: 100;
+    top:      var(--topbar-h);
+    left:     0;
+    right:    0;
+    bottom:   48px;
+    z-index:  100;
     background: #111118;
     transform: translateX(100%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex !important;
     flex-direction: column;
+    overflow: hidden;
   }
   #center-panel.mob-preview-active {
     transform: translateX(0);
   }
 
-  /* 8 ── Preview bar inside center panel */
-  .preview-bar       { padding: 0 10px; gap: 7px; height: 42px; }
-  .preview-hint      { display: none !important; }
-  .preview-url       { max-width: none; flex: 1; padding: 4px 9px; }
-  .preview-zoom-wrap { display: none !important; }
-  .preview-canvas    { padding: 10px; }
+  /* ── 8. Preview bar & canvas ── */
+  .preview-bar        { padding: 0 10px; gap: 7px; height: 42px; flex-shrink: 0; }
+  .preview-hint       { display: none !important; }
+  .preview-url        { max-width: none; flex: 1; padding: 4px 9px; }
+  .preview-zoom-wrap  { display: none !important; }
+  .preview-canvas     { flex: 1; padding: 10px; overflow: auto; -webkit-overflow-scrolling: touch; }
   .device-shell.desktop { max-width: 100%; }
 
-  /* 9 ── Add-section drawer: sit above bottom bar */
+  /* ── 9. Add-section drawer: above bottom bar ── */
   .add-section-drawer { left: 0 !important; bottom: 48px; }
 
-  /* 10 ── Section rows */
-  .section-row       { padding: 6px 7px; }
-  .section-row-label { font-size: 11.5px; }
-  .panel-group-label { font-size: 9px; }
+  /* ── 10. Section rows & editor fields ── */
+  .section-row        { padding: 6px 7px; }
+  .section-row-label  { font-size: 11.5px; }
+  .panel-group-label  { font-size: 9px; }
+  .field-input,
+  .field-select       { font-size: 12px; padding: 6px 8px; }
+  .editor-fields      { min-height: 0; }
 
-  /* 11 ── Editor fields */
-  .field-input, .field-select {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-  .editor-fields { -webkit-overflow-scrolling: touch; min-height: 0; }
-
-  /* 12 ── Bottom bar: shown on mobile */
+  /* ── 11. BOTTOM BAR — always visible, native-app style ──────────
+     position:fixed  → stays at bottom regardless of any scroll
+     padding-bottom  → respects iPhone home indicator (safe area)
+     z-index: 9999   → above every other element
+  ────────────────────────────────────────────────────────────── */
   .mob-builder-bar {
-    display:    flex !important;
-    position:   fixed;
-    bottom:     0;
-    left:       0;
-    right:      0;
-    height:     48px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    z-index:    9000;          /* above everything */
-    align-items: stretch;
-    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.14);
+    display:         flex !important;
+    position:        fixed;
+    bottom:          0;
+    left:            0;
+    right:           0;
+    height:          48px;
+    /* Add safe-area padding for iPhone home indicator */
+    padding-bottom:  env(safe-area-inset-bottom, 0px);
+    height:          calc(48px + env(safe-area-inset-bottom, 0px));
+    background:      var(--surface);
+    border-top:      1.5px solid var(--border-md, rgba(0,0,0,.1));
+    z-index:         9999;
+    align-items:     stretch;
+    /* Crisp native shadow */
+    box-shadow:      0 -1px 0 rgba(0,0,0,.06),
+                     0 -4px 20px rgba(0,0,0,.08);
+    /* Prevent bar from scrolling on iOS */
+    -webkit-transform: translateZ(0);
+    transform:       translateZ(0);
+    will-change:     transform;
   }
+
+  /* Tab buttons */
   .mob-bar-tab {
-    flex:            1;
-    display:         flex;
-    flex-direction:  column;
-    align-items:     center;
-    justify-content: center;
-    gap:             3px;
-    font-size:       10.5px;
-    font-weight:     700;
-    letter-spacing:  0.03em;
-    color:           var(--text-3, #9ca3af);
-    cursor:          pointer;
-    transition:      all 0.15s;
-    border:          none;
-    background:      transparent;
-    font-family:     'Plus Jakarta Sans', sans-serif;
-    border-top:      2.5px solid transparent;
-    padding:         0;
+    flex:             1;
+    display:          flex;
+    flex-direction:   column;
+    align-items:      center;
+    justify-content:  center;
+    gap:              3px;
+    font-size:        10px;
+    font-weight:      700;
+    letter-spacing:   0.04em;
+    text-transform:   uppercase;
+    color:            var(--text-3, #9ca3af);
+    cursor:           pointer;
+    transition:       background 0.15s, color 0.15s, border-color 0.15s;
+    border:           none;
+    background:       transparent;
+    font-family:      'Plus Jakarta Sans', sans-serif;
+    border-top:       2.5px solid transparent;
+    padding:          0 0 2px;
+    margin-top:       -1.5px; /* overlap the border-top hairline */
     -webkit-tap-highlight-color: transparent;
+    touch-action:     manipulation;
+    user-select:      none;
   }
   .mob-bar-tab.active {
     color:            var(--accent-2, #818cf8);
-    background:       rgba(91, 92, 246, 0.08);
+    background:       rgba(91, 92, 246, 0.06);
     border-top-color: var(--accent, #5b5cf6);
   }
-  .mob-bar-tab-icon { font-size: 18px; line-height: 1; }
+  .mob-bar-tab-icon {
+    font-size: 20px;
+    line-height: 1;
+    display: block;
+  }
+  .mob-bar-tab-label {
+    font-size:   9.5px;
+    font-weight: 700;
+    line-height: 1;
+  }
+}
+
+/* ── Safe-area for non-media-query context (iPhone notch) ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    #center-panel { bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
+    #builder-wrap { height: calc(100dvh - var(--topbar-h) - 48px - env(safe-area-inset-bottom, 0px)); }
+    .add-section-drawer { bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
+  }
 }
 </style>
 </head>
@@ -1183,53 +1232,63 @@ function highlightSectionInPreview(id){
 function clearHighlight(){try{document.getElementById('preview-iframe').contentDocument?.querySelectorAll('[data-section-id]').forEach(el=>el.classList.remove('sec-active'))}catch(e){}}
 </script>
 <script>
-/* ── Website Builder — mobile bottom bar ───────────────────────
-   Bar is ALWAYS created; CSS (display:none / @media display:flex)
-   controls visibility, so DevTools responsive simulation works.   */
+/* ── Website Builder — Mobile Bottom Navigation Bar ────────────
+   • Bar always created (no innerWidth guard) — CSS hides/shows it
+   • This ensures DevTools responsive mode, resize, real phones
+     all work without re-running JS
+─────────────────────────────────────────────────────────────── */
 (function () {
-  /* Create bar */
+
+  /* Create bar container */
   var bar = document.createElement('div');
   bar.className = 'mob-builder-bar';
+  bar.setAttribute('role', 'tablist');
+  bar.setAttribute('aria-label', 'Builder navigation');
 
-  /* Editor tab */
-  var btn1 = document.createElement('button');
-  btn1.className = 'mob-bar-tab active';
-  btn1.id = 'mob-tab-editor';
-  btn1.setAttribute('aria-label', 'Editor');
-  btn1.innerHTML = '<span class="mob-bar-tab-icon">&#9998;</span>Editor';
+  /* Helper: build a tab button */
+  function makeTab(id, icon, label, isActive) {
+    var btn = document.createElement('button');
+    btn.id = id;
+    btn.className = 'mob-bar-tab' + (isActive ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    btn.setAttribute('aria-label', label);
+    btn.innerHTML =
+      '<span class="mob-bar-tab-icon">' + icon + '</span>' +
+      '<span class="mob-bar-tab-label">' + label + '</span>';
+    return btn;
+  }
 
-  /* Preview tab */
-  var btn2 = document.createElement('button');
-  btn2.className = 'mob-bar-tab';
-  btn2.id = 'mob-tab-preview';
-  btn2.setAttribute('aria-label', 'Preview');
-  btn2.innerHTML = '<span class="mob-bar-tab-icon">&#128065;</span>Preview';
+  var btn1 = makeTab('mob-tab-editor',  '&#9998;',   'Editor',  true);
+  var btn2 = makeTab('mob-tab-preview', '&#128065;', 'Preview', false);
 
   bar.appendChild(btn1);
   bar.appendChild(btn2);
   document.body.appendChild(bar);
 
-  /* Toggle function — safe to call at any viewport width */
+  /* ── Core toggle ── */
   window.mobBuilderTab = function (tab) {
     var cp = document.getElementById('center-panel');
-    var et = document.getElementById('mob-tab-editor');
-    var pt = document.getElementById('mob-tab-preview');
+    var t1 = document.getElementById('mob-tab-editor');
+    var t2 = document.getElementById('mob-tab-preview');
+
     if (tab === 'preview') {
       if (cp) cp.classList.add('mob-preview-active');
-      if (et) et.classList.remove('active');
-      if (pt) pt.classList.add('active');
+      if (t1) { t1.classList.remove('active'); t1.setAttribute('aria-selected','false'); }
+      if (t2) { t2.classList.add('active');    t2.setAttribute('aria-selected','true');  }
+      /* Always re-render so preview is fresh */
       if (typeof renderPreview === 'function') renderPreview();
     } else {
       if (cp) cp.classList.remove('mob-preview-active');
-      if (et) et.classList.add('active');
-      if (pt) pt.classList.remove('active');
+      if (t1) { t1.classList.add('active');    t1.setAttribute('aria-selected','true');  }
+      if (t2) { t2.classList.remove('active'); t2.setAttribute('aria-selected','false'); }
     }
   };
 
   btn1.addEventListener('click', function () { mobBuilderTab('editor'); });
   btn2.addEventListener('click', function () { mobBuilderTab('preview'); });
 
-  /* Wrap openSectionEditor — stay on editor tab */
+  /* ── Intercept openSectionEditor → stay on editor ── */
   var _oe = window.openSectionEditor;
   if (typeof _oe === 'function') {
     window.openSectionEditor = function () {
@@ -1238,7 +1297,7 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
     };
   }
 
-  /* Wrap showSectionsListView — stay on editor tab */
+  /* ── Intercept showSectionsListView → stay on editor ── */
   var _sl = window.showSectionsListView;
   if (typeof _sl === 'function') {
     window.showSectionsListView = function () {
@@ -1246,6 +1305,17 @@ function clearHighlight(){try{document.getElementById('preview-iframe').contentD
       mobBuilderTab('editor');
     };
   }
+
+  /* ── Intercept switchLeftTab → stay on editor tab view ── */
+  var _st = window.switchLeftTab;
+  if (typeof _st === 'function') {
+    window.switchLeftTab = function (tab, el) {
+      _st.apply(this, arguments);
+      /* If user switches sections/themes/settings, ensure we're in editor view */
+      mobBuilderTab('editor');
+    };
+  }
+
 })();
 </script>
 </body>
