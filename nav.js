@@ -7,7 +7,8 @@
    2. Auth-checks and fetches user + stores in parallel
    3. Populates the sidebar user chip
    4. Populates desktop + mobile store selectors
-   5. Returns { user, stores, currentStoreId } to the page
+   5. Injects + populates the AI Credits widget in the left sidebar
+   6. Returns { user, stores, currentStoreId } to the page
 ══════════════════════════════════════════════════════════════════ */
 
 /* ── NAVIGATION STRUCTURE ─────────────────────────────────────────
@@ -21,6 +22,7 @@
      website-builder → 'website-builder'
      ai-builder      → 'ai-builder'
      ai-assistant    → 'ai-assistant'
+     account.html    → 'account'
 ─────────────────────────────────────────────────────────────────── */
 const _NAV_SECTIONS = [
   {
@@ -47,6 +49,12 @@ const _NAV_SECTIONS = [
       { page: 'ai-assistant',     href: 'ai-assistant.html',     icon: '🤖', label: 'AI Assistant'     },
     ],
   },
+  {
+    label: 'Account',
+    items: [
+      { page: 'account',          href: 'account.html',           icon: '👤', label: 'Account & Billing' },
+    ],
+  },
 ];
 
 /* ── NAV INJECTION ────────────────────────────────────────────────
@@ -66,6 +74,79 @@ function _injectSidebarNav(activePage) {
       ).join('')}
     </div>
   `).join('');
+}
+
+/* ── AI CREDITS SIDEBAR WIDGET ────────────────────────────────────
+   Injects the credit widget above #sidebar-nav (in the left sidebar)
+   if it doesn't already exist in the page HTML.
+   On account.html  → clicking calls goToSection('credits').
+   On all other pages → clicking navigates to account.html.
+─────────────────────────────────────────────────────────────────── */
+function _injectCreditWidget() {
+  /* If the page already has a hardcoded #credit-widget, skip */
+  if (document.getElementById('credit-widget')) return;
+
+  const navEl = document.getElementById('sidebar-nav');
+  if (!navEl) return;
+
+  const isAccountPage = window.location.pathname.endsWith('account.html') ||
+                        window.location.href.includes('account.html');
+
+  const widget = document.createElement('div');
+  widget.className = 'credit-sidebar-widget';
+  widget.id        = 'credit-widget';
+  widget.title     = 'AI Credits';
+  widget.setAttribute('onclick',
+    isAccountPage
+      ? "typeof goToSection==='function'&&goToSection('credits')"
+      : "location.href='account.html'"
+  );
+  widget.innerHTML = `
+    <div class="csw-header">
+      <span class="csw-label">AI Credits</span>
+      <span class="csw-badge" id="credit-badge">—</span>
+    </div>
+    <div class="progress-bar" style="height:5px;">
+      <div class="progress-fill" id="credit-bar" style="width:0%;"></div>
+    </div>
+    <div class="csw-sub" id="credit-sub">Loading…</div>
+  `;
+
+  /* Insert between user chip and nav items */
+  navEl.parentNode.insertBefore(widget, navEl);
+}
+
+/* ── CREDIT WIDGET POPULATION ─────────────────────────────────────
+   Fetches /account and fills the credit widget. Non-blocking —
+   a failure here should never block the rest of the page.
+─────────────────────────────────────────────────────────────────── */
+function _populateCreditWidget() {
+  apiFetch('/account')
+    .then(function(data) {
+      var cr = data && data.credits;
+      if (!cr) return;
+
+      var used = cr.monthly_used      || 0;
+      var cap  = cr.monthly_cap       || 1;
+      var rem  = cr.monthly_remaining || 0;
+      var pct  = Math.min(100, Math.round((used / cap) * 100));
+
+      var badge = document.getElementById('credit-badge');
+      var bar   = document.getElementById('credit-bar');
+      var sub   = document.getElementById('credit-sub');
+
+      if (badge) badge.textContent = rem.toLocaleString('en-IN') + ' left';
+      if (bar) {
+        bar.style.width = pct + '%';
+        bar.className   = 'progress-fill' +
+          (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '');
+      }
+      if (sub) sub.textContent = used.toLocaleString('en-IN') + ' / ' + cap.toLocaleString('en-IN') + ' used';
+    })
+    .catch(function() {
+      var sub = document.getElementById('credit-sub');
+      if (sub) sub.textContent = 'Unavailable';
+    });
 }
 
 /* ── STORE SELECTOR POPULATION ───────────────────────────────────*/
@@ -116,10 +197,13 @@ async function renderNav(activePage, onStoreChange) {
   // 1. Inject nav items right away — no loading wait
   _injectSidebarNav(activePage);
 
-  // 2. Auth guard
+  // 2. Inject AI Credits widget immediately (skeleton state, filled later)
+  _injectCreditWidget();
+
+  // 3. Auth guard
   if (!getToken()) { location.replace('/'); return null; }
 
-  // 3. Parallel fetch: user profile + stores list
+  // 4. Parallel fetch: user profile + stores list
   let user, stores;
   try {
     [user, stores] = await Promise.all([
@@ -131,14 +215,14 @@ async function renderNav(activePage, onStoreChange) {
     return null;
   }
 
-  // 4. Resolve current store (persisted in sessionStorage)
+  // 5. Resolve current store (persisted in sessionStorage)
   let currentStoreId = sessionStorage.getItem('ekart_current_store') || '';
   if (!stores.find(s => s._id === currentStoreId) && stores.length) {
     currentStoreId = stores[0]._id;
   }
   sessionStorage.setItem('ekart_current_store', currentStoreId);
 
-  // 5. Fill sidebar user chip
+  // 6. Fill sidebar user chip
   const avatarEl = document.getElementById('nav-avatar');
   if (avatarEl) {
     avatarEl.innerHTML = user.avatar
@@ -151,7 +235,16 @@ async function renderNav(activePage, onStoreChange) {
   if (emailEl) emailEl.textContent = user.email || '';
   revealSidebarUser(); // from shared.js
 
-  // 6. Populate store selectors (skip for the stores listing page itself)
+  // 7. Populate AI Credits widget (non-blocking background fetch).
+  //    Skip on account.html — that page calls renderSidebarCredit()
+  //    itself with data already in memory after loadAccount().
+  const isAccountPage = window.location.pathname.endsWith('account.html') ||
+                        window.location.href.includes('account.html');
+  if (!isAccountPage) {
+    _populateCreditWidget();
+  }
+
+  // 8. Populate store selectors (skip for the stores listing page itself)
   if (activePage !== 'stores') {
     _populateStoreSelectors(stores, currentStoreId, onStoreChange);
   }
