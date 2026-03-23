@@ -42,8 +42,10 @@
   font-size:17px; flex-shrink:0; transition:var(--t); }
 .acc-kpi:hover .acc-kpi-icon { background:var(--accent-dim); border-color:rgba(124,111,255,.2); }
 .acc-kpi-body  { flex:1; min-width:0; }
-.acc-kpi-label { font-size:10px; color:var(--text-3); font-weight:700; text-transform:uppercase; letter-spacing:.09em; margin-bottom:6px; }
-.acc-kpi-value { font-size:22px; font-weight:700; letter-spacing:-.04em; font-family:var(--mono); color:var(--text); line-height:1; }
+.acc-kpi-label { font-size:10px; color:var(--text-3); font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; margin-bottom:6px; }
+.acc-kpi-value { font-size:22px; font-weight:700; letter-spacing:-.04em; font-family:var(--mono);
+  color:var(--text); line-height:1; }
 .acc-kpi-value.loading { color:var(--surface-4); animation:kpiPulse 1.4s ease-in-out infinite; }
 .acc-kpi-sub   { font-size:11px; color:var(--text-3); margin-top:4px; }
 
@@ -70,7 +72,8 @@
   padding:22px 24px; margin-bottom:14px; box-shadow:var(--sh-sm); }
 .card-title { font-size:12px; font-weight:700; color:var(--text); text-transform:uppercase;
   letter-spacing:.08em; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
-.card-title-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em; }
+.card-title-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:.05em; }
 .badge-trial    { background:var(--amber-dim); color:var(--amber); border:1px solid var(--amber-border); }
 .badge-active   { background:var(--green-dim); color:var(--green); border:1px solid var(--green-border); }
 .badge-cancelled{ background:var(--red-dim);   color:var(--red);   border:1px solid var(--red-border); }
@@ -99,7 +102,8 @@
   font-family:var(--font); transition:var(--t); }
 .field textarea { resize:vertical; min-height:80px; }
 .field input:focus,.field textarea:focus,.field select:focus {
-  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); background:var(--surface); }
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim);
+  background:var(--surface); }
 .field input::placeholder,.field textarea::placeholder { color:var(--text-3); }
 .field input:disabled { opacity:.55; cursor:not-allowed; }
 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -113,7 +117,7 @@
 .inline-alert.info    { background:var(--accent-dim); color:var(--accent);border:1px solid rgba(124,111,255,.2); }
 .inline-alert.warning { background:var(--amber-dim);  color:var(--amber); border:1px solid var(--amber-border); }
 
-/* ── Credit balance ───────────────────────────────────────────── */
+/* ── Credits ──────────────────────────────────────────────────── */
 .credit-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
 .credit-stat { background:var(--surface-2); border:1px solid var(--border);
   border-radius:var(--r-sm); padding:16px 18px; }
@@ -148,7 +152,7 @@
   padding:3px 9px; border-radius:20px; }
 
 /* ── Plan cards ───────────────────────────────────────────────── */
-.plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+.plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
 .plan-card { border:1.5px solid var(--border-md); border-radius:var(--r); padding:20px;
   cursor:pointer; transition:var(--t); position:relative; background:var(--surface);
   display:flex; flex-direction:column; }
@@ -163,7 +167,8 @@
   background:var(--accent-dim); border:1px solid rgba(124,111,255,.25);
   padding:3px 8px; border-radius:20px; }
 .plan-name  { font-size:15px; font-weight:800; color:var(--text); margin-bottom:2px; letter-spacing:-.02em; }
-.plan-price { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); }
+.plan-price { font-size:26px; font-weight:800; color:var(--text);
+  letter-spacing:-.05em; font-family:var(--mono); }
 .plan-price span { font-size:12px; font-weight:400; color:var(--text-3); font-family:var(--font); }
 .plan-mo   { font-size:10px; color:var(--text-3); margin-bottom:12px; }
 .plan-feat { font-size:11px; color:var(--text-2); line-height:1.7; flex:1; }
@@ -172,7 +177,7 @@
   font-weight:700; color:var(--accent); border-top:1px solid var(--border); }
 .spin-dot { width:13px; height:13px; border:2px solid var(--accent-dim);
   border-top-color:var(--accent); border-radius:50%;
-  animation:spin .7s linear infinite; display:inline-block; }
+  animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
 .plan-card-spinner { margin-top:12px; display:flex; align-items:center;
   justify-content:center; gap:7px; font-size:11px; font-weight:600; color:var(--accent); }
 
@@ -184,8 +189,8 @@
 .topup-card:hover:not(.topup-loading):not(.topup-dimmed) {
   border-color:var(--accent); background:var(--accent-soft);
   transform:translateY(-2px); box-shadow:var(--sh); }
-.topup-card.topup-loading{ border-color:var(--accent); background:var(--accent-dim); pointer-events:none; }
-.topup-card.topup-dimmed { opacity:.4; pointer-events:none; filter:grayscale(.4); }
+.topup-card.topup-loading { border-color:var(--accent); background:var(--accent-dim); pointer-events:none; }
+.topup-card.topup-dimmed  { opacity:.4; pointer-events:none; filter:grayscale(.4); }
 .topup-card-label  { font-size:9px; font-weight:800; color:var(--text-3);
   text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
 .topup-credits     { font-size:26px; font-weight:800; color:var(--text);
@@ -197,22 +202,26 @@
   background:var(--green-dim); border:1px solid var(--green-border);
   padding:2px 7px; border-radius:10px; margin-top:6px; }
 .topup-overlay { position:absolute; inset:0; background:var(--accent-dim);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:calc(var(--r)-1px); }
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  border-radius:calc(var(--r)-1px); }
 .topup-overlay span { font-size:10px; font-weight:700; color:var(--accent); }
 
 /* ── Usage ────────────────────────────────────────────────────── */
-.usage-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); }
+.usage-row { display:flex; align-items:center; gap:12px; padding:9px 0;
+  border-bottom:1px solid var(--border); }
 .usage-row:last-child { border-bottom:none; }
 .usage-feature-name { font-size:12px; color:var(--text-2); width:160px; flex-shrink:0; font-weight:500; }
 .usage-bar-wrap { flex:1; height:7px; background:var(--surface-3); border-radius:100px; overflow:hidden; }
-.usage-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--accent),var(--accent-3)); }
+.usage-bar-fill { height:100%; border-radius:100px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-3)); }
 .usage-count { font-size:12px; font-weight:700; color:var(--text); width:36px;
   text-align:right; flex-shrink:0; font-family:var(--mono); }
 
 /* ── Info grid ────────────────────────────────────────────────── */
 .info-grid { display:flex; flex-direction:column; border:1px solid var(--border);
   border-radius:var(--r-sm); overflow:hidden; }
-.info-row  { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--border); }
+.info-row  { display:flex; align-items:center; gap:12px; padding:11px 14px;
+  border-bottom:1px solid var(--border); }
 .info-row:last-child { border-bottom:none; }
 .info-key  { font-size:11px; font-weight:700; color:var(--text-3); width:110px;
   flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
@@ -263,7 +272,8 @@
 /* ── Invoices ─────────────────────────────────────────────────── */
 .inv-table { width:100%; border-collapse:collapse; font-size:13px; }
 .inv-table th { text-align:left; font-size:10px; font-weight:800; color:var(--text-3);
-  text-transform:uppercase; letter-spacing:.08em; padding:0 0 12px; border-bottom:1px solid var(--border); }
+  text-transform:uppercase; letter-spacing:.08em; padding:0 0 12px;
+  border-bottom:1px solid var(--border); }
 .inv-table td { padding:11px 0; border-bottom:1px solid var(--border); color:var(--text-2); }
 .inv-table td:first-child { color:var(--text); font-weight:500; }
 .inv-table td.amount { color:var(--text); font-weight:700; font-family:var(--mono); }
@@ -283,19 +293,25 @@
 .pill-info strong { color:var(--text); font-weight:700; }
 
 /* ── Payment modal ────────────────────────────────────────────── */
-/* Step 1 click → spinner on card → hit backend → show this modal → click Pay → Razorpay */
+/*
+  FLOW: click card → card shows spinner → POST to backend
+        → backend returns real amount + description
+        → this modal appears with those values
+        → user clicks "Pay ₹X →" → Razorpay opens
+        → on success → POST verify → plan activated
+*/
 .pay-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000;
   display:flex; align-items:center; justify-content:center; padding:20px;
   animation:cardIn .2s var(--ease) both; backdrop-filter:blur(4px); }
 .pay-modal { background:var(--surface); border:1px solid var(--border-md);
   border-radius:var(--r); width:100%; max-width:420px;
-  box-shadow:0 24px 64px rgba(0,0,0,.3); overflow:hidden; }
-.pay-modal-head { padding:24px 24px 0; }
+  box-shadow:0 24px 64px rgba(0,0,0,.28); overflow:hidden; }
+.pay-modal-head  { padding:24px 24px 0; }
 .pay-modal-title { font-size:17px; font-weight:800; color:var(--text);
   letter-spacing:-.03em; margin-bottom:4px; }
 .pay-modal-desc  { font-size:12px; color:var(--text-3); }
 .pay-modal-body  { padding:20px 24px; }
-.pay-modal-amount     { font-size:42px; font-weight:800; color:var(--text);
+.pay-modal-amount { font-size:42px; font-weight:800; color:var(--text);
   letter-spacing:-.06em; font-family:var(--mono); line-height:1; }
 .pay-modal-amount-sub { font-size:12px; color:var(--text-3); margin-top:4px; margin-bottom:20px; }
 .pay-modal-rows { border:1px solid var(--border); border-radius:var(--r-sm);
@@ -304,12 +320,14 @@
   padding:10px 14px; border-bottom:1px solid var(--border); font-size:12px; }
 .pay-modal-row:last-child { border-bottom:none; }
 .pay-modal-row-k { color:var(--text-3); font-weight:600; }
-.pay-modal-row-v { color:var(--text);   font-weight:700; font-family:var(--mono); font-size:13px; }
-.pay-modal-foot { padding:0 24px 22px; }
-.pay-modal-btns { display:flex; gap:10px; margin-bottom:12px; }
+.pay-modal-row-v { color:var(--text); font-weight:700; font-family:var(--mono); font-size:13px; }
+.pay-modal-row-v.discount { color:var(--green); }
+.pay-modal-row-v.total    { color:var(--accent); font-size:15px; }
+.pay-modal-foot  { padding:0 24px 22px; }
+.pay-modal-btns  { display:flex; gap:10px; margin-bottom:12px; }
 .pay-modal-btns .btn { flex:1; }
-.pay-modal-secure { display:flex; align-items:center; justify-content:center; gap:5px;
-  font-size:10px; color:var(--text-3); }
+.pay-modal-secure { display:flex; align-items:center; justify-content:center;
+  gap:5px; font-size:10px; color:var(--text-3); }
 .pay-modal-secure svg { opacity:.4; flex-shrink:0; }
 
 /* ── Responsive ───────────────────────────────────────────────── */
@@ -361,7 +379,7 @@
     </div>
   </div>
   <div class="sidebar-user loading" id="sidebar-user-real"
-       onclick="goToSection('profile')" style="cursor:pointer;" title="View profile">
+       onclick="goToSection('profile')" style="cursor:pointer;">
     <div class="sidebar-avatar" id="nav-avatar">U</div>
     <div class="sidebar-user-info">
       <div class="sidebar-user-name"  id="nav-user-name">Loading…</div>
@@ -376,7 +394,7 @@
 
 <div class="mobile-topbar">
   <div class="mob-left">
-    <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
+    <button class="hamburger" onclick="openMobileSidebar()">
       <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
     </button>
     <a class="mob-logo" href="home.html">e<span>K</span>art</a>
@@ -487,8 +505,8 @@
         <div class="card-title">Account info</div>
         <div class="info-grid">
           <div class="info-row"><div class="info-key">Member since</div><div class="info-val" id="info-joined">—</div></div>
-          <div class="info-row"><div class="info-key">Last login</div><div class="info-val"  id="info-last-login">—</div></div>
-          <div class="info-row"><div class="info-key">Plan</div><div class="info-val"         id="info-plan">—</div></div>
+          <div class="info-row"><div class="info-key">Last login</div>  <div class="info-val" id="info-last-login">—</div></div>
+          <div class="info-row"><div class="info-key">Plan</div>         <div class="info-val" id="info-plan">—</div></div>
           <div class="info-row"><div class="info-key">Billing cycle</div><div class="info-val" id="info-billing">—</div></div>
         </div>
       </div>
@@ -501,6 +519,7 @@
         <div class="section-sub">Manage your subscription and billing details</div>
       </div>
 
+      <!-- Current plan -->
       <div class="card">
         <div class="card-title">
           Current plan
@@ -533,6 +552,7 @@
         </div>
       </div>
 
+      <!-- Choose a plan -->
       <div class="card" id="upgrade-section">
         <div class="card-title">Choose a plan</div>
         <div class="cycle-toggle-wrap">
@@ -580,14 +600,14 @@
           <div class="progress-bar"><div class="progress-fill" id="cr-progress" style="width:0%"></div></div>
         </div>
         <div class="info-grid">
-          <div class="info-row"><div class="info-key">Cap resets</div><div class="info-val" id="cr-reset">—</div></div>
-          <div class="info-row"><div class="info-key">Subscription</div><div class="info-val" id="cr-sub-status">—</div></div>
+          <div class="info-row"><div class="info-key">Cap resets</div>   <div class="info-val" id="cr-reset">—</div></div>
+          <div class="info-row"><div class="info-key">Subscription</div> <div class="info-val" id="cr-sub-status">—</div></div>
         </div>
       </div>
       <div class="card">
         <div class="card-title">Buy more credits</div>
         <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">
-          Credits never expire. Click a pack — we load the price from our server, then open Razorpay.
+          Credits never expire. Click a pack to pay instantly.
         </div>
         <div class="inline-alert" id="topup-alert"></div>
         <div class="topup-grid" id="topup-packs"></div>
@@ -694,10 +714,10 @@ let _data              = null
 let _selectedTier      = 'standard'
 let _selectedPayMethod = 'credits'
 let _billingCycle      = 'yearly'
-let _payingPlanKey     = null   // which plan card is loading right now
-let _payingPackId      = null   // which topup card is loading right now
+let _payingPlanKey     = null   // plan key whose card is currently in loading state
+let _payingPackId      = null   // topup pack id currently loading
 let _payingTicket      = false
-let _pendingRzp        = null   // pre-built Razorpay instance waiting for Pay click
+let _pendingRzp        = null   // pre-built Razorpay instance — opened when Pay is clicked
 
 /* ══════════════════════════════════════════════════════════════
    NAVIGATION
@@ -716,9 +736,7 @@ function goToSection(name) {
 async function loadAccount() {
   try {
     _data = await apiFetch('/account')
-    if (_data.subscription?.billing_cycle) {
-      _billingCycle = _data.subscription.billing_cycle
-    }
+    if (_data.subscription?.billing_cycle) _billingCycle = _data.subscription.billing_cycle
     updateCycleUI()
     renderProfile()
     renderKPIs()
@@ -736,7 +754,7 @@ async function loadAccount() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SIDEBAR CREDIT
+   SIDEBAR CREDIT WIDGET
 ══════════════════════════════════════════════════════════════ */
 function renderSidebarCredit() {
   if (!_data?.credits) return
@@ -764,8 +782,7 @@ function renderKPIs() {
   const planEl = document.getElementById('kpi-plan')
   planEl.textContent = cr?.plan_label || 'Starter'
   planEl.classList.remove('loading')
-  planEl.style.fontSize   = '16px'
-  planEl.style.fontFamily = 'var(--font)'
+  planEl.style.cssText += ';font-size:16px;font-family:var(--font);letter-spacing:-.02em'
   document.getElementById('kpi-plan-sub').textContent =
     cr?.trial_active ? '🟡 Free trial' : (sub?.status || 'active')
 
@@ -779,16 +796,15 @@ function renderKPIs() {
   const renewEl = document.getElementById('kpi-renews')
   renewEl.textContent = endDate ? fmtDate(endDate) : '—'
   renewEl.classList.remove('loading')
-  renewEl.style.fontSize   = '16px'
-  renewEl.style.fontFamily = 'var(--font)'
+  renewEl.style.cssText += ';font-size:16px;font-family:var(--font)'
   document.getElementById('kpi-renews-sub').textContent =
     sub?.cancel_at_period_end ? '⚠ Cancels at period end' : 'auto-renews'
 
   apiFetch('/stores').then(stores => {
-    const storesEl = document.getElementById('kpi-stores')
+    const el  = document.getElementById('kpi-stores')
     const max = _data.plan_config?.stores
-    storesEl.textContent = stores.length
-    storesEl.classList.remove('loading')
+    el.textContent = stores.length
+    el.classList.remove('loading')
     document.getElementById('kpi-stores-sub').textContent =
       `of ${!max || max >= 1000 ? '∞' : max} allowed`
   }).catch(() => {
@@ -824,9 +840,10 @@ function renderProfile() {
 
   document.getElementById('info-joined').textContent     = fmtDate(u.created_at, true)
   document.getElementById('info-last-login').textContent = fmtDate(u.last_login, true)
-  document.getElementById('info-plan').textContent       = `${cr?.plan_label||'Starter'} (${cr?.billing_cycle||'yearly'})`
-  document.getElementById('info-billing').textContent    = cr?.billing_cycle === 'yearly'
-    ? 'Annual billing (save 33%)' : 'Monthly billing'
+  document.getElementById('info-plan').textContent       =
+    `${cr?.plan_label||'Starter'} (${cr?.billing_cycle||'yearly'})`
+  document.getElementById('info-billing').textContent    =
+    cr?.billing_cycle === 'yearly' ? 'Annual billing (save 33%)' : 'Monthly billing'
 }
 
 async function saveProfile() {
@@ -881,7 +898,6 @@ function renderPlan() {
   const endDate = sub?.current_period_end || cr?.subscription_end
   const renewEl = document.getElementById('plan-renew')
   renewEl.textContent = endDate ? fmtDate(endDate) : '—'
-
   if (sub?.cancel_at_period_end) {
     renewEl.style.color = 'var(--amber)'
     renewEl.textContent += ' (cancels)'
@@ -910,11 +926,11 @@ function renderPlanCards() {
   if (!el) return
 
   el.innerHTML = plans.map(p => {
-    const price    = _billingCycle === 'yearly' ? p.price_monthly : p.price_monthly_mo
-    const total    = _billingCycle === 'yearly' ? price * 12 : price
-    const isCur    = p.key === current
-    const isLoading= _payingPlanKey === p.key
-    const isDimmed = _payingPlanKey && _payingPlanKey !== p.key
+    const price     = _billingCycle === 'yearly' ? p.price_monthly : p.price_monthly_mo
+    const total     = _billingCycle === 'yearly' ? price * 12 : price
+    const isCur     = p.key === current
+    const isLoading = _payingPlanKey === p.key
+    const isDimmed  = _payingPlanKey && _payingPlanKey !== p.key
 
     return `
     <div class="plan-card ${isCur?'current':''} ${isLoading?'loading-card':''}"
@@ -941,13 +957,21 @@ function renderPlanCards() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   PLAN UPGRADE — full flow
-   1. Click card  → show spinner on card
-   2. POST /billing/subscribe  → backend returns amount + description
-   3. Build Razorpay instance (DON'T open yet)
-   4. Show payment modal with backend values
-   5. User clicks "Pay ₹X →" in modal → open Razorpay
-   6. Razorpay handler → toast + reload
+   PLAN UPGRADE — full dynamic payment flow
+   ─────────────────────────────────────────────────────────────
+   1. User clicks plan card
+   2. Card shows spinner, POST /billing/subscribe
+      → backend calculates price, creates Razorpay ORDER, returns
+        { razorpay_order_id, razorpay_key, amount (paise), currency,
+          description, pricing: { base_monthly, total_before,
+          yearly_discount, final_total, billing_cycle, period } }
+   3. Build Razorpay instance with order_id (NOT subscription_id)
+      — don't open yet
+   4. Show modal with all values from backend response
+   5. User clicks "Pay ₹X →" in modal → Razorpay opens
+   6. On payment success → POST /billing/verify-payment
+      → backend verifies signature + activates plan on user
+   7. Toast + reload
 ══════════════════════════════════════════════════════════════ */
 async function upgradePlan(planKey) {
   if (!_data) return
@@ -961,7 +985,7 @@ async function upgradePlan(planKey) {
   showAlert(alertEl, 'Loading payment details…', 'info')
 
   try {
-    // ── Step 1: hit backend — backend owns price & description ──
+    // Step 1 — backend calculates price, creates Razorpay order
     const result = await apiFetch('/billing/subscribe', {
       method: 'POST',
       body: JSON.stringify({ plan: planKey, billing_cycle: _billingCycle })
@@ -969,6 +993,7 @@ async function upgradePlan(planKey) {
     await loadRazorpay()
 
     const plan = _data.all_plans?.find(p => p.key === planKey)
+    const p    = result.pricing  // all pricing data from backend
 
     const resetPlan = () => {
       _payingPlanKey = null
@@ -977,56 +1002,73 @@ async function upgradePlan(planKey) {
       alertEl.style.display = 'none'
     }
 
-    // ── Step 2: build Razorpay — but DON'T open yet ──
+    // Step 2 — build Razorpay with ORDER id — don't open yet
     _pendingRzp = new Razorpay({
-      key:             result.razorpay_key,
-      subscription_id: result.subscription_id,
-      name:            'eKart',
-      description:     result.description || `${plan?.label||planKey} · ${_billingCycle}`,
+      key:      result.razorpay_key,
+      order_id: result.razorpay_order_id,   // order, not subscription
+      amount:   result.amount,              // paise from backend
+      currency: result.currency || 'INR',
+      name:     'eKart',
+      description: result.description,
       prefill: {
         name:    _data.user?.name  || '',
         email:   _data.user?.email || '',
         contact: _data.user?.phone || ''
       },
-      notes:  result.notes || { plan: planKey, billing_cycle: _billingCycle },
+      notes:  result.notes || {},
       theme:  { color: '#7C6FFF' },
-      modal: {
-        ondismiss: () => {
-          // user closed Razorpay without paying
+      modal:  { ondismiss: resetPlan },
+      handler: async function(resp) {
+        try {
+          // Step 3 — verify + activate plan
+          await apiFetch('/billing/verify-payment', {
+            method: 'POST',
+            body: JSON.stringify({
+              razorpay_order_id:   result.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature:  resp.razorpay_signature
+            })
+          })
+          toast('✅ Plan activated!', 'success')
+          closePayModal()
+          resetPlan()
+          await loadAccount()
+        } catch (e) {
+          showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
           resetPlan()
         }
-      },
-      handler: async function() {
-        toast('✅ Plan upgraded!', 'success')
-        closePayModal()
-        resetPlan()
-        await loadAccount()
       }
     })
 
-    // ── Step 3: show modal with backend-supplied values ──
-    // Clicking "Pay" in the modal opens the pre-built Razorpay
+    // Step 4 — build modal rows from backend pricing
+    const rows = [
+      { k: 'Plan',          v: plan?.label || planKey },
+      { k: 'Period',        v: p.period },
+      { k: 'Price',         v: `₹${(p.base_monthly||0).toLocaleString('en-IN')}/mo` },
+    ]
+    if (p.billing_cycle === 'yearly') {
+      rows.push({ k: 'Subtotal (12 mo)', v: `₹${(p.total_before||0).toLocaleString('en-IN')}`, cls: '' })
+    }
+    if ((p.yearly_discount||0) > 0) {
+      rows.push({ k: 'Annual discount', v: `−₹${p.yearly_discount.toLocaleString('en-IN')}`, cls: 'discount' })
+    }
+    rows.push({ k: 'Total today', v: `₹${(p.final_total||0).toLocaleString('en-IN')}`, cls: 'total' })
+
     alertEl.style.display = 'none'
     showPayModal({
       title:     `Subscribe to ${plan?.label || planKey}`,
-      desc:      result.description || `${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} billing`,
-      amount:    result.amount,   // paise — straight from backend
-      amountSub: _billingCycle === 'yearly'
-        ? `Billed as ₹${(result.amount/100).toLocaleString('en-IN')} per year`
-        : `Billed as ₹${(result.amount/100).toLocaleString('en-IN')} per month`,
-      rows: [
-        { k: 'Plan',          v: plan?.label || planKey },
-        { k: 'Billing',       v: _billingCycle === 'yearly' ? 'Annual' : 'Monthly' },
-        { k: 'Credits/month', v: (plan?.credits_monthly||0).toLocaleString('en-IN') },
-        { k: 'Stores',        v: String(plan?.stores ?? '1') },
-      ],
-      onPay:    () => _pendingRzp?.open(),   // ← opens Razorpay on Pay click
+      desc:      result.description,
+      amount:    result.amount,
+      amountSub: p.billing_cycle === 'yearly'
+        ? `Billed ₹${(p.final_total||0).toLocaleString('en-IN')} now · renews yearly`
+        : `Billed ₹${(p.final_total||0).toLocaleString('en-IN')} now · renews monthly`,
+      rows,
+      onPay:    () => _pendingRzp?.open(),
       onCancel: resetPlan
     })
 
   } catch (e) {
-    _payingPlanKey = null
-    _pendingRzp    = null
+    _payingPlanKey = null; _pendingRzp = null
     renderPlanCards()
     showAlert(alertEl, e.message || 'Failed to load payment details', 'error')
   }
@@ -1054,24 +1096,31 @@ function renderCredits() {
   const remEl = document.getElementById('cr-monthly-rem')
   remEl.textContent = rem.toLocaleString('en-IN')
   remEl.className   = 'credit-stat-val' + (rem <= 5 ? ' danger' : rem <= cap * 0.2 ? ' warn' : '')
-  document.getElementById('cr-monthly-sub').textContent = `of ${cap.toLocaleString('en-IN')} monthly cap`
-  document.getElementById('cr-annual-rem').textContent  = (cr.pool_remaining ?? '—').toLocaleString?.('en-IN') ?? '—'
-  document.getElementById('cr-annual-sub').textContent  = `of ${(cr.annual_pool||0).toLocaleString('en-IN')} total`
-  document.getElementById('cr-topup').textContent       = (cr.topup_balance||0).toLocaleString('en-IN')
-  document.getElementById('cr-pct').textContent         = pct + '%'
+
+  document.getElementById('cr-monthly-sub').textContent =
+    `of ${cap.toLocaleString('en-IN')} monthly cap`
+  document.getElementById('cr-annual-rem').textContent  =
+    (cr.pool_remaining ?? '—').toLocaleString?.('en-IN') ?? '—'
+  document.getElementById('cr-annual-sub').textContent  =
+    `of ${(cr.annual_pool||0).toLocaleString('en-IN')} total`
+  document.getElementById('cr-topup').textContent =
+    (cr.topup_balance||0).toLocaleString('en-IN')
+  document.getElementById('cr-pct').textContent = pct + '%'
 
   const prog = document.getElementById('cr-progress')
   prog.style.width = pct + '%'
   prog.className   = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
 
-  document.getElementById('cr-reset').textContent      = cr.cap_reset_at ? fmtDate(cr.cap_reset_at, true) : '—'
+  document.getElementById('cr-reset').textContent =
+    cr.cap_reset_at ? fmtDate(cr.cap_reset_at, true) : '—'
   document.getElementById('cr-sub-status').textContent = cr.trial_active
     ? `Free trial (ends ${cr.trial_ends_at ? fmtDate(cr.trial_ends_at) : '—'})`
     : (cr.subscription_status || 'active')
 
   if (cr.trial_active) {
     document.getElementById('cr-trial-banner').style.display = 'flex'
-    document.getElementById('cr-trial-end').textContent = cr.trial_ends_at ? fmtDate(cr.trial_ends_at) : '—'
+    document.getElementById('cr-trial-end').textContent =
+      cr.trial_ends_at ? fmtDate(cr.trial_ends_at) : '—'
   }
 
   renderTopupCards()
@@ -1098,13 +1147,13 @@ function renderTopupCards() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   CREDIT TOP-UP — full flow
-   1. Click card  → show overlay spinner on card
-   2. POST /credits/topup  → backend returns razorpay_order_id + amount + pack
-   3. Build Razorpay instance (DON'T open yet)
-   4. Show payment modal with backend values
-   5. User clicks "Pay" → open Razorpay
-   6. Razorpay handler → POST /credits/topup/verify → toast + reload
+   CREDIT TOP-UP
+   1. Click card → overlay spinner
+   2. POST /credits/topup → backend returns order + pack details
+   3. Build Razorpay (don't open)
+   4. Show modal with backend values
+   5. Pay → open Razorpay
+   6. Handler → POST /credits/topup/verify → reload
 ══════════════════════════════════════════════════════════════ */
 async function buyTopup(packId) {
   if (_payingPackId) return
@@ -1114,24 +1163,18 @@ async function buyTopup(packId) {
   renderTopupCards()
 
   try {
-    // ── Step 1: hit backend — backend owns amount & pack details ──
     const order = await apiFetch('/credits/topup', {
       method: 'POST',
       body: JSON.stringify({ pack_id: packId })
     })
     await loadRazorpay()
 
-    const reset = () => {
-      _payingPackId = null
-      _pendingRzp   = null
-      renderTopupCards()
-    }
+    const reset = () => { _payingPackId = null; _pendingRzp = null; renderTopupCards() }
 
-    // ── Step 2: build Razorpay — DON'T open yet ──
     _pendingRzp = new Razorpay({
       key:      order.razorpay_key,
       order_id: order.razorpay_order_id,
-      amount:   order.amount,               // paise — from backend
+      amount:   order.amount,
       currency: order.currency || 'INR',
       name:     'eKart AI Credits',
       description: `${order.pack.credits.toLocaleString('en-IN')} credits · ${order.pack.label} pack`,
@@ -1143,14 +1186,10 @@ async function buyTopup(packId) {
       notes:  { pack_id: packId, credits: String(order.pack.credits) },
       theme:  { color: '#7C6FFF' },
       modal: {
-        ondismiss: () => {
-          reset()
-          alertEl.style.display = 'none'
-        }
+        ondismiss: () => { reset(); alertEl.style.display = 'none' }
       },
       handler: async function(resp) {
         try {
-          // ── Step 3: verify with backend ──
           const result = await apiFetch('/credits/topup/verify', {
             method: 'POST',
             body: JSON.stringify({
@@ -1160,8 +1199,7 @@ async function buyTopup(packId) {
             })
           })
           toast(`✅ ${result.credits_added.toLocaleString('en-IN')} credits added!`, 'success')
-          closePayModal()
-          reset()
+          closePayModal(); reset()
           alertEl.style.display = 'none'
           await loadAccount()
         } catch (e) {
@@ -1171,35 +1209,34 @@ async function buyTopup(packId) {
       }
     })
 
-    // ── Step 3: show modal with backend values ──
     alertEl.style.display = 'none'
     showPayModal({
       title:     `Buy ${order.pack.credits.toLocaleString('en-IN')} Credits`,
       desc:      `${order.pack.label} pack · Never expires · Rolls over monthly`,
-      amount:    order.amount,   // paise — straight from backend
-      amountSub: `${order.pack.credits.toLocaleString('en-IN')} credits · ₹${(order.pack.price/order.pack.credits).toFixed(2)}/credit`,
+      amount:    order.amount,
+      amountSub: `${order.pack.credits.toLocaleString('en-IN')} credits at ₹${(order.pack.price/order.pack.credits).toFixed(2)}/credit`,
       rows: [
         { k: 'Pack',    v: order.pack.label },
         { k: 'Credits', v: order.pack.credits.toLocaleString('en-IN') },
         { k: 'Rate',    v: `₹${(order.pack.price/order.pack.credits).toFixed(2)} per credit` },
+        { k: 'Total',   v: `₹${order.pack.price.toLocaleString('en-IN')}`, cls: 'total' }
       ],
-      onPay:    () => _pendingRzp?.open(),   // ← opens Razorpay on Pay click
+      onPay:    () => _pendingRzp?.open(),
       onCancel: () => { reset(); alertEl.style.display = 'none' }
     })
 
   } catch (e) {
-    _payingPackId = null
-    _pendingRzp   = null
+    _payingPackId = null; _pendingRzp = null
     renderTopupCards()
     showAlert(alertEl, e.message || 'Failed to load payment details', 'error')
   }
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SUPPORT TICKET — full flow
-   Free / credits: POST → done
-   Cash: POST → payment_required → build Razorpay → show modal
-         → Pay click → open Razorpay → verify → done
+   SUPPORT TICKET
+   Free/credits: POST → done
+   Cash: POST → payment_required → build Razorpay
+         → show modal → Pay → Razorpay → verify → done
 ══════════════════════════════════════════════════════════════ */
 async function submitTicket() {
   if (_payingTicket) return
@@ -1221,15 +1258,12 @@ async function submitTicket() {
       body: JSON.stringify({ tier: _selectedTier, subject, message, payment_method: payMethod })
     })
 
-    // ── Cash path — need Razorpay ──
     if (resp.payment_required && resp.razorpay_order_id) {
       await loadRazorpay()
 
       const resetTicket = () => {
-        _payingTicket   = false
-        _pendingRzp     = null
-        btn.disabled    = false
-        btn.textContent = 'Submit ticket'
+        _payingTicket = false; _pendingRzp = null
+        btn.disabled = false; btn.textContent = 'Submit ticket'
       }
 
       _pendingRzp = new Razorpay({
@@ -1263,44 +1297,37 @@ async function submitTicket() {
               })
             })
             toast('✅ Ticket submitted!', 'success')
-            closePayModal()
-            resetTicket()
+            closePayModal(); resetTicket()
             document.getElementById('ticket-subject').value = ''
             document.getElementById('ticket-message').value = ''
             alertEl.style.display = 'none'
             await loadAccount()
           } catch (e) {
-            showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
+            showAlert(alertEl, 'Verification failed: ' + e.message, 'error')
             resetTicket()
           }
         }
       })
 
-      alertEl.style.display = 'none'
       const pricing = _data?.support_pricing?.[_selectedTier]
+      alertEl.style.display = 'none'
       showPayModal({
         title:     `${_selectedTier.charAt(0).toUpperCase()+_selectedTier.slice(1)} Support Ticket`,
         desc:      subject,
-        amount:    resp.amount,   // paise — from backend
+        amount:    resp.amount,
         amountSub: `${_selectedTier === 'priority' ? '2-hour' : '30-minute'} guaranteed response SLA`,
         rows: [
           { k: 'Tier',    v: _selectedTier.charAt(0).toUpperCase()+_selectedTier.slice(1) },
           { k: 'SLA',     v: _selectedTier === 'priority' ? '2 hours' : '30 minutes' },
-          { k: 'Payment', v: 'One-time via Razorpay' }
+          { k: 'Total',   v: `₹${((resp.amount||0)/100).toLocaleString('en-IN')}`, cls: 'total' }
         ],
         onPay:    () => _pendingRzp?.open(),
-        onCancel: () => {
-          resetTicket()
-          alertEl.style.display = 'none'
-        }
+        onCancel: () => { resetTicket(); alertEl.style.display = 'none' }
       })
       return
     }
 
-    // ── Free / credits path ──
-    _payingTicket   = false
-    btn.disabled    = false
-    btn.textContent = 'Submit ticket'
+    _payingTicket = false; btn.disabled = false; btn.textContent = 'Submit ticket'
     toast('✅ Ticket submitted!', 'success')
     document.getElementById('ticket-subject').value = ''
     document.getElementById('ticket-message').value = ''
@@ -1308,13 +1335,9 @@ async function submitTicket() {
     await loadAccount()
 
   } catch (e) {
-    _payingTicket   = false
-    btn.disabled    = false
-    btn.textContent = 'Submit ticket'
+    _payingTicket = false; btn.disabled = false; btn.textContent = 'Submit ticket'
     if (e.message?.includes('insufficient_credits')) {
-      showAlert(alertEl,
-        `Not enough credits (need ${_data.support_pricing?.[_selectedTier]?.credits||'—'}). Switch to cash instead.`,
-        'error')
+      showAlert(alertEl, `Not enough credits. Switch to cash instead.`, 'error')
     } else {
       showAlert(alertEl, e.message || 'Failed', 'error')
     }
@@ -1323,17 +1346,12 @@ async function submitTicket() {
 
 /* ══════════════════════════════════════════════════════════════
    PAYMENT MODAL
-   Shows the amount + description loaded FROM the backend.
-   "Pay" button calls onPay() which opens the pre-built Razorpay instance.
-   All three payment types (plan / topup / support) use this same modal.
+   All values (amount, description, rows) come from the backend.
+   "Pay" button opens the pre-built Razorpay instance.
 ══════════════════════════════════════════════════════════════ */
 function showPayModal({ title, desc, amount, amountSub, rows, onPay, onCancel }) {
   closePayModal()
-
-  // amount is in paise → convert to rupees for display
-  const rupees = (amount / 100).toLocaleString('en-IN', {
-    minimumFractionDigits: 0, maximumFractionDigits: 2
-  })
+  const rupees = (amount / 100).toLocaleString('en-IN', { minimumFractionDigits:0, maximumFractionDigits:2 })
 
   const overlay = document.createElement('div')
   overlay.id        = 'pay-modal-overlay'
@@ -1351,14 +1369,14 @@ function showPayModal({ title, desc, amount, amountSub, rows, onPay, onCancel })
           ${(rows||[]).map(r => `
             <div class="pay-modal-row">
               <span class="pay-modal-row-k">${escHtml(r.k)}</span>
-              <span class="pay-modal-row-v">${escHtml(r.v)}</span>
+              <span class="pay-modal-row-v ${r.cls||''}">${escHtml(r.v)}</span>
             </div>`).join('')}
         </div>
       </div>
       <div class="pay-modal-foot">
         <div class="pay-modal-btns">
-          <button class="btn btn-secondary" id="pay-modal-cancel-btn">Cancel</button>
-          <button class="btn btn-primary"   id="pay-modal-pay-btn">Pay ₹${rupees} →</button>
+          <button class="btn btn-secondary" id="pcm-cancel">Cancel</button>
+          <button class="btn btn-primary"   id="pcm-pay">Pay ₹${rupees} →</button>
         </div>
         <div class="pay-modal-secure">
           <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
@@ -1369,47 +1387,29 @@ function showPayModal({ title, desc, amount, amountSub, rows, onPay, onCancel })
       </div>
     </div>`
 
-  // Close on backdrop click
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) { closePayModal(); onCancel?.() }
-  })
-
-  overlay.querySelector('#pay-modal-cancel-btn').addEventListener('click', () => {
-    closePayModal(); onCancel?.()
-  })
-
-  // Pay button → close modal → open Razorpay
-  overlay.querySelector('#pay-modal-pay-btn').addEventListener('click', () => {
-    closePayModal()
-    onPay?.()
-  })
-
+  overlay.addEventListener('click', e => { if (e.target === overlay) { closePayModal(); onCancel?.() } })
+  overlay.querySelector('#pcm-cancel').addEventListener('click', () => { closePayModal(); onCancel?.() })
+  overlay.querySelector('#pcm-pay').addEventListener('click', () => { closePayModal(); onPay?.() })
   document.body.appendChild(overlay)
 }
 
-function closePayModal() {
-  document.getElementById('pay-modal-overlay')?.remove()
-}
+function closePayModal() { document.getElementById('pay-modal-overlay')?.remove() }
 
 /* ══════════════════════════════════════════════════════════════
    USAGE
 ══════════════════════════════════════════════════════════════ */
 const FEATURE_NAMES = {
-  ai_assistant:       'AI Assistant',
-  ai_website_builder: 'Website Builder',
-  ai_product_content: 'Product Content',
-  ai_sales_insights:  'Sales Insights',
-  ai_marketing:       'Marketing Copy',
-  ai_store_setup:     'Store Setup',
-  support_priority:   'Priority Support',
-  support_emergency:  'Emergency Support'
+  ai_assistant:'AI Assistant', ai_website_builder:'Website Builder',
+  ai_product_content:'Product Content', ai_sales_insights:'Sales Insights',
+  ai_marketing:'Marketing Copy', ai_store_setup:'Store Setup',
+  support_priority:'Priority Support', support_emergency:'Emergency Support'
 }
 
 function renderUsage() {
   if (!_data?.usage_history) return
   const byDate    = _data.usage_history || []
   const byFeature = {}
-  byDate.forEach(d => Object.entries(d.features||{}).forEach(([f,c]) => { byFeature[f] = (byFeature[f]||0)+c }))
+  byDate.forEach(d => Object.entries(d.features||{}).forEach(([f,c]) => { byFeature[f]=(byFeature[f]||0)+c }))
   const maxF = Math.max(...Object.values(byFeature), 1)
 
   document.getElementById('usage-by-feature').innerHTML = Object.keys(byFeature).length
@@ -1424,28 +1424,25 @@ function renderUsage() {
   document.getElementById('usage-by-date').innerHTML = byDate.length
     ? `<table class="inv-table">
         <thead><tr><th>Date</th><th>Credits</th><th>Features</th></tr></thead>
-        <tbody>
-          ${byDate.slice(0,14).map(d => `
-            <tr>
-              <td>${fmtDate(d.date)}</td>
-              <td class="amount">${d.total}</td>
-              <td style="color:var(--text-3);font-size:11px;">
-                ${Object.entries(d.features||{}).map(([f,c])=>`${FEATURE_NAMES[f]||f}: ${c}`).join(' · ')}
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`
+        <tbody>${byDate.slice(0,14).map(d=>`
+          <tr>
+            <td>${fmtDate(d.date)}</td>
+            <td class="amount">${d.total}</td>
+            <td style="color:var(--text-3);font-size:11px;">
+              ${Object.entries(d.features||{}).map(([f,c])=>`${FEATURE_NAMES[f]||f}: ${c}`).join(' · ')}
+            </td>
+          </tr>`).join('')}
+        </tbody></table>`
     : '<div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">No usage data yet</div></div>'
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SUPPORT
+   SUPPORT TIERS
 ══════════════════════════════════════════════════════════════ */
 function renderSupportTiers() {
   if (!_data) return
   const plan    = _data.credits?.plan || 'starter'
   const pricing = _data.support_pricing || {}
-
   if (plan === 'enterprise') {
     setTierCost('priority-cost',  'Free (included)', true)
     setTierCost('emergency-cost', 'Free (included)', true)
@@ -1455,26 +1452,24 @@ function renderSupportTiers() {
   }
 }
 function setTierCost(id, text, free) {
-  const el = document.getElementById(id)
-  if (!el) return
-  el.textContent = text
-  el.className   = 'support-tier-cost ' + (free ? 'free' : 'paid')
+  const el = document.getElementById(id); if (!el) return
+  el.textContent = text; el.className = 'support-tier-cost ' + (free?'free':'paid')
 }
 function selectTier(tier) {
   _selectedTier = tier
   document.querySelectorAll('.support-tier').forEach(el => el.classList.remove('selected'))
-  document.getElementById('tier-' + tier)?.classList.add('selected')
-  document.getElementById('payment-method-row').style.display = tier === 'standard' ? 'none' : 'block'
-  const cr    = _data?.credits
-  const avail = (cr?.monthly_remaining||0) + (cr?.topup_balance||0)
-  document.getElementById('credits-avail-text').textContent = `${avail} available`
+  document.getElementById('tier-'+tier)?.classList.add('selected')
+  document.getElementById('payment-method-row').style.display = tier==='standard'?'none':'block'
+  const cr = _data?.credits
+  document.getElementById('credits-avail-text').textContent =
+    `${((cr?.monthly_remaining||0)+(cr?.topup_balance||0))} available`
 }
 function selectPayMethod(method) {
   _selectedPayMethod = method
   document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('selected'))
-  document.getElementById('pay-opt-' + method)?.classList.add('selected')
-  const radio = document.querySelector(`input[name="pay-method"][value="${method}"]`)
-  if (radio) radio.checked = true
+  document.getElementById('pay-opt-'+method)?.classList.add('selected')
+  const r = document.querySelector(`input[name="pay-method"][value="${method}"]`)
+  if (r) r.checked = true
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1502,21 +1497,19 @@ function renderInvoices() {
   const invoices = _data?.invoices || []
   const el       = document.getElementById('invoice-wrap')
   if (!invoices.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><div class="empty-state-text">No invoices yet. They will appear here after your first payment.</div></div>'
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><div class="empty-state-text">No invoices yet.</div></div>'
     return
   }
   el.innerHTML = `
     <table class="inv-table">
       <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
-      <tbody>
-        ${invoices.map(inv => `
-          <tr>
-            <td>${fmtDate(inv.created_at,true)}</td>
-            <td style="color:var(--text);">Subscription payment</td>
-            <td class="amount">₹${(inv.amount||0).toLocaleString('en-IN')}</td>
-            <td><span style="color:var(--green);font-weight:700;font-size:11px;
-              text-transform:uppercase;letter-spacing:.05em;">${inv.status}</span></td>
-          </tr>`).join('')}
+      <tbody>${invoices.map(inv=>`
+        <tr>
+          <td>${fmtDate(inv.created_at,true)}</td>
+          <td style="color:var(--text);">${escHtml(inv.plan ? `${inv.plan} (${inv.billing_cycle||'yearly'})` : 'Subscription payment')}</td>
+          <td class="amount">₹${(inv.amount||0).toLocaleString('en-IN')}</td>
+          <td><span style="color:var(--green);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">${inv.status}</span></td>
+        </tr>`).join('')}
       </tbody>
     </table>`
 }
@@ -1525,27 +1518,22 @@ function renderInvoices() {
    HELPERS
 ══════════════════════════════════════════════════════════════ */
 function escHtml(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
 function fmtDate(d, long) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-IN',
-    long ? { day:'numeric', month:'long',  year:'numeric' }
-         : { day:'numeric', month:'short', year:'numeric' })
+    long ? {day:'numeric',month:'long', year:'numeric'}
+         : {day:'numeric',month:'short',year:'numeric'})
 }
-function showAlert(el, msg, type) {
-  el.textContent = msg
-  el.className   = 'inline-alert show ' + type
-}
+function showAlert(el, msg, type) { el.textContent=msg; el.className='inline-alert show '+type }
+
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve()
-  return new Promise((res, rej) => {
-    const s   = document.createElement('script')
-    s.src     = 'https://checkout.razorpay.com/v1/checkout.js'
-    s.onload  = res
-    s.onerror = rej
+  return new Promise((res,rej) => {
+    const s=document.createElement('script')
+    s.src='https://checkout.razorpay.com/v1/checkout.js'
+    s.onload=res; s.onerror=rej
     document.head.appendChild(s)
   })
 }
