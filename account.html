@@ -22,16 +22,16 @@
 <script src="nav.js"></script>
 
 <style>
-/* ── Page skeleton ────────────────────────────────────────────── */
-.skel-acc-header { height: 88px; border-radius: var(--r); }
-.skel-acc-tabs   { height: 44px; border-radius: var(--r-sm); }
-.skel-acc-card   { height: 160px; border-radius: var(--r); }
-.skel-acc-card2  { height: 240px; border-radius: var(--r); }
-@keyframes cardIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes kpiPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-@keyframes spin { to{transform:rotate(360deg)} }
+/* ── Skeleton ─────────────────────────────────────────────────── */
+.skel-acc-header { height:88px;  border-radius:var(--r); }
+.skel-acc-tabs   { height:44px;  border-radius:var(--r-sm); }
+.skel-acc-card   { height:160px; border-radius:var(--r); }
+.skel-acc-card2  { height:240px; border-radius:var(--r); }
+@keyframes cardIn  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes kpiPulse{ 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes spin    { to{transform:rotate(360deg)} }
 
-/* ── Account summary strip ────────────────────────────────────── */
+/* ── KPI strip ────────────────────────────────────────────────── */
 .acc-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
 .acc-kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
   padding:18px 20px; display:flex; align-items:flex-start; gap:14px;
@@ -41,207 +41,226 @@
   border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
   font-size:17px; flex-shrink:0; transition:var(--t); }
 .acc-kpi:hover .acc-kpi-icon { background:var(--accent-dim); border-color:rgba(124,111,255,.2); }
-.acc-kpi-body { flex:1; min-width:0; }
-.acc-kpi-label { font-size:10px; color:var(--text-3); font-weight:700; text-transform:uppercase;
-  letter-spacing:.09em; margin-bottom:6px; }
-.acc-kpi-value { font-size:22px; font-weight:700; letter-spacing:-.04em; font-family:var(--mono);
-  color:var(--text); line-height:1; }
+.acc-kpi-body  { flex:1; min-width:0; }
+.acc-kpi-label { font-size:10px; color:var(--text-3); font-weight:700; text-transform:uppercase; letter-spacing:.09em; margin-bottom:6px; }
+.acc-kpi-value { font-size:22px; font-weight:700; letter-spacing:-.04em; font-family:var(--mono); color:var(--text); line-height:1; }
 .acc-kpi-value.loading { color:var(--surface-4); animation:kpiPulse 1.4s ease-in-out infinite; }
-.acc-kpi-sub { font-size:11px; color:var(--text-3); margin-top:4px; }
+.acc-kpi-sub   { font-size:11px; color:var(--text-3); margin-top:4px; }
 
-/* ── Horizontal tab nav ───────────────────────────────────────── */
+/* ── Tab nav ──────────────────────────────────────────────────── */
 .acc-tabs { display:flex; gap:2px; background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r); padding:6px; margin-bottom:22px; box-shadow:var(--sh-sm);
-  overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap;
-  -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  overflow-x:auto; scrollbar-width:none; }
 .acc-tabs::-webkit-scrollbar { display:none; }
 .acc-tab { padding:8px 16px; font-size:12.5px; font-weight:600; font-family:var(--font);
   color:var(--text-3); cursor:pointer; border:none; background:none; border-radius:var(--r-sm);
-  transition:var(--t); letter-spacing:-.01em; display:flex; align-items:center; gap:6px;
-  white-space:nowrap; flex-shrink:0; }
-.acc-tab:hover { color:var(--text-2); background:var(--surface-2); }
+  transition:var(--t); white-space:nowrap; display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.acc-tab:hover  { color:var(--text-2); background:var(--surface-2); }
 .acc-tab.active { color:var(--accent); background:var(--accent-dim); font-weight:700; }
-.acc-tab-icon { font-size:14px; }
 
-/* ── Section visibility ───────────────────────────────────────── */
-.acc-section { display:none; animation:cardIn .25s var(--ease) both; }
+/* ── Sections ─────────────────────────────────────────────────── */
+.acc-section        { display:none; animation:cardIn .25s var(--ease) both; }
 .acc-section.active { display:block; }
-
-/* ── Section header ───────────────────────────────────────────── */
-.section-hdr { margin-bottom:18px; }
+.section-hdr   { margin-bottom:18px; }
 .section-title { font-size:20px; font-weight:800; color:var(--text); letter-spacing:-.04em; }
-.section-sub { font-size:13px; color:var(--text-3); margin-top:3px; }
+.section-sub   { font-size:13px; color:var(--text-3); margin-top:3px; }
 
-/* ── Cards ────────────────────────────────────────────────────── */
+/* ── Card ─────────────────────────────────────────────────────── */
 .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
   padding:22px 24px; margin-bottom:14px; box-shadow:var(--sh-sm); }
 .card-title { font-size:12px; font-weight:700; color:var(--text); text-transform:uppercase;
   letter-spacing:.08em; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
-.card-title-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px;
-  text-transform:uppercase; letter-spacing:.05em; }
-.badge-trial    { background:var(--amber-dim);  color:var(--amber); border:1px solid var(--amber-border); }
-.badge-active   { background:var(--green-dim);  color:var(--green); border:1px solid var(--green-border); }
-.badge-cancelled{ background:var(--red-dim);    color:var(--red);   border:1px solid var(--red-border); }
-.badge-accent   { background:var(--accent-dim); color:var(--accent);border:1px solid rgba(124,111,255,.2); }
+.card-title-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em; }
+.badge-trial    { background:var(--amber-dim); color:var(--amber); border:1px solid var(--amber-border); }
+.badge-active   { background:var(--green-dim); color:var(--green); border:1px solid var(--green-border); }
+.badge-cancelled{ background:var(--red-dim);   color:var(--red);   border:1px solid var(--red-border); }
 
 /* ── Profile ──────────────────────────────────────────────────── */
-.profile-hero { display:flex; align-items:center; gap:18px; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+.profile-hero { display:flex; align-items:center; gap:18px; margin-bottom:24px;
+  padding-bottom:24px; border-bottom:1px solid var(--border); }
 .profile-avatar { width:64px; height:64px; border-radius:50%; border:2px solid var(--border-md);
   background:linear-gradient(135deg,var(--accent),var(--accent-3));
   display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800;
   color:#fff; flex-shrink:0; overflow:hidden; }
 .profile-avatar img { width:100%; height:100%; object-fit:cover; }
-.profile-hero-info { flex:1; }
-.profile-hero-name { font-size:18px; font-weight:800; color:var(--text); letter-spacing:-.03em; }
+.profile-hero-name  { font-size:18px; font-weight:800; color:var(--text); letter-spacing:-.03em; }
 .profile-hero-email { font-size:12px; color:var(--text-3); margin-top:2px; font-family:var(--mono); }
 .profile-hero-plan  { display:inline-flex; align-items:center; gap:5px; margin-top:8px;
   background:var(--accent-dim); border:1px solid rgba(124,111,255,.2); border-radius:20px;
   padding:3px 10px; font-size:11px; font-weight:700; color:var(--accent); }
 
+/* ── Fields ───────────────────────────────────────────────────── */
 .field { margin-bottom:14px; }
 .field label { display:block; font-size:11px; font-weight:700; color:var(--text-2);
   margin-bottom:5px; text-transform:uppercase; letter-spacing:.06em; }
-.field input, .field textarea, .field select {
-  width:100%; background:var(--surface-2); border:1px solid var(--border-md); border-radius:var(--r-sm);
-  padding:10px 13px; font-size:13px; color:var(--text); font-family:var(--font); transition:var(--t); }
+.field input,.field textarea,.field select {
+  width:100%; background:var(--surface-2); border:1px solid var(--border-md);
+  border-radius:var(--r-sm); padding:10px 13px; font-size:13px; color:var(--text);
+  font-family:var(--font); transition:var(--t); }
 .field textarea { resize:vertical; min-height:80px; }
-.field input:focus, .field textarea:focus, .field select:focus {
+.field input:focus,.field textarea:focus,.field select:focus {
   outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); background:var(--surface); }
-.field input::placeholder, .field textarea::placeholder { color:var(--text-3); }
+.field input::placeholder,.field textarea::placeholder { color:var(--text-3); }
 .field input:disabled { opacity:.55; cursor:not-allowed; }
 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-/* ── Inline alerts ────────────────────────────────────────────── */
-.inline-alert { padding:10px 14px; border-radius:var(--r-sm); font-size:12px; font-weight:500;
-  margin-bottom:14px; display:none; }
-.inline-alert.show { display:block; }
+/* ── Alerts ───────────────────────────────────────────────────── */
+.inline-alert { padding:10px 14px; border-radius:var(--r-sm); font-size:12px;
+  font-weight:500; margin-bottom:14px; display:none; }
+.inline-alert.show    { display:block; }
 .inline-alert.success { background:var(--green-dim); color:var(--green); border:1px solid var(--green-border); }
 .inline-alert.error   { background:var(--red-dim);   color:var(--red);   border:1px solid var(--red-border); }
 .inline-alert.info    { background:var(--accent-dim); color:var(--accent);border:1px solid rgba(124,111,255,.2); }
 .inline-alert.warning { background:var(--amber-dim);  color:var(--amber); border:1px solid var(--amber-border); }
 
-/* ── Credit display ───────────────────────────────────────────── */
+/* ── Credit balance ───────────────────────────────────────────── */
 .credit-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
-.credit-stat { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:16px 18px; }
-.credit-stat-label { font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase;
-  letter-spacing:.08em; margin-bottom:8px; }
-.credit-stat-val { font-size:28px; font-weight:800; color:var(--text); letter-spacing:-.05em;
-  line-height:1; font-family:var(--mono); }
+.credit-stat { background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:16px 18px; }
+.credit-stat-label { font-size:10px; font-weight:700; color:var(--text-3);
+  text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+.credit-stat-val   { font-size:28px; font-weight:800; color:var(--text);
+  letter-spacing:-.05em; line-height:1; font-family:var(--mono); }
 .credit-stat-val.warn   { color:var(--amber); }
 .credit-stat-val.danger { color:var(--red); }
 .credit-stat-sub { font-size:11px; color:var(--text-3); margin-top:5px; }
-
-.progress-wrap { margin-bottom:18px; }
-.progress-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text-3); margin-bottom:7px; }
+.progress-wrap  { margin-bottom:18px; }
+.progress-label { display:flex; justify-content:space-between; font-size:11px;
+  color:var(--text-3); margin-bottom:7px; }
 .progress-bar   { height:8px; background:var(--surface-3); border-radius:100px; overflow:hidden; }
-.progress-fill  { height:100%; border-radius:100px; background:var(--accent); transition:width .5s var(--ease); }
+.progress-fill  { height:100%; border-radius:100px; background:var(--accent);
+  transition:width .5s var(--ease); }
 .progress-fill.warn   { background:var(--amber); }
 .progress-fill.danger { background:var(--red); }
 
 /* ── Billing cycle toggle ─────────────────────────────────────── */
 .cycle-toggle-wrap { display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
-.cycle-toggle { display:inline-flex; background:var(--surface-2); border:1px solid var(--border-md);
-  border-radius:var(--r-sm); padding:4px; gap:2px; }
+.cycle-toggle { display:inline-flex; background:var(--surface-2);
+  border:1px solid var(--border-md); border-radius:var(--r-sm); padding:4px; gap:2px; }
 .cycle-btn { padding:7px 16px; font-size:12px; font-weight:600; border:1.5px solid transparent;
   background:none; cursor:pointer; border-radius:calc(var(--r-sm) - 2px); color:var(--text-3);
   transition:var(--t); font-family:var(--font); white-space:nowrap; }
 .cycle-btn:hover { color:var(--text-2); }
 .cycle-btn.active { background:var(--surface); color:var(--accent); font-weight:700;
   border-color:rgba(124,111,255,.25); box-shadow:var(--sh-sm); }
-.cycle-save-pill { font-size:10px; font-weight:800; color:var(--green); background:var(--green-dim);
-  border:1px solid var(--green-border); padding:3px 9px; border-radius:20px; white-space:nowrap; }
+.cycle-save-pill { font-size:10px; font-weight:800; color:var(--green);
+  background:var(--green-dim); border:1px solid var(--green-border);
+  padding:3px 9px; border-radius:20px; }
 
 /* ── Plan cards ───────────────────────────────────────────────── */
 .plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
 .plan-card { border:1.5px solid var(--border-md); border-radius:var(--r); padding:20px;
   cursor:pointer; transition:var(--t); position:relative; background:var(--surface);
   display:flex; flex-direction:column; }
-.plan-card:hover:not(.current):not(.paying) {
-  border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
-.plan-card.current { border-color:var(--accent); background:var(--accent-dim); cursor:default; }
-.plan-card.paying  { opacity:.7; cursor:not-allowed; pointer-events:none; }
+.plan-card:hover:not(.current):not(.loading-card) {
+  border-color:var(--accent); background:var(--accent-soft);
+  transform:translateY(-2px); box-shadow:var(--sh); }
+.plan-card.current     { border-color:var(--accent); background:var(--accent-dim);
+  cursor:default; pointer-events:none; }
+.plan-card.loading-card{ opacity:.65; cursor:not-allowed; pointer-events:none; }
 .plan-card-badge { position:absolute; top:12px; right:12px; font-size:9px; font-weight:800;
   text-transform:uppercase; letter-spacing:.07em; color:var(--accent);
-  background:var(--accent-dim); border:1px solid rgba(124,111,255,.25); padding:3px 8px; border-radius:20px; }
+  background:var(--accent-dim); border:1px solid rgba(124,111,255,.25);
+  padding:3px 8px; border-radius:20px; }
 .plan-name  { font-size:15px; font-weight:800; color:var(--text); margin-bottom:2px; letter-spacing:-.02em; }
 .plan-price { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); }
 .plan-price span { font-size:12px; font-weight:400; color:var(--text-3); font-family:var(--font); }
-.plan-mo    { font-size:10px; color:var(--text-3); margin-bottom:12px; }
-.plan-feat  { font-size:11px; color:var(--text-2); line-height:1.7; flex:1; }
+.plan-mo   { font-size:10px; color:var(--text-3); margin-bottom:12px; }
+.plan-feat { font-size:11px; color:var(--text-2); line-height:1.7; flex:1; }
 .plan-feat strong { color:var(--green); font-weight:700; }
-.plan-card-cta { margin-top:14px; padding:8px 0; text-align:center; font-size:12px; font-weight:700;
-  color:var(--accent); border-top:1px solid var(--border); border-radius:0 0 calc(var(--r)-2px) calc(var(--r)-2px); }
-.plan-card:not(.current):hover .plan-card-cta { color:var(--accent); }
-.plan-card-spinner { margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px;
-  font-size:11px; font-weight:600; color:var(--accent); }
-.plan-card-spinner .spin-dot { width:12px; height:12px; border:2px solid var(--accent-dim);
-  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+.plan-card-cta { margin-top:14px; padding:8px 0; text-align:center; font-size:12px;
+  font-weight:700; color:var(--accent); border-top:1px solid var(--border); }
+.spin-dot { width:13px; height:13px; border:2px solid var(--accent-dim);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .7s linear infinite; display:inline-block; }
+.plan-card-spinner { margin-top:12px; display:flex; align-items:center;
+  justify-content:center; gap:7px; font-size:11px; font-weight:600; color:var(--accent); }
 
-/* ── Topup packs ──────────────────────────────────────────────── */
+/* ── Topup cards ──────────────────────────────────────────────── */
 .topup-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 .topup-card { border:1.5px solid var(--border-md); border-radius:var(--r); padding:16px 12px;
   text-align:center; cursor:pointer; transition:var(--t); background:var(--surface);
   position:relative; overflow:hidden; }
-.topup-card:hover:not(.paying-other):not(.paying-this) {
-  border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
-.topup-card.paying-other { opacity:.4; pointer-events:none; filter:grayscale(.4); }
-.topup-card.paying-this  { border-color:var(--accent); background:var(--accent-dim); pointer-events:none; }
-.topup-card-label  { font-size:9px; font-weight:800; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
-.topup-credits     { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); line-height:1; }
+.topup-card:hover:not(.topup-loading):not(.topup-dimmed) {
+  border-color:var(--accent); background:var(--accent-soft);
+  transform:translateY(-2px); box-shadow:var(--sh); }
+.topup-card.topup-loading{ border-color:var(--accent); background:var(--accent-dim); pointer-events:none; }
+.topup-card.topup-dimmed { opacity:.4; pointer-events:none; filter:grayscale(.4); }
+.topup-card-label  { font-size:9px; font-weight:800; color:var(--text-3);
+  text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+.topup-credits     { font-size:26px; font-weight:800; color:var(--text);
+  letter-spacing:-.05em; font-family:var(--mono); line-height:1; }
 .topup-credits-sub { font-size:10px; color:var(--text-3); margin-bottom:8px; }
 .topup-price       { font-size:16px; font-weight:700; color:var(--accent); }
 .topup-rate        { font-size:10px; color:var(--text-3); margin-top:3px; }
 .topup-save-badge  { display:inline-block; font-size:9px; font-weight:800; color:var(--green);
-  background:var(--green-dim); border:1px solid var(--green-border); padding:2px 7px; border-radius:10px; margin-top:6px; }
-.topup-loading-overlay { position:absolute; inset:0; background:var(--accent-dim);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-  border-radius:calc(var(--r)-1px); }
-.topup-loading-overlay .spin-dot { width:16px; height:16px; border:2px solid rgba(124,111,255,.3);
-  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
-.topup-loading-overlay span { font-size:10px; font-weight:700; color:var(--accent); }
+  background:var(--green-dim); border:1px solid var(--green-border);
+  padding:2px 7px; border-radius:10px; margin-top:6px; }
+.topup-overlay { position:absolute; inset:0; background:var(--accent-dim);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:calc(var(--r)-1px); }
+.topup-overlay span { font-size:10px; font-weight:700; color:var(--accent); }
 
-/* ── Usage bars ───────────────────────────────────────────────── */
+/* ── Usage ────────────────────────────────────────────────────── */
 .usage-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); }
 .usage-row:last-child { border-bottom:none; }
 .usage-feature-name { font-size:12px; color:var(--text-2); width:160px; flex-shrink:0; font-weight:500; }
 .usage-bar-wrap { flex:1; height:7px; background:var(--surface-3); border-radius:100px; overflow:hidden; }
 .usage-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--accent),var(--accent-3)); }
-.usage-count { font-size:12px; font-weight:700; color:var(--text); width:36px; text-align:right; flex-shrink:0; font-family:var(--mono); }
+.usage-count { font-size:12px; font-weight:700; color:var(--text); width:36px;
+  text-align:right; flex-shrink:0; font-family:var(--mono); }
 
-/* ── Info rows ────────────────────────────────────────────────── */
-.info-grid { display:flex; flex-direction:column; border:1px solid var(--border); border-radius:var(--r-sm); overflow:hidden; }
+/* ── Info grid ────────────────────────────────────────────────── */
+.info-grid { display:flex; flex-direction:column; border:1px solid var(--border);
+  border-radius:var(--r-sm); overflow:hidden; }
 .info-row  { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--border); }
 .info-row:last-child { border-bottom:none; }
-.info-key  { font-size:11px; font-weight:700; color:var(--text-3); width:110px; flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
+.info-key  { font-size:11px; font-weight:700; color:var(--text-3); width:110px;
+  flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
 .info-val  { font-size:13px; color:var(--text); flex:1; font-weight:500; }
-.info-val.mono { font-family:var(--mono); font-size:12px; }
 
-/* ── Support tier grid ────────────────────────────────────────── */
+/* ── Support ──────────────────────────────────────────────────── */
 .support-tier-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
-.support-tier      { border:1.5px solid var(--border-md); border-radius:var(--r); padding:16px; cursor:pointer; transition:var(--t); }
-.support-tier:hover { border-color:var(--accent); background:var(--accent-soft); }
+.support-tier      { border:1.5px solid var(--border-md); border-radius:var(--r);
+  padding:16px; cursor:pointer; transition:var(--t); }
+.support-tier:hover    { border-color:var(--accent); background:var(--accent-soft); }
 .support-tier.selected { border-color:var(--accent); background:var(--accent-dim); }
-.support-tier-name { font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; letter-spacing:-.02em; }
-.support-tier-sla  { font-size:24px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); line-height:1.1; }
+.support-tier-name { font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.support-tier-sla  { font-size:24px; font-weight:800; color:var(--text);
+  letter-spacing:-.05em; font-family:var(--mono); line-height:1.1; }
 .support-tier-unit { font-size:11px; color:var(--text-3); margin-bottom:8px; }
 .support-tier-cost.free { font-size:11px; color:var(--green); font-weight:700; }
 .support-tier-cost.paid { font-size:11px; color:var(--amber); font-weight:600; }
+.pay-method-row   { margin-bottom:16px; }
+.pay-method-label { font-size:11px; font-weight:700; color:var(--text-2);
+  text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.pay-opts  { display:flex; gap:10px; }
+.pay-opt   { flex:1; border:1.5px solid var(--border-md); border-radius:var(--r-sm);
+  padding:10px 14px; cursor:pointer; transition:var(--t);
+  display:flex; align-items:center; gap:8px; }
+.pay-opt:hover    { border-color:var(--accent); background:var(--accent-soft); }
+.pay-opt.selected { border-color:var(--accent); background:var(--accent-dim); }
+.pay-opt input    { margin:0; accent-color:var(--accent); cursor:pointer; }
+.pay-opt-text { font-size:12px; font-weight:600; color:var(--text); }
+.pay-opt-sub  { font-size:10px; color:var(--text-3); }
 
-/* ── Ticket list ──────────────────────────────────────────────── */
-.ticket-row { display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px solid var(--border); }
+/* ── Tickets ──────────────────────────────────────────────────── */
+.ticket-row { display:flex; align-items:flex-start; gap:12px; padding:13px 0;
+  border-bottom:1px solid var(--border); }
 .ticket-row:last-child { border-bottom:none; }
-.ticket-tier { font-size:9px; font-weight:800; padding:3px 9px; border-radius:20px; flex-shrink:0; text-transform:uppercase; letter-spacing:.07em; margin-top:2px; }
+.ticket-tier { font-size:9px; font-weight:800; padding:3px 9px; border-radius:20px;
+  flex-shrink:0; text-transform:uppercase; letter-spacing:.07em; margin-top:2px; }
 .tier-standard  { background:var(--surface-3); color:var(--text-2); }
 .tier-priority  { background:var(--amber-dim);  color:var(--amber); }
 .tier-emergency { background:var(--red-dim);    color:var(--red); }
 .ticket-subject { font-size:13px; font-weight:600; color:var(--text); line-height:1.4; }
 .ticket-meta    { font-size:11px; color:var(--text-3); margin-top:3px; }
-.ticket-status  { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
-.status-open     { background:var(--blue-dim);  color:var(--blue); }
-.status-resolved { background:var(--green-dim); color:var(--green); }
+.ticket-status  { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px;
+  flex-shrink:0; text-transform:uppercase; letter-spacing:.05em; }
+.status-open            { background:var(--blue-dim);  color:var(--blue); }
+.status-resolved        { background:var(--green-dim); color:var(--green); }
 .status-payment_pending { background:var(--amber-dim); color:var(--amber); }
 
-/* ── Invoice table ────────────────────────────────────────────── */
+/* ── Invoices ─────────────────────────────────────────────────── */
 .inv-table { width:100%; border-collapse:collapse; font-size:13px; }
 .inv-table th { text-align:left; font-size:10px; font-weight:800; color:var(--text-3);
   text-transform:uppercase; letter-spacing:.08em; padding:0 0 12px; border-bottom:1px solid var(--border); }
@@ -250,71 +269,48 @@
 .inv-table td.amount { color:var(--text); font-weight:700; font-family:var(--mono); }
 .inv-table tr:last-child td { border-bottom:none; }
 
-/* ── Empty state ──────────────────────────────────────────────── */
+/* ── Misc ─────────────────────────────────────────────────────── */
 .empty-state { text-align:center; padding:36px 20px; }
 .empty-state-icon { font-size:36px; opacity:.3; margin-bottom:10px; }
 .empty-state-text { font-size:13px; color:var(--text-3); }
-
-/* ── Trial banner ─────────────────────────────────────────────── */
-.trial-banner { background:var(--amber-dim); border:1px solid var(--amber-border); border-radius:var(--r-sm);
-  padding:12px 16px; font-size:12px; color:var(--amber); display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-.trial-banner strong { font-weight:700; }
-
-/* ── Credit sidebar widget ────────────────────────────────────── */
-.credit-sidebar-widget { margin:4px 10px 8px; padding:12px 14px; background:var(--surface-2);
-  border:1px solid var(--border); border-radius:var(--r-sm); cursor:pointer; transition:var(--t); }
-.credit-sidebar-widget:hover { border-color:var(--accent); background:var(--accent-dim); }
-.csw-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
-.csw-label  { font-size:10px; font-weight:800; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; }
-.csw-badge  { font-size:10px; font-weight:800; color:var(--accent); font-family:var(--mono); }
-.csw-sub    { font-size:10px; color:var(--text-3); margin-top:5px; }
-
-/* ── Payment method radio ─────────────────────────────────────── */
-.pay-method-row  { margin-bottom:16px; }
-.pay-method-label{ font-size:11px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
-.pay-opts        { display:flex; gap:10px; }
-.pay-opt         { flex:1; border:1.5px solid var(--border-md); border-radius:var(--r-sm); padding:10px 14px;
-  cursor:pointer; transition:var(--t); display:flex; align-items:center; gap:8px; }
-.pay-opt:hover   { border-color:var(--accent); background:var(--accent-soft); }
-.pay-opt.selected{ border-color:var(--accent); background:var(--accent-dim); }
-.pay-opt input   { margin:0; accent-color:var(--accent); cursor:pointer; }
-.pay-opt-text    { font-size:12px; font-weight:600; color:var(--text); }
-.pay-opt-sub     { font-size:10px; color:var(--text-3); }
-
-/* ── Divider ──────────────────────────────────────────────────── */
-.divider { height:1px; background:var(--border); margin:20px 0; }
-
-/* ── Two-col layout ───────────────────────────────────────────── */
-.two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.trial-banner { background:var(--amber-dim); border:1px solid var(--amber-border);
+  border-radius:var(--r-sm); padding:12px 16px; font-size:12px; color:var(--amber);
+  display:flex; align-items:center; gap:10px; margin-bottom:16px; }
 .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-
-/* ── Pill info ────────────────────────────────────────────────── */
-.pill-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-.pill-info { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm);
-  padding:6px 12px; font-size:11px; color:var(--text-2); }
+.pill-row  { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.pill-info { background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:6px 12px; font-size:11px; color:var(--text-2); }
 .pill-info strong { color:var(--text); font-weight:700; }
 
-/* ── Payment confirmation modal ───────────────────────────────── */
-.pay-confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000;
+/* ── Payment modal ────────────────────────────────────────────── */
+/* Step 1 click → spinner on card → hit backend → show this modal → click Pay → Razorpay */
+.pay-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000;
   display:flex; align-items:center; justify-content:center; padding:20px;
-  animation:cardIn .2s var(--ease) both; }
-.pay-confirm-modal { background:var(--surface); border:1px solid var(--border-md);
-  border-radius:var(--r); width:100%; max-width:400px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
-.pcm-title   { font-size:16px; font-weight:800; color:var(--text); letter-spacing:-.03em; margin-bottom:6px; }
-.pcm-desc    { font-size:12px; color:var(--text-3); margin-bottom:20px; }
-.pcm-amount  { font-size:36px; font-weight:800; color:var(--text); letter-spacing:-.05em;
-  font-family:var(--mono); margin-bottom:4px; }
-.pcm-amount-sub { font-size:12px; color:var(--text-3); margin-bottom:22px; }
-.pcm-detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0;
-  border-bottom:1px solid var(--border); font-size:12px; }
-.pcm-detail-row:last-of-type { border-bottom:none; margin-bottom:20px; }
-.pcm-detail-key { color:var(--text-3); font-weight:600; }
-.pcm-detail-val { color:var(--text); font-weight:700; }
-.pcm-buttons { display:flex; gap:10px; }
-.pcm-buttons .btn { flex:1; }
-.pcm-rzp-logo { display:flex; align-items:center; justify-content:center; gap:6px;
-  margin-top:14px; font-size:10px; color:var(--text-3); }
-.pcm-rzp-logo img { height:14px; opacity:.5; }
+  animation:cardIn .2s var(--ease) both; backdrop-filter:blur(4px); }
+.pay-modal { background:var(--surface); border:1px solid var(--border-md);
+  border-radius:var(--r); width:100%; max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.3); overflow:hidden; }
+.pay-modal-head { padding:24px 24px 0; }
+.pay-modal-title { font-size:17px; font-weight:800; color:var(--text);
+  letter-spacing:-.03em; margin-bottom:4px; }
+.pay-modal-desc  { font-size:12px; color:var(--text-3); }
+.pay-modal-body  { padding:20px 24px; }
+.pay-modal-amount     { font-size:42px; font-weight:800; color:var(--text);
+  letter-spacing:-.06em; font-family:var(--mono); line-height:1; }
+.pay-modal-amount-sub { font-size:12px; color:var(--text-3); margin-top:4px; margin-bottom:20px; }
+.pay-modal-rows { border:1px solid var(--border); border-radius:var(--r-sm);
+  overflow:hidden; margin-bottom:20px; }
+.pay-modal-row  { display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; border-bottom:1px solid var(--border); font-size:12px; }
+.pay-modal-row:last-child { border-bottom:none; }
+.pay-modal-row-k { color:var(--text-3); font-weight:600; }
+.pay-modal-row-v { color:var(--text);   font-weight:700; font-family:var(--mono); font-size:13px; }
+.pay-modal-foot { padding:0 24px 22px; }
+.pay-modal-btns { display:flex; gap:10px; margin-bottom:12px; }
+.pay-modal-btns .btn { flex:1; }
+.pay-modal-secure { display:flex; align-items:center; justify-content:center; gap:5px;
+  font-size:10px; color:var(--text-3); }
+.pay-modal-secure svg { opacity:.4; flex-shrink:0; }
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media(max-width:900px) {
@@ -325,16 +321,14 @@
 }
 @media(max-width:648px) {
   .acc-summary { grid-template-columns:1fr 1fr; }
-  .acc-tabs    { gap:0; padding:4px; flex-wrap:nowrap; }
   .acc-tab     { padding:7px 10px; font-size:11.5px; }
   .plan-grid         { grid-template-columns:1fr; }
   .support-tier-grid { grid-template-columns:1fr; }
   .credit-grid { grid-template-columns:1fr 1fr; }
   .topup-grid  { grid-template-columns:1fr 1fr; }
-  .two-col { grid-template-columns:1fr; }
-  .three-col { grid-template-columns:1fr 1fr; }
-  .field-row { grid-template-columns:1fr; }
-  .pcm-buttons { flex-direction:column; }
+  .three-col   { grid-template-columns:1fr 1fr; }
+  .field-row   { grid-template-columns:1fr; }
+  .pay-modal-btns { flex-direction:column; }
 }
 </style>
 </head>
@@ -349,8 +343,8 @@
   </div>
   <div class="skel-body">
     <div class="skel skel-acc-header"></div>
-    <div class="skel skel-acc-tabs" style="margin-top:14px;"></div>
-    <div class="skel skel-acc-card" style="margin-top:14px;"></div>
+    <div class="skel skel-acc-tabs"  style="margin-top:14px;"></div>
+    <div class="skel skel-acc-card"  style="margin-top:14px;"></div>
     <div class="skel skel-acc-card2" style="margin-top:14px;"></div>
   </div>
 </div>
@@ -359,7 +353,6 @@
 
 <div class="sidebar" id="sidebar">
   <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
-
   <div class="sidebar-user-skel" id="sidebar-user-skel">
     <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
     <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
@@ -367,22 +360,20 @@
       <div class="skel" style="height:8px;width:60%;"></div>
     </div>
   </div>
-  <div class="sidebar-user loading" id="sidebar-user-real" onclick="goToSection('profile')" style="cursor:pointer;" title="View profile">
+  <div class="sidebar-user loading" id="sidebar-user-real"
+       onclick="goToSection('profile')" style="cursor:pointer;" title="View profile">
     <div class="sidebar-avatar" id="nav-avatar">U</div>
     <div class="sidebar-user-info">
       <div class="sidebar-user-name"  id="nav-user-name">Loading…</div>
       <div class="sidebar-user-email" id="nav-user-email"></div>
     </div>
   </div>
-
   <div id="sidebar-nav" style="flex:1;"></div>
-
   <div class="sidebar-bottom">
     <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
   </div>
 </div>
 
-<!-- ── Mobile topbar ───────────────────────────────────────────── -->
 <div class="mobile-topbar">
   <div class="mob-left">
     <button class="hamburger" onclick="openMobileSidebar()" aria-label="Open menu">
@@ -391,31 +382,28 @@
     <a class="mob-logo" href="home.html">e<span>K</span>art</a>
   </div>
   <div class="mob-right">
-    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()">🌙</button>
   </div>
 </div>
 
-<!-- ── Main ───────────────────────────────────────────────────── -->
 <div class="main-wrap">
-
   <div class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-title">Account & Billing</span>
-    </div>
-    <div class="topbar-right" id="topbar-actions">
-      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="topbar-left"><span class="topbar-title">Account & Billing</span></div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
     </div>
   </div>
 
   <div class="content" id="page-content" style="display:none;">
 
-    <!-- Summary KPI strip -->
-    <div class="acc-summary" id="acc-summary">
+    <!-- KPI strip -->
+    <div class="acc-summary">
       <div class="acc-kpi">
         <div class="acc-kpi-icon">👤</div>
         <div class="acc-kpi-body">
           <div class="acc-kpi-label">Plan</div>
-          <div class="acc-kpi-value loading" id="kpi-plan" style="font-size:16px;font-family:var(--font);letter-spacing:-.02em;">—</div>
+          <div class="acc-kpi-value loading" id="kpi-plan"
+               style="font-size:16px;font-family:var(--font);letter-spacing:-.02em;">—</div>
           <div class="acc-kpi-sub" id="kpi-plan-sub">Loading…</div>
         </div>
       </div>
@@ -431,7 +419,8 @@
         <div class="acc-kpi-icon">📅</div>
         <div class="acc-kpi-body">
           <div class="acc-kpi-label">Renews</div>
-          <div class="acc-kpi-value loading" id="kpi-renews" style="font-size:16px;font-family:var(--font);">—</div>
+          <div class="acc-kpi-value loading" id="kpi-renews"
+               style="font-size:16px;font-family:var(--font);">—</div>
           <div class="acc-kpi-sub" id="kpi-renews-sub">subscription end</div>
         </div>
       </div>
@@ -445,37 +434,32 @@
       </div>
     </div>
 
-    <!-- Tab navigation -->
+    <!-- Tabs -->
     <div class="acc-tabs">
-      <button class="acc-tab active" id="tab-profile"  onclick="goToSection('profile')">  <span class="acc-tab-icon">👤</span> Profile</button>
-      <button class="acc-tab"        id="tab-plan"     onclick="goToSection('plan')">     <span class="acc-tab-icon">📦</span> Plan & Billing</button>
-      <button class="acc-tab"        id="tab-credits"  onclick="goToSection('credits')">  <span class="acc-tab-icon">⚡</span> AI Credits</button>
-      <button class="acc-tab"        id="tab-usage"    onclick="goToSection('usage')">    <span class="acc-tab-icon">📊</span> Usage</button>
-      <button class="acc-tab"        id="tab-support"  onclick="goToSection('support')">  <span class="acc-tab-icon">🎧</span> Support</button>
-      <button class="acc-tab"        id="tab-invoices" onclick="goToSection('invoices')"> <span class="acc-tab-icon">🧾</span> Invoices</button>
+      <button class="acc-tab active" id="tab-profile"  onclick="goToSection('profile')"> <span>👤</span> Profile</button>
+      <button class="acc-tab"        id="tab-plan"     onclick="goToSection('plan')">    <span>📦</span> Plan & Billing</button>
+      <button class="acc-tab"        id="tab-credits"  onclick="goToSection('credits')"> <span>⚡</span> AI Credits</button>
+      <button class="acc-tab"        id="tab-usage"    onclick="goToSection('usage')">   <span>📊</span> Usage</button>
+      <button class="acc-tab"        id="tab-support"  onclick="goToSection('support')"> <span>🎧</span> Support</button>
+      <button class="acc-tab"        id="tab-invoices" onclick="goToSection('invoices')"><span>🧾</span> Invoices</button>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: PROFILE
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ PROFILE ══════════════════════════════════════════════ -->
     <div class="acc-section active" id="sec-profile">
       <div class="section-hdr">
         <div class="section-title">Profile</div>
         <div class="section-sub">Your personal details and account preferences</div>
       </div>
-
       <div class="card">
         <div class="profile-hero">
           <div class="profile-avatar" id="profile-avatar-wrap">U</div>
-          <div class="profile-hero-info">
+          <div>
             <div class="profile-hero-name"  id="profile-hero-name">Loading…</div>
             <div class="profile-hero-email" id="profile-hero-email"></div>
-            <div class="profile-hero-plan"  id="profile-hero-plan">⚡ Loading plan…</div>
+            <div class="profile-hero-plan"  id="profile-hero-plan">⚡ Loading…</div>
           </div>
         </div>
-
         <div class="inline-alert" id="profile-alert"></div>
-
         <div class="field-row">
           <div class="field">
             <label>Full name</label>
@@ -483,7 +467,7 @@
           </div>
           <div class="field">
             <label>Email address</label>
-            <input type="email" id="field-email" disabled placeholder="your@email.com">
+            <input type="email" id="field-email" disabled>
           </div>
         </div>
         <div class="field" style="max-width:260px;">
@@ -494,46 +478,29 @@
             <option value="hi">🇮🇳 Hindi</option>
           </select>
         </div>
-
         <div style="display:flex;gap:10px;margin-top:4px;">
-          <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+          <button class="btn btn-primary"   onclick="saveProfile()">Save changes</button>
           <button class="btn btn-secondary" onclick="logout()">Sign out</button>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">Account info</div>
-        <div class="info-grid" id="profile-info-grid">
-          <div class="info-row">
-            <div class="info-key">Member since</div>
-            <div class="info-val" id="info-joined">—</div>
-          </div>
-          <div class="info-row">
-            <div class="info-key">Last login</div>
-            <div class="info-val" id="info-last-login">—</div>
-          </div>
-          <div class="info-row">
-            <div class="info-key">Plan</div>
-            <div class="info-val" id="info-plan">—</div>
-          </div>
-          <div class="info-row">
-            <div class="info-key">Billing cycle</div>
-            <div class="info-val" id="info-billing">—</div>
-          </div>
+        <div class="info-grid">
+          <div class="info-row"><div class="info-key">Member since</div><div class="info-val" id="info-joined">—</div></div>
+          <div class="info-row"><div class="info-key">Last login</div><div class="info-val"  id="info-last-login">—</div></div>
+          <div class="info-row"><div class="info-key">Plan</div><div class="info-val"         id="info-plan">—</div></div>
+          <div class="info-row"><div class="info-key">Billing cycle</div><div class="info-val" id="info-billing">—</div></div>
         </div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: PLAN & BILLING
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ PLAN & BILLING ════════════════════════════════════════ -->
     <div class="acc-section" id="sec-plan">
       <div class="section-hdr">
         <div class="section-title">Plan & Billing</div>
         <div class="section-sub">Manage your subscription and billing details</div>
       </div>
 
-      <!-- Current plan summary -->
       <div class="card">
         <div class="card-title">
           Current plan
@@ -546,7 +513,7 @@
           </div>
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Billing cycle</div>
-            <div style="font-size:14px;font-weight:600;color:var(--text);text-transform:capitalize;" id="plan-cycle">—</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);" id="plan-cycle">—</div>
           </div>
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Next renewal</div>
@@ -555,45 +522,42 @@
         </div>
         <div class="pill-row" id="plan-features-row"></div>
         <div style="display:flex;gap:10px;margin-top:18px;">
-          <button class="btn btn-secondary" onclick="document.getElementById('upgrade-section').scrollIntoView({behavior:'smooth'})">Change plan ↓</button>
-          <button class="btn btn-danger btn-sm" id="cancel-btn" onclick="cancelSubscription()" style="display:none;">Cancel at period end</button>
+          <button class="btn btn-secondary"
+            onclick="document.getElementById('upgrade-section').scrollIntoView({behavior:'smooth'})">
+            Change plan ↓
+          </button>
+          <button class="btn btn-danger btn-sm" id="cancel-btn"
+            onclick="cancelSubscription()" style="display:none;">
+            Cancel at period end
+          </button>
         </div>
       </div>
 
-      <!-- Available plans -->
       <div class="card" id="upgrade-section">
         <div class="card-title">Choose a plan</div>
-
-        <!-- ✅ Billing cycle toggle -->
         <div class="cycle-toggle-wrap">
           <div class="cycle-toggle">
             <button class="cycle-btn active" id="cycle-yearly"  onclick="setBillingCycle('yearly')">Yearly</button>
             <button class="cycle-btn"        id="cycle-monthly" onclick="setBillingCycle('monthly')">Monthly</button>
           </div>
-          <div class="cycle-save-pill" id="cycle-save-label">Save 33% with annual billing</div>
+          <span class="cycle-save-pill" id="cycle-save-pill">Save 33% with annual billing</span>
         </div>
-
         <div class="inline-alert" id="plan-alert"></div>
-        <div class="plan-grid" id="plan-cards"><!-- injected by JS --></div>
+        <div class="plan-grid" id="plan-cards"></div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: AI CREDITS
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ AI CREDITS ════════════════════════════════════════════ -->
     <div class="acc-section" id="sec-credits">
       <div class="section-hdr">
         <div class="section-title">AI Credits</div>
         <div class="section-sub">1 credit = 1 AI request = ₹5 value</div>
       </div>
-
       <div class="card">
         <div class="card-title">Credit balance</div>
-
         <div id="cr-trial-banner" class="trial-banner" style="display:none;">
-          ⏰ <span><strong>Free trial active.</strong> Trial ends <span id="cr-trial-end">—</span>. Upgrade to keep your Grower plan after the trial.</span>
+          ⏰ <span><strong>Free trial active.</strong> Ends <span id="cr-trial-end">—</span>. Upgrade to keep your Grower plan.</span>
         </div>
-
         <div class="credit-grid">
           <div class="credit-stat">
             <div class="credit-stat-label">Available this month</div>
@@ -608,77 +572,52 @@
           <div class="credit-stat">
             <div class="credit-stat-label">Top-up balance</div>
             <div class="credit-stat-val" id="cr-topup">—</div>
-            <div class="credit-stat-sub">purchased extra credits</div>
+            <div class="credit-stat-sub">purchased extra</div>
           </div>
         </div>
-
         <div class="progress-wrap">
-          <div class="progress-label">
-            <span>Monthly cap usage</span>
-            <span id="cr-pct">0%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="cr-progress" style="width:0%;"></div>
-          </div>
+          <div class="progress-label"><span>Monthly cap usage</span><span id="cr-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="cr-progress" style="width:0%"></div></div>
         </div>
-
-        <div class="info-grid" style="margin-top:4px;">
-          <div class="info-row">
-            <div class="info-key">Cap resets</div>
-            <div class="info-val" id="cr-reset">—</div>
-          </div>
-          <div class="info-row">
-            <div class="info-key">Subscription</div>
-            <div class="info-val" id="cr-sub-status">—</div>
-          </div>
+        <div class="info-grid">
+          <div class="info-row"><div class="info-key">Cap resets</div><div class="info-val" id="cr-reset">—</div></div>
+          <div class="info-row"><div class="info-key">Subscription</div><div class="info-val" id="cr-sub-status">—</div></div>
         </div>
       </div>
-
-      <!-- Top-up packs -->
       <div class="card">
         <div class="card-title">Buy more credits</div>
-        <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">Credits never expire and roll over month to month. Click any pack to pay instantly.</div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">
+          Credits never expire. Click a pack — we load the price from our server, then open Razorpay.
+        </div>
         <div class="inline-alert" id="topup-alert"></div>
-        <div class="topup-grid" id="topup-packs"><!-- injected --></div>
+        <div class="topup-grid" id="topup-packs"></div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: USAGE
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ USAGE ═════════════════════════════════════════════════ -->
     <div class="acc-section" id="sec-usage">
       <div class="section-hdr">
         <div class="section-title">Usage History</div>
         <div class="section-sub">AI credit consumption over the last 30 days</div>
       </div>
-
       <div class="card">
         <div class="card-title">By feature</div>
-        <div id="usage-by-feature">
-          <div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Loading usage…</div></div>
-        </div>
+        <div id="usage-by-feature"><div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Loading…</div></div></div>
       </div>
-
       <div class="card">
         <div class="card-title">Daily breakdown</div>
-        <div id="usage-by-date">
-          <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">Loading…</div></div>
-        </div>
+        <div id="usage-by-date"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">Loading…</div></div></div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: SUPPORT
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ SUPPORT ════════════════════════════════════════════════ -->
     <div class="acc-section" id="sec-support">
       <div class="section-hdr">
         <div class="section-title">Support</div>
         <div class="section-sub">Standard support is always free. Priority and Emergency cost credits or cash.</div>
       </div>
-
       <div class="card">
         <div class="card-title">Raise a ticket</div>
-
         <div class="support-tier-grid">
           <div class="support-tier selected" id="tier-standard" onclick="selectTier('standard')">
             <div class="support-tier-name">Standard</div>
@@ -699,30 +638,20 @@
             <div class="support-tier-cost paid" id="emergency-cost">500 credits or ₹500</div>
           </div>
         </div>
-
-        <!-- Payment method (non-standard tiers) -->
         <div id="payment-method-row" class="pay-method-row" style="display:none;">
           <div class="pay-method-label">Pay with</div>
           <div class="pay-opts">
             <label class="pay-opt selected" id="pay-opt-credits" onclick="selectPayMethod('credits')">
               <input type="radio" name="pay-method" value="credits" checked>
-              <div>
-                <div class="pay-opt-text">AI Credits</div>
-                <div class="pay-opt-sub" id="credits-avail-text">— available</div>
-              </div>
+              <div><div class="pay-opt-text">AI Credits</div><div class="pay-opt-sub" id="credits-avail-text">— available</div></div>
             </label>
             <label class="pay-opt" id="pay-opt-cash" onclick="selectPayMethod('cash')">
               <input type="radio" name="pay-method" value="cash">
-              <div>
-                <div class="pay-opt-text">Cash via Razorpay</div>
-                <div class="pay-opt-sub">Instant payment</div>
-              </div>
+              <div><div class="pay-opt-text">Cash via Razorpay</div><div class="pay-opt-sub">Instant payment</div></div>
             </label>
           </div>
         </div>
-
         <div class="inline-alert" id="support-alert"></div>
-
         <div class="field">
           <label>Subject</label>
           <input type="text" id="ticket-subject" placeholder="Brief description of your issue">
@@ -733,8 +662,6 @@
         </div>
         <button class="btn btn-primary" id="submit-ticket-btn" onclick="submitTicket()">Submit ticket</button>
       </div>
-
-      <!-- Ticket list -->
       <div class="card">
         <div class="card-title">My tickets</div>
         <div id="ticket-list">
@@ -743,15 +670,12 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SECTION: INVOICES
-    ══════════════════════════════════════════════════════════════ -->
+    <!-- ══ INVOICES ══════════════════════════════════════════════ -->
     <div class="acc-section" id="sec-invoices">
       <div class="section-hdr">
         <div class="section-title">Invoices</div>
         <div class="section-sub">Billing history for your subscription and credit top-ups</div>
       </div>
-
       <div class="card">
         <div id="invoice-wrap">
           <div class="empty-state"><div class="empty-state-icon">🧾</div><div class="empty-state-text">No invoices yet</div></div>
@@ -762,20 +686,18 @@
   </div><!-- /content -->
 </div><!-- /main-wrap -->
 
-<!-- ── Scripts ─────────────────────────────────────────────────── -->
 <script>
 /* ══════════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════════ */
-let _data              = null   // cached account payload
+let _data              = null
 let _selectedTier      = 'standard'
 let _selectedPayMethod = 'credits'
-
-// ── Payment state ─────────────────────────────────────────────
-let _billingCycle  = 'yearly'   // 'yearly' | 'monthly'
-let _payingPlanKey = null       // currently-opening plan key
-let _payingPackId  = null       // currently-opening topup pack id
-let _payingTicket  = false      // ticket submit in flight
+let _billingCycle      = 'yearly'
+let _payingPlanKey     = null   // which plan card is loading right now
+let _payingPackId      = null   // which topup card is loading right now
+let _payingTicket      = false
+let _pendingRzp        = null   // pre-built Razorpay instance waiting for Pay click
 
 /* ══════════════════════════════════════════════════════════════
    NAVIGATION
@@ -783,26 +705,21 @@ let _payingTicket  = false      // ticket submit in flight
 function goToSection(name) {
   document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('active'))
   document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'))
-  const sec = document.getElementById('sec-'  + name)
-  const tab = document.getElementById('tab-' + name)
-  if (sec) sec.classList.add('active')
-  if (tab) tab.classList.add('active')
+  document.getElementById('sec-' + name)?.classList.add('active')
+  document.getElementById('tab-' + name)?.classList.add('active')
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 /* ══════════════════════════════════════════════════════════════
-   LOAD ACCOUNT DATA
+   LOAD ACCOUNT
 ══════════════════════════════════════════════════════════════ */
 async function loadAccount() {
   try {
     _data = await apiFetch('/account')
-
-    // Sync billing cycle from user's current subscription
     if (_data.subscription?.billing_cycle) {
       _billingCycle = _data.subscription.billing_cycle
-      updateCycleUI()
     }
-
+    updateCycleUI()
     renderProfile()
     renderKPIs()
     renderCredits()
@@ -813,71 +730,70 @@ async function loadAccount() {
     renderSupportTiers()
     renderSidebarCredit()
   } catch (e) {
-    console.error('Failed to load account:', e)
+    console.error('loadAccount:', e)
     toast('Failed to load account data', 'error')
   }
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SIDEBAR CREDIT WIDGET
+   SIDEBAR CREDIT
 ══════════════════════════════════════════════════════════════ */
 function renderSidebarCredit() {
   if (!_data?.credits) return
-  const cr   = _data.credits
-  const used = cr.monthly_used || 0
-  const cap  = cr.monthly_cap  || 1
-  const rem  = cr.monthly_remaining || 0
-  const pct  = Math.min(100, Math.round((used / cap) * 100))
-
+  const cr  = _data.credits
+  const pct = Math.min(100, Math.round(((cr.monthly_used||0) / (cr.monthly_cap||1)) * 100))
   const badge = document.getElementById('credit-badge')
-  if (badge) badge.textContent = rem + ' left'
+  if (badge) badge.textContent = (cr.monthly_remaining||0) + ' left'
   const bar = document.getElementById('credit-bar')
   if (bar) {
     bar.style.width = pct + '%'
     bar.className   = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
   }
   const sub = document.getElementById('credit-sub')
-  if (sub) sub.textContent = `${used} / ${cap} used this month`
+  if (sub) sub.textContent = `${cr.monthly_used||0} / ${cr.monthly_cap||0} used this month`
 }
 
 /* ══════════════════════════════════════════════════════════════
-   TOP KPI STRIP
+   KPIs
 ══════════════════════════════════════════════════════════════ */
 function renderKPIs() {
   if (!_data) return
-  const cr   = _data.credits
-  const sub  = _data.subscription
-  const plan = _data.plan_config
+  const cr  = _data.credits
+  const sub = _data.subscription
 
   const planEl = document.getElementById('kpi-plan')
   planEl.textContent = cr?.plan_label || 'Starter'
   planEl.classList.remove('loading')
-  document.getElementById('kpi-plan-sub').textContent = cr?.trial_active ? '🟡 Free trial' : (sub?.status || 'active')
+  planEl.style.fontSize   = '16px'
+  planEl.style.fontFamily = 'var(--font)'
+  document.getElementById('kpi-plan-sub').textContent =
+    cr?.trial_active ? '🟡 Free trial' : (sub?.status || 'active')
 
   const credEl = document.getElementById('kpi-credits')
   credEl.textContent = (cr?.monthly_remaining ?? '—').toLocaleString?.('en-IN') ?? '—'
   credEl.classList.remove('loading')
-  document.getElementById('kpi-credits-sub').textContent = `of ${(cr?.monthly_cap || 0).toLocaleString('en-IN')} monthly cap`
+  document.getElementById('kpi-credits-sub').textContent =
+    `of ${(cr?.monthly_cap||0).toLocaleString('en-IN')} monthly cap`
 
-  const renewEl = document.getElementById('kpi-renews')
   const endDate = sub?.current_period_end || cr?.subscription_end
-  renewEl.textContent = endDate
-    ? new Date(endDate).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-    : '—'
+  const renewEl = document.getElementById('kpi-renews')
+  renewEl.textContent = endDate ? fmtDate(endDate) : '—'
   renewEl.classList.remove('loading')
-  document.getElementById('kpi-renews-sub').textContent = sub?.cancel_at_period_end ? '⚠ Cancels at period end' : 'auto-renews'
+  renewEl.style.fontSize   = '16px'
+  renewEl.style.fontFamily = 'var(--font)'
+  document.getElementById('kpi-renews-sub').textContent =
+    sub?.cancel_at_period_end ? '⚠ Cancels at period end' : 'auto-renews'
 
   apiFetch('/stores').then(stores => {
     const storesEl = document.getElementById('kpi-stores')
+    const max = _data.plan_config?.stores
     storesEl.textContent = stores.length
     storesEl.classList.remove('loading')
-    const maxStores = plan?.stores === null || plan?.stores === undefined
-      ? '∞' : (plan?.stores >= 1000 ? '∞' : plan?.stores)
-    document.getElementById('kpi-stores-sub').textContent = `of ${maxStores} allowed`
+    document.getElementById('kpi-stores-sub').textContent =
+      `of ${!max || max >= 1000 ? '∞' : max} allowed`
   }).catch(() => {
     const el = document.getElementById('kpi-stores')
-    el.textContent = '—'
-    el.classList.remove('loading')
+    el.textContent = '—'; el.classList.remove('loading')
   })
 }
 
@@ -894,24 +810,22 @@ function renderProfile() {
   if (u.language) document.getElementById('field-lang').value = u.language
 
   const av = document.getElementById('profile-avatar-wrap')
-  if (u.avatar) { av.innerHTML = `<img src="${u.avatar}" alt="">` }
-  else { av.textContent = (u.name || 'U')[0].toUpperCase() }
+  if (u.avatar) av.innerHTML = `<img src="${u.avatar}" alt="">`
+  else av.textContent = (u.name || 'U')[0].toUpperCase()
+
   document.getElementById('profile-hero-name').textContent  = u.name  || '—'
   document.getElementById('profile-hero-email').textContent = u.email || ''
   document.getElementById('profile-hero-plan').innerHTML    =
-    `⚡ ${cr?.plan_label || 'Starter'}${cr?.trial_active ? ' <span style="opacity:.7">(Trial)</span>' : ''}`
+    `⚡ ${cr?.plan_label||'Starter'}${cr?.trial_active?' <span style="opacity:.7">(Trial)</span>':''}`
 
   const navAv = document.getElementById('nav-avatar')
-  if (navAv && u.avatar) {
+  if (navAv && u.avatar)
     navAv.innerHTML = `<img src="${u.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-  }
 
-  document.getElementById('info-joined').textContent = u.created_at
-    ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—'
-  document.getElementById('info-last-login').textContent = u.last_login
-    ? new Date(u.last_login).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—'
-  document.getElementById('info-plan').textContent    = `${cr?.plan_label || 'Starter'} (${cr?.billing_cycle || 'yearly'})`
-  document.getElementById('info-billing').textContent = cr?.billing_cycle === 'yearly'
+  document.getElementById('info-joined').textContent     = fmtDate(u.created_at, true)
+  document.getElementById('info-last-login').textContent = fmtDate(u.last_login, true)
+  document.getElementById('info-plan').textContent       = `${cr?.plan_label||'Starter'} (${cr?.billing_cycle||'yearly'})`
+  document.getElementById('info-billing').textContent    = cr?.billing_cycle === 'yearly'
     ? 'Annual billing (save 33%)' : 'Monthly billing'
 }
 
@@ -921,15 +835,13 @@ async function saveProfile() {
   const lang    = document.getElementById('field-lang').value
   try {
     showAlert(alertEl, 'Saving…', 'info')
-    await apiFetch('/account/profile', { method: 'PUT', body: JSON.stringify({ name, language: lang }) })
-    showAlert(alertEl, '✓ Profile updated successfully', 'success')
-    const nameEl = document.getElementById('nav-user-name')
-    if (nameEl) nameEl.textContent = name
+    await apiFetch('/account/profile', { method:'PUT', body: JSON.stringify({ name, language: lang }) })
+    showAlert(alertEl, '✓ Profile updated', 'success')
+    const el = document.getElementById('nav-user-name')
+    if (el) el.textContent = name
     document.getElementById('profile-hero-name').textContent = name
     if (_data?.user) _data.user.name = name
-  } catch (e) {
-    showAlert(alertEl, e.message || 'Failed to save', 'error')
-  }
+  } catch (e) { showAlert(alertEl, e.message || 'Failed', 'error') }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -940,17 +852,11 @@ function setBillingCycle(cycle) {
   updateCycleUI()
   renderPlanCards()
 }
-
 function updateCycleUI() {
-  const yBtn = document.getElementById('cycle-yearly')
-  const mBtn = document.getElementById('cycle-monthly')
-  const save = document.getElementById('cycle-save-label')
-  if (!yBtn) return
-  yBtn.classList.toggle('active', _billingCycle === 'yearly')
-  mBtn.classList.toggle('active', _billingCycle === 'monthly')
-  if (save) {
-    save.style.display = _billingCycle === 'yearly' ? '' : 'none'
-  }
+  document.getElementById('cycle-yearly') ?.classList.toggle('active', _billingCycle === 'yearly')
+  document.getElementById('cycle-monthly')?.classList.toggle('active', _billingCycle === 'monthly')
+  const pill = document.getElementById('cycle-save-pill')
+  if (pill) pill.style.display = _billingCycle === 'yearly' ? '' : 'none'
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -962,172 +868,177 @@ function renderPlan() {
   const sub     = _data.subscription
   const planCfg = _data.plan_config || {}
 
-  // Status badge
   const badge = document.getElementById('plan-status-badge')
   badge.textContent = cr?.trial_active ? 'Trial' : (cr?.plan_label || 'Starter')
   badge.className   = 'card-title-badge ' +
     (cr?.trial_active ? 'badge-trial' : sub?.status === 'cancelled' ? 'badge-cancelled' : 'badge-active')
 
   document.getElementById('plan-price').textContent =
-    `₹${(planCfg.price_monthly || 0).toLocaleString('en-IN')}/mo`
-  document.getElementById('plan-cycle').textContent = cr?.billing_cycle === 'yearly'
-    ? 'Annual (billed yearly)' : 'Monthly'
+    `₹${(planCfg.price_monthly||0).toLocaleString('en-IN')}/mo`
+  document.getElementById('plan-cycle').textContent =
+    cr?.billing_cycle === 'yearly' ? 'Annual (billed yearly)' : 'Monthly'
 
   const endDate = sub?.current_period_end || cr?.subscription_end
-  document.getElementById('plan-renew').textContent = endDate
-    ? new Date(endDate).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-    : '—'
+  const renewEl = document.getElementById('plan-renew')
+  renewEl.textContent = endDate ? fmtDate(endDate) : '—'
+
+  if (sub?.cancel_at_period_end) {
+    renewEl.style.color = 'var(--amber)'
+    renewEl.textContent += ' (cancels)'
+    document.getElementById('cancel-btn').style.display = 'none'
+  } else if (sub) {
+    document.getElementById('cancel-btn').style.display = 'inline-flex'
+  }
 
   const pills = [
-    planCfg.stores >= 1000 || planCfg.stores === undefined ? 'Unlimited stores' : `${planCfg.stores} store${planCfg.stores === 1 ? '' : 's'}`,
-    planCfg.products >= 1000 || planCfg.products === undefined ? 'Unlimited products' : `${planCfg.products} products`,
-    `${(cr?.monthly_cap || 0).toLocaleString('en-IN')} credits/mo`,
-    planCfg.team_seats >= 1000 ? 'Unlimited seats' : `${planCfg.team_seats || 1} seat${planCfg.team_seats === 1 ? '' : 's'}`,
-    `${planCfg.support_sla_hrs || 48}h free support`
+    planCfg.stores  >= 1000 || !planCfg.stores  ? 'Unlimited stores'   : `${planCfg.stores} store${planCfg.stores===1?'':'s'}`,
+    planCfg.products>= 1000 || !planCfg.products ? 'Unlimited products' : `${planCfg.products} products`,
+    `${(cr?.monthly_cap||0).toLocaleString('en-IN')} credits/mo`,
+    planCfg.team_seats >= 1000 ? 'Unlimited seats' : `${planCfg.team_seats||1} seat${planCfg.team_seats===1?'':'s'}`,
+    `${planCfg.support_sla_hrs||48}h free support`
   ]
-  document.getElementById('plan-features-row').innerHTML = pills.map(p =>
-    `<div class="pill-info"><strong>${p}</strong></div>`).join('')
-
-  if (sub && !sub.cancel_at_period_end) document.getElementById('cancel-btn').style.display = 'inline-flex'
-  if (sub?.cancel_at_period_end) {
-    document.getElementById('cancel-btn').style.display = 'none'
-    const renew = document.getElementById('plan-renew')
-    renew.style.color = 'var(--amber)'
-    renew.textContent += ' (cancels)'
-  }
+  document.getElementById('plan-features-row').innerHTML =
+    pills.map(p => `<div class="pill-info"><strong>${p}</strong></div>`).join('')
 
   renderPlanCards()
 }
 
-// ── Renders plan cards independently (called on cycle toggle too) ─
 function renderPlanCards() {
-  const plans       = _data?.all_plans || []
-  const currentPlan = _data?.credits?.plan || 'starter'
-  const container   = document.getElementById('plan-cards')
-  if (!container) return
+  const plans   = _data?.all_plans || []
+  const current = _data?.credits?.plan || 'starter'
+  const el      = document.getElementById('plan-cards')
+  if (!el) return
 
-  container.innerHTML = plans.map(p => {
+  el.innerHTML = plans.map(p => {
     const price    = _billingCycle === 'yearly' ? p.price_monthly : p.price_monthly_mo
-    const isCurrent = p.key === currentPlan
-    const isPaying  = _payingPlanKey === p.key
+    const total    = _billingCycle === 'yearly' ? price * 12 : price
+    const isCur    = p.key === current
+    const isLoading= _payingPlanKey === p.key
+    const isDimmed = _payingPlanKey && _payingPlanKey !== p.key
 
     return `
-      <div class="plan-card ${isCurrent ? 'current' : ''} ${isPaying ? 'paying' : ''}"
-           id="plan-card-${p.key}"
-           onclick="${isCurrent ? '' : `upgradePlan('${p.key}')`}">
-        ${isCurrent ? '<div class="plan-card-badge">Current</div>' : ''}
-        <div class="plan-name">${p.label}</div>
-        <div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/mo</span></div>
-        <div class="plan-mo">${_billingCycle === 'yearly' ? 'Billed yearly · Save 33%' : 'Billed monthly'}</div>
-        <div class="plan-feat">
-          <strong>⚡ ${p.credits_monthly.toLocaleString('en-IN')} credits/mo</strong><br>
-          ${p.stores} stores · ${p.products} products<br>
-          ${p.support_sla} SLA${p.priority_free ? ' · Priority free' : ''}${p.emergency_free ? ' · Emergency free' : ''}
-        </div>
-        ${isCurrent
-          ? ''
-          : isPaying
-            ? `<div class="plan-card-spinner"><div class="spin-dot"></div>Setting up…</div>`
-            : `<div class="plan-card-cta">Subscribe for ₹${
-                (_billingCycle === 'yearly' ? price * 12 : price).toLocaleString('en-IN')
-              }/${_billingCycle === 'yearly' ? 'yr' : 'mo'} →</div>`
-        }
-      </div>`
+    <div class="plan-card ${isCur?'current':''} ${isLoading?'loading-card':''}"
+         id="plan-card-${p.key}"
+         style="${isDimmed?'opacity:.45;pointer-events:none;':''}"
+         onclick="${isCur||isLoading ? '' : `upgradePlan('${p.key}')`}">
+      ${isCur ? '<div class="plan-card-badge">Current</div>' : ''}
+      <div class="plan-name">${p.label}</div>
+      <div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/mo</span></div>
+      <div class="plan-mo">${_billingCycle==='yearly'?'Billed yearly · Save 33%':'Billed monthly'}</div>
+      <div class="plan-feat">
+        <strong>⚡ ${p.credits_monthly.toLocaleString('en-IN')} credits/mo</strong><br>
+        ${p.stores} stores · ${p.products} products<br>
+        ${p.support_sla} SLA${p.priority_free?' · Priority free':''}${p.emergency_free?' · Emergency free':''}
+      </div>
+      ${isCur
+        ? ''
+        : isLoading
+          ? `<div class="plan-card-spinner"><div class="spin-dot"></div> Loading payment…</div>`
+          : `<div class="plan-card-cta">Subscribe for ₹${total.toLocaleString('en-IN')}/${_billingCycle==='yearly'?'yr':'mo'} →</div>`
+      }
+    </div>`
   }).join('')
 }
 
 /* ══════════════════════════════════════════════════════════════
-   PLAN UPGRADE — full Razorpay subscription flow
-   Mirrors the storefront create-order → open Razorpay → verify pattern
-   but uses Razorpay subscription_id (recurring billing)
+   PLAN UPGRADE — full flow
+   1. Click card  → show spinner on card
+   2. POST /billing/subscribe  → backend returns amount + description
+   3. Build Razorpay instance (DON'T open yet)
+   4. Show payment modal with backend values
+   5. User clicks "Pay ₹X →" in modal → open Razorpay
+   6. Razorpay handler → toast + reload
 ══════════════════════════════════════════════════════════════ */
 async function upgradePlan(planKey) {
   if (!_data) return
+  const currentPlan = _data.credits?.plan || 'starter'
+  if (planKey === currentPlan) return
   if (_payingPlanKey) return toast('A payment is already in progress', 'info')
 
-  const currentPlan = _data.credits?.plan || 'starter'
-  if (planKey === currentPlan) return toast('You are already on this plan', 'info')
-
-  const plan    = _data.all_plans?.find(p => p.key === planKey)
-  const price   = _billingCycle === 'yearly' ? plan.price_monthly : plan.price_monthly_mo
-  const total   = _billingCycle === 'yearly' ? price * 12 : price
   const alertEl = document.getElementById('plan-alert')
+  _payingPlanKey = planKey
+  renderPlanCards()
+  showAlert(alertEl, 'Loading payment details…', 'info')
 
-  // Show confirmation modal
-  showPayConfirm({
-    title:     `Subscribe to ${plan?.label || planKey}`,
-    desc:      `${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} billing · Recurring`,
-    amount:    total,
-    amountSub: _billingCycle === 'yearly'
-      ? `₹${price.toLocaleString('en-IN')}/mo × 12 months`
-      : `₹${price.toLocaleString('en-IN')} per month`,
-    details: [
-      { k: 'Plan',           v: plan?.label || planKey },
-      { k: 'Billing',        v: _billingCycle === 'yearly' ? 'Annual' : 'Monthly' },
-      { k: 'Credits/month',  v: (plan?.credits_monthly || 0).toLocaleString('en-IN') },
-      { k: 'Stores allowed', v: String(plan?.stores ?? '1') },
-    ],
-    ctaLabel: `Pay ₹${total.toLocaleString('en-IN')} →`,
-    onConfirm: async () => {
-      _payingPlanKey = planKey
+  try {
+    // ── Step 1: hit backend — backend owns price & description ──
+    const result = await apiFetch('/billing/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ plan: planKey, billing_cycle: _billingCycle })
+    })
+    await loadRazorpay()
+
+    const plan = _data.all_plans?.find(p => p.key === planKey)
+
+    const resetPlan = () => {
+      _payingPlanKey = null
+      _pendingRzp    = null
       renderPlanCards()
-      showAlert(alertEl, 'Opening payment…', 'info')
-
-      try {
-        const result = await apiFetch('/billing/subscribe', {
-          method: 'POST',
-          body: JSON.stringify({ plan: planKey, billing_cycle: _billingCycle })
-        })
-        await loadRazorpay()
-
-        const rzp = new Razorpay({
-          key:             result.razorpay_key,
-          subscription_id: result.subscription_id,
-          name:            'eKart',
-          description:     `${plan?.label || planKey} · ${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} · ₹${price}/mo`,
-          image:           '', // optional logo url
-          prefill: {
-            name:    _data.user?.name  || '',
-            email:   _data.user?.email || '',
-            contact: _data.user?.phone || ''
-          },
-          notes: {
-            plan:          planKey,
-            billing_cycle: _billingCycle
-          },
-          theme: { color: '#7C6FFF' },
-          modal: {
-            ondismiss: () => {
-              _payingPlanKey = null
-              renderPlanCards()
-              alertEl.style.display = 'none'
-            }
-          },
-          handler: async function() {
-            toast('✅ Plan upgraded successfully!', 'success')
-            alertEl.style.display = 'none'
-            _payingPlanKey = null
-            await loadAccount()
-          }
-        })
-        rzp.open()
-        alertEl.style.display = 'none'
-      } catch (e) {
-        _payingPlanKey = null
-        renderPlanCards()
-        showAlert(alertEl, e.message || 'Failed to start payment', 'error')
-      }
+      alertEl.style.display = 'none'
     }
-  })
+
+    // ── Step 2: build Razorpay — but DON'T open yet ──
+    _pendingRzp = new Razorpay({
+      key:             result.razorpay_key,
+      subscription_id: result.subscription_id,
+      name:            'eKart',
+      description:     result.description || `${plan?.label||planKey} · ${_billingCycle}`,
+      prefill: {
+        name:    _data.user?.name  || '',
+        email:   _data.user?.email || '',
+        contact: _data.user?.phone || ''
+      },
+      notes:  result.notes || { plan: planKey, billing_cycle: _billingCycle },
+      theme:  { color: '#7C6FFF' },
+      modal: {
+        ondismiss: () => {
+          // user closed Razorpay without paying
+          resetPlan()
+        }
+      },
+      handler: async function() {
+        toast('✅ Plan upgraded!', 'success')
+        closePayModal()
+        resetPlan()
+        await loadAccount()
+      }
+    })
+
+    // ── Step 3: show modal with backend-supplied values ──
+    // Clicking "Pay" in the modal opens the pre-built Razorpay
+    alertEl.style.display = 'none'
+    showPayModal({
+      title:     `Subscribe to ${plan?.label || planKey}`,
+      desc:      result.description || `${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} billing`,
+      amount:    result.amount,   // paise — straight from backend
+      amountSub: _billingCycle === 'yearly'
+        ? `Billed as ₹${(result.amount/100).toLocaleString('en-IN')} per year`
+        : `Billed as ₹${(result.amount/100).toLocaleString('en-IN')} per month`,
+      rows: [
+        { k: 'Plan',          v: plan?.label || planKey },
+        { k: 'Billing',       v: _billingCycle === 'yearly' ? 'Annual' : 'Monthly' },
+        { k: 'Credits/month', v: (plan?.credits_monthly||0).toLocaleString('en-IN') },
+        { k: 'Stores',        v: String(plan?.stores ?? '1') },
+      ],
+      onPay:    () => _pendingRzp?.open(),   // ← opens Razorpay on Pay click
+      onCancel: resetPlan
+    })
+
+  } catch (e) {
+    _payingPlanKey = null
+    _pendingRzp    = null
+    renderPlanCards()
+    showAlert(alertEl, e.message || 'Failed to load payment details', 'error')
+  }
 }
 
 async function cancelSubscription() {
-  if (!confirm('Cancel at end of billing period? You will keep access until then.')) return
+  if (!confirm('Cancel at end of billing period? You keep access until then.')) return
   try {
     await apiFetch('/billing/cancel', { method: 'POST' })
     toast('Subscription will cancel at end of period', 'info')
     await loadAccount()
-  } catch (e) { toast(e.message || 'Failed to cancel', 'error') }
+  } catch (e) { toast(e.message || 'Failed', 'error') }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1136,160 +1047,348 @@ async function cancelSubscription() {
 function renderCredits() {
   if (!_data?.credits) return
   const cr  = _data.credits
-  const cap = cr.monthly_cap  || 1
+  const cap = cr.monthly_cap || 1
   const rem = cr.monthly_remaining || 0
   const pct = Math.min(100, Math.round(((cap - rem) / cap) * 100))
 
   const remEl = document.getElementById('cr-monthly-rem')
   remEl.textContent = rem.toLocaleString('en-IN')
   remEl.className   = 'credit-stat-val' + (rem <= 5 ? ' danger' : rem <= cap * 0.2 ? ' warn' : '')
-
   document.getElementById('cr-monthly-sub').textContent = `of ${cap.toLocaleString('en-IN')} monthly cap`
   document.getElementById('cr-annual-rem').textContent  = (cr.pool_remaining ?? '—').toLocaleString?.('en-IN') ?? '—'
-  document.getElementById('cr-annual-sub').textContent  = `of ${(cr.annual_pool || 0).toLocaleString('en-IN')} total`
-  document.getElementById('cr-topup').textContent       = (cr.topup_balance || 0).toLocaleString('en-IN')
+  document.getElementById('cr-annual-sub').textContent  = `of ${(cr.annual_pool||0).toLocaleString('en-IN')} total`
+  document.getElementById('cr-topup').textContent       = (cr.topup_balance||0).toLocaleString('en-IN')
   document.getElementById('cr-pct').textContent         = pct + '%'
 
   const prog = document.getElementById('cr-progress')
   prog.style.width = pct + '%'
   prog.className   = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
 
-  const resetDate = cr.cap_reset_at
-    ? new Date(cr.cap_reset_at).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })
-    : '—'
-  document.getElementById('cr-reset').textContent      = resetDate
+  document.getElementById('cr-reset').textContent      = cr.cap_reset_at ? fmtDate(cr.cap_reset_at, true) : '—'
   document.getElementById('cr-sub-status').textContent = cr.trial_active
-    ? `Free trial (ends ${cr.trial_ends_at ? new Date(cr.trial_ends_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—'})`
+    ? `Free trial (ends ${cr.trial_ends_at ? fmtDate(cr.trial_ends_at) : '—'})`
     : (cr.subscription_status || 'active')
 
   if (cr.trial_active) {
     document.getElementById('cr-trial-banner').style.display = 'flex'
-    document.getElementById('cr-trial-end').textContent = cr.trial_ends_at
-      ? new Date(cr.trial_ends_at).toLocaleDateString('en-IN', { day:'numeric', month:'long' }) : '—'
+    document.getElementById('cr-trial-end').textContent = cr.trial_ends_at ? fmtDate(cr.trial_ends_at) : '—'
   }
 
-  renderTopupPacks()
+  renderTopupCards()
 }
 
-function renderTopupPacks() {
+function renderTopupCards() {
   const packs = _data?.topup_packs || []
   document.getElementById('topup-packs').innerHTML = packs.map(p => {
     const isThis  = _payingPackId === p.id
     const isOther = _payingPackId && _payingPackId !== p.id
-    const saveTag = p.id === 'pack_1000' ? '<div class="topup-save-badge">10% off</div>'
-                  : p.id === 'pack_5000' ? '<div class="topup-save-badge">20% off</div>' : ''
+    const save    = p.id === 'pack_1000' ? '10% off' : p.id === 'pack_5000' ? '20% off' : ''
     return `
-      <div class="topup-card ${isThis ? 'paying-this' : ''} ${isOther ? 'paying-other' : ''}"
-           onclick="buyTopup('${p.id}')">
-        <div class="topup-card-label">${p.label}</div>
-        <div class="topup-credits">${p.credits.toLocaleString('en-IN')}</div>
-        <div class="topup-credits-sub">credits</div>
-        <div class="topup-price">₹${p.price.toLocaleString('en-IN')}</div>
-        <div class="topup-rate">₹${(p.price / p.credits).toFixed(2)} per credit</div>
-        ${saveTag}
-        ${isThis ? `<div class="topup-loading-overlay"><div class="spin-dot"></div><span>Opening…</span></div>` : ''}
-      </div>`
+    <div class="topup-card ${isThis?'topup-loading':''} ${isOther?'topup-dimmed':''}"
+         onclick="buyTopup('${p.id}')">
+      <div class="topup-card-label">${p.label}</div>
+      <div class="topup-credits">${p.credits.toLocaleString('en-IN')}</div>
+      <div class="topup-credits-sub">credits</div>
+      <div class="topup-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="topup-rate">₹${(p.price/p.credits).toFixed(2)} per credit</div>
+      ${save ? `<div class="topup-save-badge">${save}</div>` : ''}
+      ${isThis ? `<div class="topup-overlay"><div class="spin-dot"></div><span>Loading…</span></div>` : ''}
+    </div>`
   }).join('')
 }
 
 /* ══════════════════════════════════════════════════════════════
-   CREDIT TOP-UP — full Razorpay order flow
-   Same pattern as storefront: create-order → open Razorpay → verify
+   CREDIT TOP-UP — full flow
+   1. Click card  → show overlay spinner on card
+   2. POST /credits/topup  → backend returns razorpay_order_id + amount + pack
+   3. Build Razorpay instance (DON'T open yet)
+   4. Show payment modal with backend values
+   5. User clicks "Pay" → open Razorpay
+   6. Razorpay handler → POST /credits/topup/verify → toast + reload
 ══════════════════════════════════════════════════════════════ */
 async function buyTopup(packId) {
-  if (_payingPackId) return  // already in flight
-
-  const pack    = _data?.topup_packs?.find(p => p.id === packId)
-  if (!pack) return toast('Invalid pack', 'error')
-
+  if (_payingPackId) return
   const alertEl = document.getElementById('topup-alert')
 
-  // Show confirmation modal
-  showPayConfirm({
-    title:     `Buy ${pack.credits.toLocaleString('en-IN')} Credits`,
-    desc:      `${pack.label} credit pack · Never expires`,
-    amount:    pack.price,
-    amountSub: `${pack.credits.toLocaleString('en-IN')} credits · ₹${(pack.price / pack.credits).toFixed(2)} per credit`,
-    details: [
-      { k: 'Pack',     v: pack.label },
-      { k: 'Credits',  v: pack.credits.toLocaleString('en-IN') },
-      { k: 'Amount',   v: `₹${pack.price.toLocaleString('en-IN')}` },
-      { k: 'Rate',     v: `₹${(pack.price / pack.credits).toFixed(2)}/credit` }
-    ],
-    ctaLabel: `Pay ₹${pack.price.toLocaleString('en-IN')} →`,
-    onConfirm: async () => {
-      _payingPackId = packId
-      renderTopupPacks()
-      showAlert(alertEl, 'Creating order…', 'info')
+  _payingPackId = packId
+  renderTopupCards()
 
-      try {
-        // Step 1: Create Razorpay order on backend (same as checkout create-order)
-        const order = await apiFetch('/credits/topup', {
-          method: 'POST',
-          body: JSON.stringify({ pack_id: packId })
-        })
+  try {
+    // ── Step 1: hit backend — backend owns amount & pack details ──
+    const order = await apiFetch('/credits/topup', {
+      method: 'POST',
+      body: JSON.stringify({ pack_id: packId })
+    })
+    await loadRazorpay()
 
-        await loadRazorpay()
-
-        const resetCards = () => {
-          _payingPackId = null
-          renderTopupPacks()
-        }
-
-        // Step 2: Open Razorpay checkout (same as storefront)
-        const rzp = new Razorpay({
-          key:         order.razorpay_key,
-          order_id:    order.razorpay_order_id,
-          amount:      order.amount,
-          currency:    'INR',
-          name:        'eKart AI Credits',
-          description: `${pack.credits.toLocaleString('en-IN')} credits · ${pack.label} pack`,
-          prefill: {
-            name:    order.user_name  || _data?.user?.name  || '',
-            email:   order.user_email || _data?.user?.email || '',
-            contact: _data?.user?.phone || ''
-          },
-          notes: {
-            pack_id: packId,
-            credits: String(pack.credits)
-          },
-          theme: { color: '#7C6FFF' },
-          modal: {
-            ondismiss: () => {
-              resetCards()
-              alertEl.style.display = 'none'
-            }
-          },
-          // Step 3: Verify payment on success (same as storefront verify-payment)
-          handler: async function(resp) {
-            try {
-              const result = await apiFetch('/credits/topup/verify', {
-                method: 'POST',
-                body: JSON.stringify({
-                  razorpay_order_id:   order.razorpay_order_id,
-                  razorpay_payment_id: resp.razorpay_payment_id,
-                  razorpay_signature:  resp.razorpay_signature
-                })
-              })
-              toast(`✅ ${result.credits_added.toLocaleString('en-IN')} credits added!`, 'success')
-              alertEl.style.display = 'none'
-              resetCards()
-              await loadAccount()
-            } catch (e) {
-              showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
-              resetCards()
-            }
-          }
-        })
-        rzp.open()
-        alertEl.style.display = 'none'
-      } catch (e) {
-        _payingPackId = null
-        renderTopupPacks()
-        showAlert(alertEl, e.message || 'Failed to start payment', 'error')
-      }
+    const reset = () => {
+      _payingPackId = null
+      _pendingRzp   = null
+      renderTopupCards()
     }
+
+    // ── Step 2: build Razorpay — DON'T open yet ──
+    _pendingRzp = new Razorpay({
+      key:      order.razorpay_key,
+      order_id: order.razorpay_order_id,
+      amount:   order.amount,               // paise — from backend
+      currency: order.currency || 'INR',
+      name:     'eKart AI Credits',
+      description: `${order.pack.credits.toLocaleString('en-IN')} credits · ${order.pack.label} pack`,
+      prefill: {
+        name:    order.user_name  || _data?.user?.name  || '',
+        email:   order.user_email || _data?.user?.email || '',
+        contact: _data?.user?.phone || ''
+      },
+      notes:  { pack_id: packId, credits: String(order.pack.credits) },
+      theme:  { color: '#7C6FFF' },
+      modal: {
+        ondismiss: () => {
+          reset()
+          alertEl.style.display = 'none'
+        }
+      },
+      handler: async function(resp) {
+        try {
+          // ── Step 3: verify with backend ──
+          const result = await apiFetch('/credits/topup/verify', {
+            method: 'POST',
+            body: JSON.stringify({
+              razorpay_order_id:   order.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature:  resp.razorpay_signature
+            })
+          })
+          toast(`✅ ${result.credits_added.toLocaleString('en-IN')} credits added!`, 'success')
+          closePayModal()
+          reset()
+          alertEl.style.display = 'none'
+          await loadAccount()
+        } catch (e) {
+          showAlert(alertEl, 'Verification failed: ' + e.message, 'error')
+          reset()
+        }
+      }
+    })
+
+    // ── Step 3: show modal with backend values ──
+    alertEl.style.display = 'none'
+    showPayModal({
+      title:     `Buy ${order.pack.credits.toLocaleString('en-IN')} Credits`,
+      desc:      `${order.pack.label} pack · Never expires · Rolls over monthly`,
+      amount:    order.amount,   // paise — straight from backend
+      amountSub: `${order.pack.credits.toLocaleString('en-IN')} credits · ₹${(order.pack.price/order.pack.credits).toFixed(2)}/credit`,
+      rows: [
+        { k: 'Pack',    v: order.pack.label },
+        { k: 'Credits', v: order.pack.credits.toLocaleString('en-IN') },
+        { k: 'Rate',    v: `₹${(order.pack.price/order.pack.credits).toFixed(2)} per credit` },
+      ],
+      onPay:    () => _pendingRzp?.open(),   // ← opens Razorpay on Pay click
+      onCancel: () => { reset(); alertEl.style.display = 'none' }
+    })
+
+  } catch (e) {
+    _payingPackId = null
+    _pendingRzp   = null
+    renderTopupCards()
+    showAlert(alertEl, e.message || 'Failed to load payment details', 'error')
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SUPPORT TICKET — full flow
+   Free / credits: POST → done
+   Cash: POST → payment_required → build Razorpay → show modal
+         → Pay click → open Razorpay → verify → done
+══════════════════════════════════════════════════════════════ */
+async function submitTicket() {
+  if (_payingTicket) return
+  const alertEl = document.getElementById('support-alert')
+  const subject = document.getElementById('ticket-subject').value.trim()
+  const message = document.getElementById('ticket-message').value.trim()
+  if (!subject || !message) return showAlert(alertEl, 'Subject and message are required', 'error')
+
+  const payMethod = _selectedTier === 'standard' ? 'free' : _selectedPayMethod
+  const btn       = document.getElementById('submit-ticket-btn')
+  _payingTicket   = true
+  btn.disabled    = true
+  btn.textContent = 'Submitting…'
+
+  try {
+    showAlert(alertEl, 'Submitting…', 'info')
+    const resp = await apiFetch('/support/tickets', {
+      method: 'POST',
+      body: JSON.stringify({ tier: _selectedTier, subject, message, payment_method: payMethod })
+    })
+
+    // ── Cash path — need Razorpay ──
+    if (resp.payment_required && resp.razorpay_order_id) {
+      await loadRazorpay()
+
+      const resetTicket = () => {
+        _payingTicket   = false
+        _pendingRzp     = null
+        btn.disabled    = false
+        btn.textContent = 'Submit ticket'
+      }
+
+      _pendingRzp = new Razorpay({
+        key:      resp.razorpay_key,
+        order_id: resp.razorpay_order_id,
+        amount:   resp.amount,
+        currency: 'INR',
+        name:     'eKart Support',
+        description: `${_selectedTier.charAt(0).toUpperCase()+_selectedTier.slice(1)} support — ${subject.slice(0,50)}`,
+        prefill: {
+          name:    _data?.user?.name  || '',
+          email:   _data?.user?.email || '',
+          contact: _data?.user?.phone || ''
+        },
+        notes:  { tier: _selectedTier, subject: subject.slice(0,40) },
+        theme:  { color: '#7C6FFF' },
+        modal: {
+          ondismiss: () => {
+            resetTicket()
+            showAlert(alertEl, 'Payment cancelled — ticket not submitted.', 'warning')
+          }
+        },
+        handler: async function(rzResp) {
+          try {
+            await apiFetch(`/support/tickets/${resp.ticket_id}/verify-payment`, {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpay_order_id:   resp.razorpay_order_id,
+                razorpay_payment_id: rzResp.razorpay_payment_id,
+                razorpay_signature:  rzResp.razorpay_signature
+              })
+            })
+            toast('✅ Ticket submitted!', 'success')
+            closePayModal()
+            resetTicket()
+            document.getElementById('ticket-subject').value = ''
+            document.getElementById('ticket-message').value = ''
+            alertEl.style.display = 'none'
+            await loadAccount()
+          } catch (e) {
+            showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
+            resetTicket()
+          }
+        }
+      })
+
+      alertEl.style.display = 'none'
+      const pricing = _data?.support_pricing?.[_selectedTier]
+      showPayModal({
+        title:     `${_selectedTier.charAt(0).toUpperCase()+_selectedTier.slice(1)} Support Ticket`,
+        desc:      subject,
+        amount:    resp.amount,   // paise — from backend
+        amountSub: `${_selectedTier === 'priority' ? '2-hour' : '30-minute'} guaranteed response SLA`,
+        rows: [
+          { k: 'Tier',    v: _selectedTier.charAt(0).toUpperCase()+_selectedTier.slice(1) },
+          { k: 'SLA',     v: _selectedTier === 'priority' ? '2 hours' : '30 minutes' },
+          { k: 'Payment', v: 'One-time via Razorpay' }
+        ],
+        onPay:    () => _pendingRzp?.open(),
+        onCancel: () => {
+          resetTicket()
+          alertEl.style.display = 'none'
+        }
+      })
+      return
+    }
+
+    // ── Free / credits path ──
+    _payingTicket   = false
+    btn.disabled    = false
+    btn.textContent = 'Submit ticket'
+    toast('✅ Ticket submitted!', 'success')
+    document.getElementById('ticket-subject').value = ''
+    document.getElementById('ticket-message').value = ''
+    alertEl.style.display = 'none'
+    await loadAccount()
+
+  } catch (e) {
+    _payingTicket   = false
+    btn.disabled    = false
+    btn.textContent = 'Submit ticket'
+    if (e.message?.includes('insufficient_credits')) {
+      showAlert(alertEl,
+        `Not enough credits (need ${_data.support_pricing?.[_selectedTier]?.credits||'—'}). Switch to cash instead.`,
+        'error')
+    } else {
+      showAlert(alertEl, e.message || 'Failed', 'error')
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAYMENT MODAL
+   Shows the amount + description loaded FROM the backend.
+   "Pay" button calls onPay() which opens the pre-built Razorpay instance.
+   All three payment types (plan / topup / support) use this same modal.
+══════════════════════════════════════════════════════════════ */
+function showPayModal({ title, desc, amount, amountSub, rows, onPay, onCancel }) {
+  closePayModal()
+
+  // amount is in paise → convert to rupees for display
+  const rupees = (amount / 100).toLocaleString('en-IN', {
+    minimumFractionDigits: 0, maximumFractionDigits: 2
   })
+
+  const overlay = document.createElement('div')
+  overlay.id        = 'pay-modal-overlay'
+  overlay.className = 'pay-modal-overlay'
+  overlay.innerHTML = `
+    <div class="pay-modal" role="dialog" aria-modal="true">
+      <div class="pay-modal-head">
+        <div class="pay-modal-title">${escHtml(title)}</div>
+        <div class="pay-modal-desc">${escHtml(desc)}</div>
+      </div>
+      <div class="pay-modal-body">
+        <div class="pay-modal-amount">₹${rupees}</div>
+        <div class="pay-modal-amount-sub">${escHtml(amountSub)}</div>
+        <div class="pay-modal-rows">
+          ${(rows||[]).map(r => `
+            <div class="pay-modal-row">
+              <span class="pay-modal-row-k">${escHtml(r.k)}</span>
+              <span class="pay-modal-row-v">${escHtml(r.v)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="pay-modal-foot">
+        <div class="pay-modal-btns">
+          <button class="btn btn-secondary" id="pay-modal-cancel-btn">Cancel</button>
+          <button class="btn btn-primary"   id="pay-modal-pay-btn">Pay ₹${rupees} →</button>
+        </div>
+        <div class="pay-modal-secure">
+          <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+            <path d="M5 0L0 2.5v3.5c0 2.5 2.1 4.8 5 5.5 2.9-.7 5-3 5-5.5V2.5L5 0z" fill="currentColor"/>
+          </svg>
+          Secured by Razorpay · 256-bit SSL
+        </div>
+      </div>
+    </div>`
+
+  // Close on backdrop click
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) { closePayModal(); onCancel?.() }
+  })
+
+  overlay.querySelector('#pay-modal-cancel-btn').addEventListener('click', () => {
+    closePayModal(); onCancel?.()
+  })
+
+  // Pay button → close modal → open Razorpay
+  overlay.querySelector('#pay-modal-pay-btn').addEventListener('click', () => {
+    closePayModal()
+    onPay?.()
+  })
+
+  document.body.appendChild(overlay)
+}
+
+function closePayModal() {
+  document.getElementById('pay-modal-overlay')?.remove()
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1308,38 +1407,30 @@ const FEATURE_NAMES = {
 
 function renderUsage() {
   if (!_data?.usage_history) return
-  const byDate = _data.usage_history || []
-
+  const byDate    = _data.usage_history || []
   const byFeature = {}
-  byDate.forEach(d => {
-    Object.entries(d.features || {}).forEach(([f, c]) => {
-      byFeature[f] = (byFeature[f] || 0) + c
-    })
-  })
+  byDate.forEach(d => Object.entries(d.features||{}).forEach(([f,c]) => { byFeature[f] = (byFeature[f]||0)+c }))
+  const maxF = Math.max(...Object.values(byFeature), 1)
 
-  const maxFeature = Math.max(...Object.values(byFeature), 1)
-
-  const featEl = document.getElementById('usage-by-feature')
-  featEl.innerHTML = Object.keys(byFeature).length
-    ? Object.entries(byFeature).sort((a, b) => b[1] - a[1]).map(([f, c]) => `
+  document.getElementById('usage-by-feature').innerHTML = Object.keys(byFeature).length
+    ? Object.entries(byFeature).sort((a,b)=>b[1]-a[1]).map(([f,c]) => `
         <div class="usage-row">
-          <div class="usage-feature-name">${FEATURE_NAMES[f] || f}</div>
-          <div class="usage-bar-wrap"><div class="usage-bar-fill" style="width:${Math.round(c/maxFeature*100)}%;"></div></div>
+          <div class="usage-feature-name">${FEATURE_NAMES[f]||f}</div>
+          <div class="usage-bar-wrap"><div class="usage-bar-fill" style="width:${Math.round(c/maxF*100)}%"></div></div>
           <div class="usage-count">${c}</div>
         </div>`).join('')
     : '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">No AI usage yet this month</div></div>'
 
-  const dateEl = document.getElementById('usage-by-date')
-  dateEl.innerHTML = byDate.length
+  document.getElementById('usage-by-date').innerHTML = byDate.length
     ? `<table class="inv-table">
-        <thead><tr><th>Date</th><th>Credits used</th><th>Features</th></tr></thead>
+        <thead><tr><th>Date</th><th>Credits</th><th>Features</th></tr></thead>
         <tbody>
-          ${byDate.slice(0, 14).map(d => `
+          ${byDate.slice(0,14).map(d => `
             <tr>
-              <td>${new Date(d.date).toLocaleDateString('en-IN', { day:'numeric', month:'short' })}</td>
+              <td>${fmtDate(d.date)}</td>
               <td class="amount">${d.total}</td>
               <td style="color:var(--text-3);font-size:11px;">
-                ${Object.entries(d.features || {}).map(([f, c]) => `${FEATURE_NAMES[f] || f}: ${c}`).join(' · ')}
+                ${Object.entries(d.features||{}).map(([f,c])=>`${FEATURE_NAMES[f]||f}: ${c}`).join(' · ')}
               </td>
             </tr>`).join('')}
         </tbody>
@@ -1352,35 +1443,32 @@ function renderUsage() {
 ══════════════════════════════════════════════════════════════ */
 function renderSupportTiers() {
   if (!_data) return
-  const plan = _data.credits?.plan || 'starter'
+  const plan    = _data.credits?.plan || 'starter'
   const pricing = _data.support_pricing || {}
 
   if (plan === 'enterprise') {
-    const makeEl = (id, text) => {
-      const el = document.getElementById(id)
-      if (el) { el.textContent = text; el.className = 'support-tier-cost free' }
-    }
-    makeEl('priority-cost',  'Free (included)')
-    makeEl('emergency-cost', 'Free (included)')
+    setTierCost('priority-cost',  'Free (included)', true)
+    setTierCost('emergency-cost', 'Free (included)', true)
   } else {
-    const pEl = document.getElementById('priority-cost')
-    const eEl = document.getElementById('emergency-cost')
-    if (pEl && pricing.priority)   pEl.textContent = `${pricing.priority.credits} credits or ₹${pricing.priority.cash}`
-    if (eEl && pricing.emergency)  eEl.textContent = `${pricing.emergency.credits} credits or ₹${pricing.emergency.cash}`
+    if (pricing.priority)  setTierCost('priority-cost',  `${pricing.priority.credits} credits or ₹${pricing.priority.cash}`,   false)
+    if (pricing.emergency) setTierCost('emergency-cost', `${pricing.emergency.credits} credits or ₹${pricing.emergency.cash}`, false)
   }
 }
-
+function setTierCost(id, text, free) {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.textContent = text
+  el.className   = 'support-tier-cost ' + (free ? 'free' : 'paid')
+}
 function selectTier(tier) {
   _selectedTier = tier
   document.querySelectorAll('.support-tier').forEach(el => el.classList.remove('selected'))
   document.getElementById('tier-' + tier)?.classList.add('selected')
-  const pmRow = document.getElementById('payment-method-row')
-  pmRow.style.display = (tier === 'standard') ? 'none' : 'block'
+  document.getElementById('payment-method-row').style.display = tier === 'standard' ? 'none' : 'block'
   const cr    = _data?.credits
-  const avail = (cr?.monthly_remaining || 0) + (cr?.topup_balance || 0)
+  const avail = (cr?.monthly_remaining||0) + (cr?.topup_balance||0)
   document.getElementById('credits-avail-text').textContent = `${avail} available`
 }
-
 function selectPayMethod(method) {
   _selectedPayMethod = method
   document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('selected'))
@@ -1390,136 +1478,8 @@ function selectPayMethod(method) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SUPPORT TICKET SUBMIT — with cash Razorpay flow
-   Same pattern: POST /support/tickets → if payment_required → open Razorpay → verify
+   TICKETS + INVOICES
 ══════════════════════════════════════════════════════════════ */
-async function submitTicket() {
-  if (_payingTicket) return
-  const alertEl = document.getElementById('support-alert')
-  const subject = document.getElementById('ticket-subject').value.trim()
-  const message = document.getElementById('ticket-message').value.trim()
-  if (!subject || !message) return showAlert(alertEl, 'Subject and message are required', 'error')
-
-  const payMethod = _selectedTier === 'standard' ? 'free' : _selectedPayMethod
-  const pricing   = _data?.support_pricing?.[_selectedTier]
-
-  // For cash payments, show confirmation first
-  if (_selectedTier !== 'standard' && _selectedPayMethod === 'cash' && pricing?.cash) {
-    showPayConfirm({
-      title:     `${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} Support`,
-      desc:      subject,
-      amount:    pricing.cash,
-      amountSub: `${_selectedTier === 'priority' ? '2-hour' : '30-minute'} guaranteed response`,
-      details: [
-        { k: 'Tier',     v: _selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1) },
-        { k: 'SLA',      v: _selectedTier === 'priority' ? '2 hours' : '30 minutes' },
-        { k: 'Payment',  v: 'Razorpay (one-time)' }
-      ],
-      ctaLabel: `Pay ₹${pricing.cash} & Submit →`,
-      onConfirm: () => _doSubmitTicket(alertEl, subject, message, payMethod)
-    })
-    return
-  }
-
-  _doSubmitTicket(alertEl, subject, message, payMethod)
-}
-
-async function _doSubmitTicket(alertEl, subject, message, payMethod) {
-  _payingTicket = true
-  const btn = document.getElementById('submit-ticket-btn')
-  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…' }
-
-  try {
-    showAlert(alertEl, 'Submitting ticket…', 'info')
-    const resp = await apiFetch('/support/tickets', {
-      method: 'POST',
-      body: JSON.stringify({
-        tier:           _selectedTier,
-        subject,
-        message,
-        payment_method: payMethod
-      })
-    })
-
-    // Backend returned a Razorpay order → open checkout
-    if (resp.payment_required && resp.razorpay_order_id) {
-      await loadRazorpay()
-
-      const pricing = _data?.support_pricing?.[_selectedTier]
-      const rzp = new Razorpay({
-        key:      resp.razorpay_key,
-        order_id: resp.razorpay_order_id,
-        amount:   resp.amount,
-        currency: 'INR',
-        name:     'eKart Support',
-        description: `${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} support ticket`,
-        prefill: {
-          name:    _data?.user?.name  || '',
-          email:   _data?.user?.email || '',
-          contact: _data?.user?.phone || ''
-        },
-        notes: {
-          tier:    _selectedTier,
-          subject: subject.slice(0, 40)
-        },
-        theme: { color: '#7C6FFF' },
-        modal: {
-          ondismiss: () => {
-            _payingTicket = false
-            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
-            showAlert(alertEl, 'Payment cancelled. Your ticket was not submitted.', 'warning')
-          }
-        },
-        handler: async function(rzResp) {
-          try {
-            await apiFetch(`/support/tickets/${resp.ticket_id || 'pending'}/verify-payment`, {
-              method: 'POST',
-              body: JSON.stringify({
-                razorpay_order_id:   resp.razorpay_order_id,
-                razorpay_payment_id: rzResp.razorpay_payment_id,
-                razorpay_signature:  rzResp.razorpay_signature
-              })
-            })
-            _payingTicket = false
-            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
-            toast('✅ Ticket submitted!', 'success')
-            document.getElementById('ticket-subject').value = ''
-            document.getElementById('ticket-message').value = ''
-            alertEl.style.display = 'none'
-            await loadAccount()
-          } catch (e) {
-            _payingTicket = false
-            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
-            showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
-          }
-        }
-      })
-      rzp.open()
-      alertEl.style.display = 'none'
-      return
-    }
-
-    // Free / credits path — done
-    _payingTicket = false
-    if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
-    toast('✅ Ticket submitted!', 'success')
-    document.getElementById('ticket-subject').value = ''
-    document.getElementById('ticket-message').value = ''
-    alertEl.style.display = 'none'
-    await loadAccount()
-  } catch (e) {
-    _payingTicket = false
-    if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
-    if (e.message?.includes('insufficient_credits')) {
-      showAlert(alertEl,
-        `Not enough credits (need ${_data.support_pricing?.[_selectedTier]?.credits || '—'}). Switch to cash payment instead.`,
-        'error')
-    } else {
-      showAlert(alertEl, e.message || 'Failed to submit ticket', 'error')
-    }
-  }
-}
-
 function renderTickets() {
   const tickets = _data?.tickets || []
   const el      = document.getElementById('ticket-list')
@@ -1532,15 +1492,12 @@ function renderTickets() {
       <div class="ticket-tier tier-${t.tier}">${t.tier}</div>
       <div style="flex:1;">
         <div class="ticket-subject">${escHtml(t.subject)}</div>
-        <div class="ticket-meta">${new Date(t.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}${t.response ? ' · Response received' : ''}</div>
+        <div class="ticket-meta">${fmtDate(t.created_at,true)}${t.response?' · Response received':''}</div>
       </div>
-      <div class="ticket-status status-${t.status}">${t.status.replace('_', ' ')}</div>
+      <div class="ticket-status status-${t.status}">${t.status.replace('_',' ')}</div>
     </div>`).join('')
 }
 
-/* ══════════════════════════════════════════════════════════════
-   INVOICES
-══════════════════════════════════════════════════════════════ */
 function renderInvoices() {
   const invoices = _data?.invoices || []
   const el       = document.getElementById('invoice-wrap')
@@ -1550,72 +1507,18 @@ function renderInvoices() {
   }
   el.innerHTML = `
     <table class="inv-table">
-      <thead>
-        <tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr>
-      </thead>
+      <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
       <tbody>
         ${invoices.map(inv => `
           <tr>
-            <td>${new Date(inv.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</td>
+            <td>${fmtDate(inv.created_at,true)}</td>
             <td style="color:var(--text);">Subscription payment</td>
-            <td class="amount">₹${(inv.amount || 0).toLocaleString('en-IN')}</td>
-            <td><span style="color:var(--green);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">${inv.status}</span></td>
+            <td class="amount">₹${(inv.amount||0).toLocaleString('en-IN')}</td>
+            <td><span style="color:var(--green);font-weight:700;font-size:11px;
+              text-transform:uppercase;letter-spacing:.05em;">${inv.status}</span></td>
           </tr>`).join('')}
       </tbody>
     </table>`
-}
-
-/* ══════════════════════════════════════════════════════════════
-   PAYMENT CONFIRMATION MODAL
-   Shows before opening Razorpay — same flow as storefront
-══════════════════════════════════════════════════════════════ */
-function showPayConfirm({ title, desc, amount, amountSub, details, ctaLabel, onConfirm }) {
-  // Remove any existing modal
-  const existing = document.getElementById('pay-confirm-overlay')
-  if (existing) existing.remove()
-
-  const fmtAmount = `₹${amount.toLocaleString('en-IN')}`
-
-  const overlay = document.createElement('div')
-  overlay.id        = 'pay-confirm-overlay'
-  overlay.className = 'pay-confirm-overlay'
-  overlay.innerHTML = `
-    <div class="pay-confirm-modal">
-      <div class="pcm-title">${escHtml(title)}</div>
-      <div class="pcm-desc">${escHtml(desc)}</div>
-      <div class="pcm-amount">${fmtAmount}</div>
-      <div class="pcm-amount-sub">${escHtml(amountSub)}</div>
-      ${(details || []).map(d => `
-        <div class="pcm-detail-row">
-          <span class="pcm-detail-key">${escHtml(d.k)}</span>
-          <span class="pcm-detail-val">${escHtml(d.v)}</span>
-        </div>`).join('')}
-      <div class="pcm-buttons">
-        <button class="btn btn-secondary" onclick="closePayConfirm()">Cancel</button>
-        <button class="btn btn-primary"   id="pcm-confirm-btn">${escHtml(ctaLabel)}</button>
-      </div>
-      <div class="pcm-rzp-logo">
-        <span>Secured by</span>
-        <img src="https://razorpay.com/favicon.ico" onerror="this.style.display='none'">
-        <strong style="color:var(--text-2);">Razorpay</strong>
-      </div>
-    </div>`
-
-  // Close on overlay click
-  overlay.addEventListener('click', e => { if (e.target === overlay) closePayConfirm() })
-
-  // Wire confirm button
-  overlay.querySelector('#pcm-confirm-btn').addEventListener('click', () => {
-    closePayConfirm()
-    onConfirm()
-  })
-
-  document.body.appendChild(overlay)
-}
-
-function closePayConfirm() {
-  const el = document.getElementById('pay-confirm-overlay')
-  if (el) el.remove()
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1623,23 +1526,26 @@ function closePayConfirm() {
 ══════════════════════════════════════════════════════════════ */
 function escHtml(s) {
   return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
-
+function fmtDate(d, long) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-IN',
+    long ? { day:'numeric', month:'long',  year:'numeric' }
+         : { day:'numeric', month:'short', year:'numeric' })
+}
 function showAlert(el, msg, type) {
   el.textContent = msg
   el.className   = 'inline-alert show ' + type
 }
-
-/* ══════════════════════════════════════════════════════════════
-   RAZORPAY LAZY LOADER
-══════════════════════════════════════════════════════════════ */
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve()
   return new Promise((res, rej) => {
-    const s = document.createElement('script')
-    s.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    s.onload = res; s.onerror = rej
+    const s   = document.createElement('script')
+    s.src     = 'https://checkout.razorpay.com/v1/checkout.js'
+    s.onload  = res
+    s.onerror = rej
     document.head.appendChild(s)
   })
 }
@@ -1655,6 +1561,5 @@ window.addEventListener('DOMContentLoaded', async () => {
   dismissSkeleton()
 })
 </script>
-
 </body>
 </html>
