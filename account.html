@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Account & Billing — eKart</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<script src="shared.js"></script>
+<script src="nav.js"></script>
+<style>
+/* ── shared layout reuse ── */
+.main-wrap{margin-left:var(--sidebar-w);min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.content{flex:1;padding:24px 28px;background:var(--bg)}
+
+/* ── account page layout ── */
+.acc-layout{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start}
+.acc-nav{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px;position:sticky;top:84px}
+.acc-nav-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:var(--t)}
+.acc-nav-item:hover{background:var(--surface-3);color:var(--text)}
+.acc-nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:600}
+.acc-nav-icon{font-size:15px;width:18px;text-align:center}
+.acc-nav-divider{height:1px;background:var(--border);margin:6px 4px}
+
+/* ── sections ── */
+.acc-section{display:none}
+.acc-section.active{display:block}
+.section-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.03em;margin-bottom:4px}
+.section-sub{font-size:13px;color:var(--text-2);margin-bottom:24px}
+
+/* ── cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:12px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge-trial{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-active{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+.badge-cancelled{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+
+/* ── credit display ── */
+.credit-hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.credit-stat{background:var(--surface-2);border-radius:var(--r-sm);padding:16px 18px}
+.credit-stat-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.credit-stat-val{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.04em;line-height:1}
+.credit-stat-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.credit-stat-val.warn{color:var(--amber)}
+.credit-stat-val.danger{color:var(--red)}
+
+.progress-wrap{margin-bottom:20px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-bottom:6px}
+.progress-bar{height:8px;background:var(--surface-3);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;border-radius:100px;background:var(--accent);transition:width .4s var(--ease)}
+.progress-fill.warn{background:var(--amber)}
+.progress-fill.danger{background:var(--red)}
+
+/* ── plan cards ── */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.plan-card{border:1.5px solid var(--border-md);border-radius:var(--r);padding:18px;cursor:pointer;transition:var(--t);position:relative}
+.plan-card:hover{border-color:var(--accent);background:var(--accent-soft)}
+.plan-card.current{border-color:var(--accent);background:var(--accent-dim)}
+.plan-card.current::after{content:'Current';position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);background:var(--accent-dim);padding:2px 7px;border-radius:20px}
+.plan-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.plan-price{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.04em}
+.plan-price span{font-size:12px;font-weight:400;color:var(--text-2)}
+.plan-mo{font-size:10px;color:var(--text-3);margin-bottom:10px}
+.plan-credits{font-size:12px;color:var(--green);font-weight:600}
+.plan-stores{font-size:11px;color:var(--text-3);margin-top:4px}
+
+/* ── topup packs ── */
+.topup-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.topup-card{border:1.5px solid var(--border-md);border-radius:var(--r-sm);padding:14px;text-align:center;cursor:pointer;transition:var(--t)}
+.topup-card:hover{border-color:var(--accent);background:var(--accent-soft)}
+.topup-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.topup-credits{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.04em}
+.topup-price{font-size:14px;font-weight:700;color:var(--accent);margin-top:4px}
+.topup-rate{font-size:10px;color:var(--text-3)}
+.topup-save{font-size:9px;font-weight:700;color:var(--green);background:var(--green-dim);padding:2px 6px;border-radius:10px;margin-top:4px;display:inline-block}
+
+/* ── usage chart ── */
+.usage-bar-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.usage-bar-row:last-child{border-bottom:none}
+.usage-feature{font-size:12px;color:var(--text-2);width:140px;flex-shrink:0}
+.usage-bar-wrap{flex:1;height:6px;background:var(--surface-3);border-radius:100px;overflow:hidden}
+.usage-bar-fill{height:100%;border-radius:100px;background:var(--accent)}
+.usage-count{font-size:12px;font-weight:600;color:var(--text);width:40px;text-align:right;flex-shrink:0}
+
+/* ── support ── */
+.support-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.support-tier{border:1.5px solid var(--border-md);border-radius:var(--r);padding:16px;cursor:pointer;transition:var(--t)}
+.support-tier:hover{border-color:var(--accent)}
+.support-tier.selected{border-color:var(--accent);background:var(--accent-dim)}
+.support-tier-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.support-tier-sla{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.04em}
+.support-tier-cost{font-size:12px;margin-top:6px}
+.support-tier-free{color:var(--green);font-weight:600}
+.support-tier-paid{color:var(--amber)}
+
+/* ── form elements ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--font);transition:var(--t)}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+
+/* ── invoice table ── */
+.inv-table{width:100%;border-collapse:collapse;font-size:13px}
+.inv-table th{text-align:left;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;padding:0 0 10px;border-bottom:1px solid var(--border)}
+.inv-table td{padding:10px 0;border-bottom:1px solid var(--border);color:var(--text-2)}
+.inv-table td:first-child{color:var(--text);font-weight:500}
+.inv-table td.amount{color:var(--text);font-weight:700}
+
+/* ── ticket list ── */
+.ticket-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ticket-row:last-child{border-bottom:none}
+.ticket-tier{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;text-transform:uppercase;letter-spacing:.06em}
+.tier-standard{background:var(--surface-3);color:var(--text-2)}
+.tier-priority{background:var(--amber-dim);color:var(--amber)}
+.tier-emergency{background:var(--red-dim);color:var(--red)}
+.ticket-subject{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.ticket-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.status-open{background:var(--blue-dim);color:var(--blue)}
+.status-resolved{background:var(--green-dim);color:var(--green)}
+.ticket-date{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* ── profile avatar ── */
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:16px;overflow:hidden}
+.profile-avatar img{width:64px;height:64px;object-fit:cover;border-radius:50%}
+
+/* ── empty state ── */
+.empty{text-align:center;padding:32px 16px;color:var(--text-3)}
+.empty-icon{font-size:32px;margin-bottom:8px;opacity:.4}
+.empty-text{font-size:13px}
+
+/* ── notification ── */
+.inline-alert{padding:10px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:500;margin-bottom:14px;display:none}
+.inline-alert.show{display:block}
+.inline-alert.success{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+.inline-alert.error{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+.inline-alert.info{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(124,111,255,.2)}
+
+/* ── responsive ── */
+@media(max-width:648px){
+  .main-wrap{margin-left:0}
+  .acc-layout{grid-template-columns:1fr}
+  .acc-nav{position:static;display:flex;flex-wrap:wrap;gap:4px;padding:6px}
+  .acc-nav-item{padding:6px 10px;font-size:12px}
+  .acc-nav-divider{display:none}
+  .credit-hero{grid-template-columns:1fr 1fr}
+  .plan-grid{grid-template-columns:1fr}
+  .topup-grid{grid-template-columns:repeat(2,1fr)}
+  .support-tier-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
+  <div class="sidebar-user-skel sidebar-user-skel" id="sidebar-user-skel">
+    <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="skel" style="height:10px;width:80%"></div><div class="skel" style="height:8px;width:60%"></div></div>
+  </div>
+  <div class="sidebar-user loading" id="sidebar-user-real" onclick="goToSection('profile')" style="cursor:pointer">
+    <div class="sidebar-avatar" id="nav-avatar">U</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="nav-user-name">Loading…</div>
+      <div class="sidebar-user-email" id="nav-user-email"></div>
+    </div>
+  </div>
+
+  <!-- Credit counter widget -->
+  <div id="credit-widget" onclick="goToSection('credits')" style="margin:4px 10px 2px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:var(--t)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+      <span style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em">AI Credits</span>
+      <span id="credit-badge" style="font-size:10px;font-weight:700;color:var(--accent)">—</span>
+    </div>
+    <div class="progress-bar" style="height:5px">
+      <div class="progress-fill" id="credit-bar" style="width:0%"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:4px" id="credit-sub">Loading…</div>
+  </div>
+
+  <div id="sidebar-nav" style="flex:1"></div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">⬡ Sign out</button>
+  </div>
+</aside>
+
+<!-- Mobile topbar -->
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <div class="hamburger" onclick="openMobileSidebar()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <span class="mob-logo">e<span style="color:var(--accent)">K</span>art</span>
+  </div>
+  <div class="mob-right">
+    <button class="theme-toggle" id="themeToggleMob" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Account & Billing</div>
+    </div>
+    <div class="topbar-right" id="topbar-actions">
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="acc-layout">
+
+      <!-- Left nav -->
+      <div class="acc-nav">
+        <div class="acc-nav-item active" id="nav-profile"   onclick="goToSection('profile')">  <span class="acc-nav-icon">👤</span> Profile</div>
+        <div class="acc-nav-item"        id="nav-plan"      onclick="goToSection('plan')">     <span class="acc-nav-icon">📦</span> Plan</div>
+        <div class="acc-nav-item"        id="nav-credits"   onclick="goToSection('credits')">  <span class="acc-nav-icon">⚡</span> AI Credits</div>
+        <div class="acc-nav-item"        id="nav-usage"     onclick="goToSection('usage')">    <span class="acc-nav-icon">📊</span> Usage</div>
+        <div class="acc-nav-divider"></div>
+        <div class="acc-nav-item"        id="nav-support"   onclick="goToSection('support')">  <span class="acc-nav-icon">🎧</span> Support</div>
+        <div class="acc-nav-item"        id="nav-invoices"  onclick="goToSection('invoices')"> <span class="acc-nav-icon">🧾</span> Invoices</div>
+      </div>
+
+      <!-- Right content -->
+      <div>
+
+        <!-- ── PROFILE ── -->
+        <div class="acc-section active" id="sec-profile">
+          <div class="section-title">Profile</div>
+          <div class="section-sub">Your personal details and preferences</div>
+          <div class="card">
+            <div id="profile-avatar-wrap" class="profile-avatar">U</div>
+            <div class="inline-alert" id="profile-alert"></div>
+            <div class="field"><label>Full name</label><input type="text" id="field-name" placeholder="Your name"></div>
+            <div class="field"><label>Email</label><input type="email" id="field-email" disabled style="opacity:.6;cursor:not-allowed"></div>
+            <div class="field"><label>Preferred language</label>
+              <select id="field-lang">
+                <option value="en">English</option>
+                <option value="ta">Tamil</option>
+                <option value="hi">Hindi</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+          </div>
+        </div>
+
+        <!-- ── PLAN ── -->
+        <div class="acc-section" id="sec-plan">
+          <div class="section-title">Plan & Billing</div>
+          <div class="section-sub">Manage your subscription</div>
+
+          <!-- Current plan -->
+          <div class="card">
+            <div class="card-title">Current plan <span id="plan-badge" class="badge-active">—</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+              <div><div style="font-size:11px;color:var(--text-3);margin-bottom:3px">Monthly price</div><div id="plan-price" style="font-size:20px;font-weight:800;color:var(--text)">—</div></div>
+              <div><div style="font-size:11px;color:var(--text-3);margin-bottom:3px">Billing cycle</div><div id="plan-cycle" style="font-size:14px;font-weight:600;color:var(--text);text-transform:capitalize">—</div></div>
+              <div><div style="font-size:11px;color:var(--text-3);margin-bottom:3px">Renews</div><div id="plan-renew" style="font-size:13px;font-weight:600;color:var(--text)">—</div></div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-secondary btn-sm" onclick="goToSection('plan','upgrade-section')">Change plan</button>
+              <button class="btn btn-danger btn-sm" id="cancel-btn" onclick="cancelSubscription()" style="display:none">Cancel at period end</button>
+            </div>
+          </div>
+
+          <!-- All plans -->
+          <div class="card" id="upgrade-section">
+            <div class="card-title">Available plans</div>
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:14px">All prices are per month, billed yearly. Monthly billing is +50%.</div>
+            <div class="plan-grid" id="plan-cards">
+              <!-- injected by JS -->
+            </div>
+            <div class="inline-alert" id="plan-alert"></div>
+          </div>
+        </div>
+
+        <!-- ── CREDITS ── -->
+        <div class="acc-section" id="sec-credits">
+          <div class="section-title">AI Credits</div>
+          <div class="section-sub">1 AI request = 1 credit = ₹5</div>
+
+          <div class="card">
+            <div class="card-title">Credit balance</div>
+            <div class="credit-hero">
+              <div class="credit-stat">
+                <div class="credit-stat-label">This month</div>
+                <div class="credit-stat-val" id="cr-monthly-rem">—</div>
+                <div class="credit-stat-sub" id="cr-monthly-sub">of — monthly cap</div>
+              </div>
+              <div class="credit-stat">
+                <div class="credit-stat-label">Annual pool</div>
+                <div class="credit-stat-val" id="cr-annual-rem">—</div>
+                <div class="credit-stat-sub" id="cr-annual-sub">of — total</div>
+              </div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Monthly cap usage</span><span id="cr-pct">0%</span></div>
+              <div class="progress-bar"><div class="progress-fill" id="cr-progress" style="width:0%"></div></div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px;color:var(--text-2);margin-bottom:16px">
+              <div>Top-up balance: <strong id="cr-topup" style="color:var(--text)">—</strong></div>
+              <div>Cap resets: <strong id="cr-reset" style="color:var(--text)">—</strong></div>
+            </div>
+
+            <div id="cr-trial-banner" style="display:none;background:var(--amber-dim);border:1px solid var(--amber-border);border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:16px">
+              ⏰ <strong>Free trial active.</strong> Trial ends <span id="cr-trial-end"></span>. Upgrade to keep your plan after trial.
+            </div>
+          </div>
+
+          <!-- Top-up packs -->
+          <div class="card">
+            <div class="card-title">Buy more credits</div>
+            <div class="inline-alert" id="topup-alert"></div>
+            <div class="topup-grid" id="topup-packs"><!-- injected --></div>
+          </div>
+        </div>
+
+        <!-- ── USAGE ── -->
+        <div class="acc-section" id="sec-usage">
+          <div class="section-title">Usage History</div>
+          <div class="section-sub">AI credit usage over the last 30 days</div>
+
+          <div class="card">
+            <div class="card-title">By feature</div>
+            <div id="usage-by-feature">
+              <div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Loading usage…</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Daily breakdown</div>
+            <div id="usage-by-date">
+              <div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Loading…</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SUPPORT ── -->
+        <div class="acc-section" id="sec-support">
+          <div class="section-title">Support</div>
+          <div class="section-sub">Get help — standard is always free, priority and emergency cost credits or cash</div>
+
+          <!-- New ticket -->
+          <div class="card">
+            <div class="card-title">Raise a ticket</div>
+            <div class="support-tier-grid" id="support-tiers">
+              <div class="support-tier selected" onclick="selectTier('standard')" id="tier-standard">
+                <div class="support-tier-name">Standard</div>
+                <div class="support-tier-sla">48 hrs</div>
+                <div class="support-tier-cost support-tier-free">Free always</div>
+              </div>
+              <div class="support-tier" onclick="selectTier('priority')" id="tier-priority">
+                <div class="support-tier-name">Priority</div>
+                <div class="support-tier-sla">2 hrs</div>
+                <div class="support-tier-cost support-tier-paid" id="priority-cost">300 credits or ₹300</div>
+              </div>
+              <div class="support-tier" onclick="selectTier('emergency')" id="tier-emergency">
+                <div class="support-tier-name">Emergency</div>
+                <div class="support-tier-sla">30 mins</div>
+                <div class="support-tier-cost support-tier-paid" id="emergency-cost">500 credits or ₹500</div>
+              </div>
+            </div>
+
+            <!-- Payment method (shown for non-standard) -->
+            <div id="payment-method-row" style="display:none;margin-bottom:14px">
+              <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px">Pay with</div>
+              <div style="display:flex;gap:8px">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
+                  <input type="radio" name="pay-method" value="credits" checked> Credits <span id="credits-avail" style="font-size:11px;color:var(--text-3)"></span>
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
+                  <input type="radio" name="pay-method" value="cash"> Cash (Razorpay)
+                </label>
+              </div>
+            </div>
+
+            <div class="inline-alert" id="support-alert"></div>
+            <div class="field"><label>Subject</label><input type="text" id="ticket-subject" placeholder="Brief description of your issue"></div>
+            <div class="field"><label>Message</label><textarea id="ticket-message" placeholder="Describe your issue in detail…"></textarea></div>
+            <button class="btn btn-primary" onclick="submitTicket()">Submit ticket</button>
+          </div>
+
+          <!-- Existing tickets -->
+          <div class="card">
+            <div class="card-title">My tickets</div>
+            <div id="ticket-list">
+              <div class="empty"><div class="empty-icon">🎧</div><div class="empty-text">No tickets yet</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── INVOICES ── -->
+        <div class="acc-section" id="sec-invoices">
+          <div class="section-title">Invoices</div>
+          <div class="section-sub">Billing history for your subscription and credit top-ups</div>
+          <div class="card">
+            <div id="invoice-wrap">
+              <div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">No invoices yet</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right -->
+    </div><!-- /acc-layout -->
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<script>
+const API = 'https://apiv2.aasaitech.in'
+let _data = null   // cached account payload
+let _selectedTier = 'standard'
+
+// ── Navigation ─────────────────────────────────────────────────────────────────
+function goToSection(name, scrollTo) {
+  document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.acc-nav-item').forEach(n => n.classList.remove('active'))
+  const sec = document.getElementById('sec-' + name)
+  const nav = document.getElementById('nav-' + name)
+  if (sec) sec.classList.add('active')
+  if (nav) nav.classList.add('active')
+  if (scrollTo) setTimeout(() => document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+}
+
+// ── Load account data ──────────────────────────────────────────────────────────
+async function loadAccount() {
+  try {
+    _data = await apiFetch('/account')
+    renderProfile()
+    renderCredits()
+    renderPlan()
+    renderUsage()
+    renderTickets()
+    renderInvoices()
+    renderSidebarCredit()
+  } catch (e) {
+    console.error('Failed to load account:', e)
+    toast('Failed to load account data', 'error')
+  }
+}
+
+// ── Sidebar credit widget ──────────────────────────────────────────────────────
+function renderSidebarCredit() {
+  if (!_data?.credits) return
+  const cr = _data.credits
+  const used = cr.monthly_used || 0
+  const cap  = cr.monthly_cap  || 1
+  const rem  = cr.monthly_remaining || 0
+  const pct  = Math.min(100, Math.round((used / cap) * 100))
+
+  document.getElementById('credit-badge').textContent = rem + ' left'
+  const bar = document.getElementById('credit-bar')
+  bar.style.width = pct + '%'
+  bar.className = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
+  document.getElementById('credit-sub').textContent = `${used} / ${cap} used this month`
+}
+
+// ── Profile ────────────────────────────────────────────────────────────────────
+function renderProfile() {
+  if (!_data?.user) return
+  const u = _data.user
+  document.getElementById('field-name').value  = u.name  || ''
+  document.getElementById('field-email').value = u.email || ''
+  if (u.language) document.getElementById('field-lang').value = u.language
+
+  const av = document.getElementById('profile-avatar-wrap')
+  if (u.avatar) { av.innerHTML = `<img src="${u.avatar}" alt="">`} 
+  else { av.textContent = (u.name || 'U')[0].toUpperCase() }
+}
+
+async function saveProfile() {
+  const alert = document.getElementById('profile-alert')
+  const name  = document.getElementById('field-name').value.trim()
+  const lang  = document.getElementById('field-lang').value
+  try {
+    await apiFetch('/account/profile', { method: 'PUT', body: JSON.stringify({ name, language: lang }) })
+    showAlert(alert, 'Profile updated', 'success')
+  } catch (e) {
+    showAlert(alert, e.message || 'Failed to save', 'error')
+  }
+}
+
+// ── Credits ────────────────────────────────────────────────────────────────────
+function renderCredits() {
+  if (!_data?.credits) return
+  const cr = _data.credits
+
+  const rem = cr.monthly_remaining || 0
+  const cap = cr.monthly_cap || 1
+  const pct = Math.min(100, Math.round(((cap - rem) / cap) * 100))
+
+  const remEl = document.getElementById('cr-monthly-rem')
+  remEl.textContent = rem
+  remEl.className = 'credit-stat-val' + (rem <= 10 ? ' danger' : rem <= cap * 0.2 ? ' warn' : '')
+
+  document.getElementById('cr-monthly-sub').textContent = `of ${cap} monthly cap`
+  document.getElementById('cr-annual-rem').textContent  = cr.pool_remaining ?? '—'
+  document.getElementById('cr-annual-sub').textContent  = `of ${cr.annual_pool ?? '—'} total`
+  document.getElementById('cr-topup').textContent       = cr.topup_balance || 0
+  document.getElementById('cr-pct').textContent         = pct + '%'
+
+  const prog = document.getElementById('cr-progress')
+  prog.style.width     = pct + '%'
+  prog.className = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
+
+  const resetDate = cr.cap_reset_at ? new Date(cr.cap_reset_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'
+  document.getElementById('cr-reset').textContent = resetDate
+
+  if (cr.trial_active) {
+    document.getElementById('cr-trial-banner').style.display = 'block'
+    document.getElementById('cr-trial-end').textContent = cr.trial_ends_at ? new Date(cr.trial_ends_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long' }) : '—'
+  }
+
+  // Topup packs
+  const packs = _data.topup_packs || []
+  const packEl = document.getElementById('topup-packs')
+  packEl.innerHTML = packs.map(p => `
+    <div class="topup-card" onclick="buyTopup('${p.id}')">
+      <div class="topup-label">${p.label}</div>
+      <div class="topup-credits">${p.credits.toLocaleString('en-IN')}</div>
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:2px">credits</div>
+      <div class="topup-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="topup-rate">₹${(p.price / p.credits).toFixed(2)}/cr</div>
+      ${p.id === 'pack_1000' ? '<div class="topup-save">10% off</div>' : ''}
+      ${p.id === 'pack_5000' ? '<div class="topup-save">20% off</div>' : ''}
+    </div>
+  `).join('')
+}
+
+async function buyTopup(packId) {
+  const alert = document.getElementById('topup-alert')
+  try {
+    showAlert(alert, 'Creating order…', 'info')
+    const order = await apiFetch('/credits/topup', { method: 'POST', body: JSON.stringify({ pack_id: packId }) })
+
+    const rzp = new Razorpay({
+      key:         order.razorpay_key,
+      order_id:    order.razorpay_order_id,
+      amount:      order.amount,
+      currency:    'INR',
+      name:        'eKart AI Credits',
+      description: `${order.pack.credits} credits (${order.pack.label})`,
+      prefill:     { name: order.user_name, email: order.user_email },
+      theme:       { color: '#7C6FFF' },
+      handler: async function(resp) {
+        try {
+          const result = await apiFetch('/credits/topup/verify', { method: 'POST', body: JSON.stringify({ razorpay_order_id: order.razorpay_order_id, razorpay_payment_id: resp.razorpay_payment_id, razorpay_signature: resp.razorpay_signature }) })
+          toast(`✅ ${result.credits_added} credits added!`, 'success')
+          alert.style.display = 'none'
+          await loadAccount()
+        } catch (e) { showAlert(alert, 'Payment verification failed: ' + e.message, 'error') }
+      }
+    })
+    rzp.open()
+    alert.style.display = 'none'
+  } catch (e) { showAlert(alert, e.message || 'Failed to start payment', 'error') }
+}
+
+// ── Plan ───────────────────────────────────────────────────────────────────────
+function renderPlan() {
+  if (!_data) return
+  const cr  = _data.credits
+  const sub = _data.subscription
+  const planLabel = (cr?.plan_label || cr?.plan || 'Starter')
+
+  document.getElementById('plan-badge').textContent = cr?.trial_active ? 'Trial' : planLabel
+  document.getElementById('plan-badge').className   = cr?.trial_active ? 'badge-trial' : sub?.status === 'cancelled' ? 'badge-cancelled' : 'badge-active'
+  document.getElementById('plan-price').textContent = `₹${((_data.plan_config?.price_monthly) || 0).toLocaleString('en-IN')}/mo`
+  document.getElementById('plan-cycle').textContent = cr?.billing_cycle || 'yearly'
+
+  const endDate = sub?.current_period_end || cr?.subscription_end
+  document.getElementById('plan-renew').textContent = endDate ? new Date(endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+
+  if (sub && !sub.cancel_at_period_end) document.getElementById('cancel-btn').style.display = 'inline-flex'
+
+  // Plan cards
+  const plans = _data.all_plans || []
+  const currentPlan = cr?.plan || 'starter'
+  document.getElementById('plan-cards').innerHTML = plans.map(p => `
+    <div class="plan-card ${p.key === currentPlan ? 'current' : ''}" onclick="upgradePlan('${p.key}')">
+      <div class="plan-name">${p.label}</div>
+      <div class="plan-price">₹${p.price_monthly.toLocaleString('en-IN')}<span>/mo</span></div>
+      <div class="plan-mo">₹${p.price_monthly_mo.toLocaleString('en-IN')}/mo if monthly billing</div>
+      <div class="plan-credits">⚡ ${p.credits_monthly.toLocaleString('en-IN')} credits/mo</div>
+      <div class="plan-stores">${p.stores} store${p.stores === 1 ? '' : 's'} • ${p.products} products • 0% fees</div>
+    </div>
+  `).join('')
+}
+
+async function upgradePlan(planKey) {
+  if (!_data) return
+  const currentPlan = _data.credits?.plan || 'starter'
+  if (planKey === currentPlan) return toast('You are already on this plan', 'info')
+  const alert = document.getElementById('plan-alert')
+  try {
+    showAlert(alert, 'Setting up subscription…', 'info')
+    const result = await apiFetch('/billing/subscribe', { method: 'POST', body: JSON.stringify({ plan: planKey, billing_cycle: _data.credits?.billing_cycle || 'yearly' }) })
+    const rzp = new Razorpay({
+      key:           result.razorpay_key,
+      subscription_id: result.subscription_id,
+      name:          'eKart ' + planKey.charAt(0).toUpperCase() + planKey.slice(1),
+      prefill:       { email: _data.user?.email, name: _data.user?.name },
+      theme:         { color: '#7C6FFF' },
+      handler: async function() { toast('✅ Plan upgraded!', 'success'); alert.style.display = 'none'; await loadAccount() }
+    })
+    rzp.open()
+    alert.style.display = 'none'
+  } catch (e) { showAlert(alert, e.message || 'Failed to upgrade', 'error') }
+}
+
+async function cancelSubscription() {
+  if (!confirm('Cancel at end of billing period?')) return
+  try {
+    await apiFetch('/billing/cancel', { method: 'POST' })
+    toast('Subscription will cancel at end of period', 'info')
+    await loadAccount()
+  } catch (e) { toast(e.message || 'Failed to cancel', 'error') }
+}
+
+// ── Usage ──────────────────────────────────────────────────────────────────────
+function renderUsage() {
+  if (!_data?.usage_history) return
+
+  const byDate    = _data.usage_history || []
+  const totalUsed = byDate.reduce((s, d) => s + d.total, 0)
+
+  // Feature breakdown
+  const byFeature = {}
+  byDate.forEach(d => { Object.entries(d.features || {}).forEach(([f, c]) => { byFeature[f] = (byFeature[f] || 0) + c }) })
+  const featureNames = { ai_assistant: 'AI Assistant', ai_website_builder: 'Website Builder', ai_product_content: 'Product Content', ai_sales_insights: 'Analytics', ai_marketing: 'Marketing Copy', ai_store_setup: 'Store Setup', support_priority: 'Priority Support', support_emergency: 'Emergency Support' }
+  const maxFeature = Math.max(...Object.values(byFeature), 1)
+
+  document.getElementById('usage-by-feature').innerHTML = Object.entries(byFeature).length
+    ? Object.entries(byFeature).sort((a,b) => b[1]-a[1]).map(([f, c]) => `
+        <div class="usage-bar-row">
+          <div class="usage-feature">${featureNames[f] || f}</div>
+          <div class="usage-bar-wrap"><div class="usage-bar-fill" style="width:${Math.round(c/maxFeature*100)}%"></div></div>
+          <div class="usage-count">${c}</div>
+        </div>
+      `).join('')
+    : '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No usage yet this month</div></div>'
+
+  // Daily list (last 14 days)
+  document.getElementById('usage-by-date').innerHTML = byDate.length
+    ? `<table class="inv-table"><thead><tr><th>Date</th><th>Credits used</th><th>Features</th></tr></thead><tbody>` +
+      byDate.slice(0, 14).map(d => `
+        <tr>
+          <td>${new Date(d.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+          <td class="amount">${d.total}</td>
+          <td style="color:var(--text-3);font-size:11px">${Object.entries(d.features||{}).map(([f,c]) => `${featureNames[f]||f}: ${c}`).join(', ')}</td>
+        </tr>
+      `).join('') + '</tbody></table>'
+    : '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">No usage data yet</div></div>'
+}
+
+// ── Support ────────────────────────────────────────────────────────────────────
+function selectTier(tier) {
+  _selectedTier = tier
+  document.querySelectorAll('.support-tier').forEach(el => el.classList.remove('selected'))
+  document.getElementById('tier-' + tier)?.classList.add('selected')
+  document.getElementById('payment-method-row').style.display = tier === 'standard' ? 'none' : 'block'
+
+  const cr = _data?.credits
+  const avail = ((cr?.monthly_remaining||0) + (cr?.topup_balance||0))
+  document.getElementById('credits-avail').textContent = `(${avail} available)`
+}
+
+// Update support tier cost display based on plan (enterprise gets free)
+function renderSupportTiers() {
+  if (!_data) return
+  const plan = _data.credits?.plan || 'starter'
+  const pricing = _data.support_pricing || {}
+
+  if (plan === 'enterprise') {
+    document.getElementById('priority-cost').textContent  = 'Free (included)'
+    document.getElementById('priority-cost').className    = 'support-tier-cost support-tier-free'
+    document.getElementById('emergency-cost').textContent = 'Free (included)'
+    document.getElementById('emergency-cost').className   = 'support-tier-cost support-tier-free'
+  }
+}
+
+async function submitTicket() {
+  const alert   = document.getElementById('support-alert')
+  const subject = document.getElementById('ticket-subject').value.trim()
+  const message = document.getElementById('ticket-message').value.trim()
+  if (!subject || !message) return showAlert(alert, 'Subject and message are required', 'error')
+
+  const payMethod = _selectedTier === 'standard' ? 'free' : document.querySelector('input[name="pay-method"]:checked')?.value || 'credits'
+
+  try {
+    showAlert(alert, 'Submitting ticket…', 'info')
+    const resp = await apiFetch('/support/tickets', {
+      method: 'POST',
+      body: JSON.stringify({ tier: _selectedTier, subject, message, payment_method: payMethod })
+    })
+
+    if (resp.payment_required && resp.razorpay_order_id) {
+      // Cash payment flow
+      const rzp = new Razorpay({
+        key:         resp.razorpay_key,
+        order_id:    resp.razorpay_order_id,
+        amount:      resp.amount,
+        currency:    'INR',
+        name:        'eKart Support',
+        description: `${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} support ticket`,
+        prefill:     { email: _data?.user?.email, name: _data?.user?.name },
+        theme:       { color: '#7C6FFF' },
+        handler: async function(rzResp) {
+          try {
+            await apiFetch(`/support/tickets/${resp.ticket_id || 'pending'}/verify-payment`, {
+              method: 'POST',
+              body: JSON.stringify({ razorpay_order_id: resp.razorpay_order_id, razorpay_payment_id: rzResp.razorpay_payment_id, razorpay_signature: rzResp.razorpay_signature })
+            })
+            toast('✅ Ticket submitted!', 'success')
+            document.getElementById('ticket-subject').value = ''
+            document.getElementById('ticket-message').value = ''
+            alert.style.display = 'none'
+            await loadAccount()
+          } catch (e) { showAlert(alert, 'Payment failed: ' + e.message, 'error') }
+        }
+      })
+      rzp.open()
+      alert.style.display = 'none'
+      return
+    }
+
+    toast('✅ Ticket submitted!', 'success')
+    document.getElementById('ticket-subject').value = ''
+    document.getElementById('ticket-message').value = ''
+    alert.style.display = 'none'
+    await loadAccount()
+  } catch (e) {
+    if (e.message?.includes('insufficient_credits')) {
+      showAlert(alert, `Not enough credits. You need ${_data.support_pricing?.[_selectedTier]?.credits || '—'} credits. You can also pay cash.`, 'error')
+    } else {
+      showAlert(alert, e.message || 'Failed to submit', 'error')
+    }
+  }
+}
+
+function renderTickets() {
+  const tickets = _data?.tickets || []
+  const el = document.getElementById('ticket-list')
+  if (!tickets.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🎧</div><div class="empty-text">No tickets yet</div></div>'; return }
+  el.innerHTML = tickets.map(t => `
+    <div class="ticket-row">
+      <div class="ticket-tier tier-${t.tier}">${t.tier}</div>
+      <div style="flex:1">
+        <div class="ticket-subject">${escHtml(t.subject)}</div>
+        <div class="ticket-date">${new Date(t.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
+      </div>
+      <div class="ticket-status status-${t.status === 'resolved' ? 'resolved' : 'open'}">${t.status}</div>
+    </div>
+  `).join('')
+}
+
+// ── Invoices ───────────────────────────────────────────────────────────────────
+function renderInvoices() {
+  const invoices = _data?.invoices || []
+  const el = document.getElementById('invoice-wrap')
+  if (!invoices.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">No invoices yet</div></div>'; return }
+  el.innerHTML = `
+    <table class="inv-table">
+      <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        ${invoices.map(inv => `
+          <tr>
+            <td>${new Date(inv.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</td>
+            <td>Subscription payment</td>
+            <td class="amount">₹${(inv.amount || 0).toLocaleString('en-IN')}</td>
+            <td><span style="color:var(--green);font-weight:600;font-size:12px">${inv.status}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function showAlert(el, msg, type) {
+  el.textContent = msg
+  el.className   = 'inline-alert show ' + type
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+(async function init() {
+  const nav = await renderNav('account')
+  if (!nav) return
+  await loadAccount()
+  renderSupportTiers()
+  dismissSkeleton()
+})()
+</script>
+
+<!-- Razorpay SDK (loaded lazily) -->
+<script>
+// Load Razorpay only when needed
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve()
+  return new Promise((res, rej) => {
+    const s = document.createElement('script')
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    s.onload = res; s.onerror = rej
+    document.head.appendChild(s)
+  })
+}
+// Override buyTopup and upgradePlan to ensure Razorpay is loaded
+const _origBuyTopup      = buyTopup
+const _origUpgradePlan   = upgradePlan
+const _origSubmitTicket  = submitTicket
+
+async function buyTopup(id)       { await loadRazorpay(); return _origBuyTopup(id) }
+async function upgradePlan(key)   { await loadRazorpay(); return _origUpgradePlan(key) }
+async function submitTicket()     { await loadRazorpay(); return _origSubmitTicket() }
+</script>
+</body>
+</html>
