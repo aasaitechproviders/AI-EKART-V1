@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 
-<!-- ✅ FIX: Inline theme init to prevent flash — same pattern as home.html -->
 <script>
 ;(function(){
   var saved = localStorage.getItem('ekart_theme');
@@ -30,6 +29,7 @@
 .skel-acc-card2  { height: 240px; border-radius: var(--r); }
 @keyframes cardIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 @keyframes kpiPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes spin { to{transform:rotate(360deg)} }
 
 /* ── Account summary strip ────────────────────────────────────── */
 .acc-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
@@ -138,12 +138,28 @@
 .progress-fill.warn   { background:var(--amber); }
 .progress-fill.danger { background:var(--red); }
 
+/* ── Billing cycle toggle ─────────────────────────────────────── */
+.cycle-toggle-wrap { display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+.cycle-toggle { display:inline-flex; background:var(--surface-2); border:1px solid var(--border-md);
+  border-radius:var(--r-sm); padding:4px; gap:2px; }
+.cycle-btn { padding:7px 16px; font-size:12px; font-weight:600; border:1.5px solid transparent;
+  background:none; cursor:pointer; border-radius:calc(var(--r-sm) - 2px); color:var(--text-3);
+  transition:var(--t); font-family:var(--font); white-space:nowrap; }
+.cycle-btn:hover { color:var(--text-2); }
+.cycle-btn.active { background:var(--surface); color:var(--accent); font-weight:700;
+  border-color:rgba(124,111,255,.25); box-shadow:var(--sh-sm); }
+.cycle-save-pill { font-size:10px; font-weight:800; color:var(--green); background:var(--green-dim);
+  border:1px solid var(--green-border); padding:3px 9px; border-radius:20px; white-space:nowrap; }
+
 /* ── Plan cards ───────────────────────────────────────────────── */
 .plan-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
 .plan-card { border:1.5px solid var(--border-md); border-radius:var(--r); padding:20px;
-  cursor:pointer; transition:var(--t); position:relative; background:var(--surface); }
-.plan-card:hover { border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
-.plan-card.current { border-color:var(--accent); background:var(--accent-dim); }
+  cursor:pointer; transition:var(--t); position:relative; background:var(--surface);
+  display:flex; flex-direction:column; }
+.plan-card:hover:not(.current):not(.paying) {
+  border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
+.plan-card.current { border-color:var(--accent); background:var(--accent-dim); cursor:default; }
+.plan-card.paying  { opacity:.7; cursor:not-allowed; pointer-events:none; }
 .plan-card-badge { position:absolute; top:12px; right:12px; font-size:9px; font-weight:800;
   text-transform:uppercase; letter-spacing:.07em; color:var(--accent);
   background:var(--accent-dim); border:1px solid rgba(124,111,255,.25); padding:3px 8px; border-radius:20px; }
@@ -151,14 +167,25 @@
 .plan-price { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); }
 .plan-price span { font-size:12px; font-weight:400; color:var(--text-3); font-family:var(--font); }
 .plan-mo    { font-size:10px; color:var(--text-3); margin-bottom:12px; }
-.plan-feat  { font-size:11px; color:var(--text-2); line-height:1.7; }
+.plan-feat  { font-size:11px; color:var(--text-2); line-height:1.7; flex:1; }
 .plan-feat strong { color:var(--green); font-weight:700; }
+.plan-card-cta { margin-top:14px; padding:8px 0; text-align:center; font-size:12px; font-weight:700;
+  color:var(--accent); border-top:1px solid var(--border); border-radius:0 0 calc(var(--r)-2px) calc(var(--r)-2px); }
+.plan-card:not(.current):hover .plan-card-cta { color:var(--accent); }
+.plan-card-spinner { margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px;
+  font-size:11px; font-weight:600; color:var(--accent); }
+.plan-card-spinner .spin-dot { width:12px; height:12px; border:2px solid var(--accent-dim);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
 
 /* ── Topup packs ──────────────────────────────────────────────── */
 .topup-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 .topup-card { border:1.5px solid var(--border-md); border-radius:var(--r); padding:16px 12px;
-  text-align:center; cursor:pointer; transition:var(--t); background:var(--surface); }
-.topup-card:hover { border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
+  text-align:center; cursor:pointer; transition:var(--t); background:var(--surface);
+  position:relative; overflow:hidden; }
+.topup-card:hover:not(.paying-other):not(.paying-this) {
+  border-color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); box-shadow:var(--sh); }
+.topup-card.paying-other { opacity:.4; pointer-events:none; filter:grayscale(.4); }
+.topup-card.paying-this  { border-color:var(--accent); background:var(--accent-dim); pointer-events:none; }
 .topup-card-label  { font-size:9px; font-weight:800; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
 .topup-credits     { font-size:26px; font-weight:800; color:var(--text); letter-spacing:-.05em; font-family:var(--mono); line-height:1; }
 .topup-credits-sub { font-size:10px; color:var(--text-3); margin-bottom:8px; }
@@ -166,6 +193,12 @@
 .topup-rate        { font-size:10px; color:var(--text-3); margin-top:3px; }
 .topup-save-badge  { display:inline-block; font-size:9px; font-weight:800; color:var(--green);
   background:var(--green-dim); border:1px solid var(--green-border); padding:2px 7px; border-radius:10px; margin-top:6px; }
+.topup-loading-overlay { position:absolute; inset:0; background:var(--accent-dim);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  border-radius:calc(var(--r)-1px); }
+.topup-loading-overlay .spin-dot { width:16px; height:16px; border:2px solid rgba(124,111,255,.3);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+.topup-loading-overlay span { font-size:10px; font-weight:700; color:var(--accent); }
 
 /* ── Usage bars ───────────────────────────────────────────────── */
 .usage-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); }
@@ -261,6 +294,28 @@
   padding:6px 12px; font-size:11px; color:var(--text-2); }
 .pill-info strong { color:var(--text); font-weight:700; }
 
+/* ── Payment confirmation modal ───────────────────────────────── */
+.pay-confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000;
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  animation:cardIn .2s var(--ease) both; }
+.pay-confirm-modal { background:var(--surface); border:1px solid var(--border-md);
+  border-radius:var(--r); width:100%; max-width:400px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+.pcm-title   { font-size:16px; font-weight:800; color:var(--text); letter-spacing:-.03em; margin-bottom:6px; }
+.pcm-desc    { font-size:12px; color:var(--text-3); margin-bottom:20px; }
+.pcm-amount  { font-size:36px; font-weight:800; color:var(--text); letter-spacing:-.05em;
+  font-family:var(--mono); margin-bottom:4px; }
+.pcm-amount-sub { font-size:12px; color:var(--text-3); margin-bottom:22px; }
+.pcm-detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0;
+  border-bottom:1px solid var(--border); font-size:12px; }
+.pcm-detail-row:last-of-type { border-bottom:none; margin-bottom:20px; }
+.pcm-detail-key { color:var(--text-3); font-weight:600; }
+.pcm-detail-val { color:var(--text); font-weight:700; }
+.pcm-buttons { display:flex; gap:10px; }
+.pcm-buttons .btn { flex:1; }
+.pcm-rzp-logo { display:flex; align-items:center; justify-content:center; gap:6px;
+  margin-top:14px; font-size:10px; color:var(--text-3); }
+.pcm-rzp-logo img { height:14px; opacity:.5; }
+
 /* ── Responsive ───────────────────────────────────────────────── */
 @media(max-width:900px) {
   .acc-summary { grid-template-columns:repeat(2,1fr); }
@@ -279,16 +334,14 @@
   .two-col { grid-template-columns:1fr; }
   .three-col { grid-template-columns:1fr 1fr; }
   .field-row { grid-template-columns:1fr; }
+  .pcm-buttons { flex-direction:column; }
 }
 </style>
 </head>
 <body>
 
-<!-- ✅ FIX: toast container explicitly in body — same as home.html -->
 <div id="toast-container"></div>
 
-<!-- ✅ FIX: Page skeleton uses standard .skel-topbar / .skel-body structure,
-     NO inline style override — shared.css already handles positioning -->
 <div id="page-skeleton">
   <div class="skel-topbar">
     <div class="skel" style="height:14px;width:120px;border-radius:5px;"></div>
@@ -302,14 +355,11 @@
   </div>
 </div>
 
-<!-- ── Sidebar backdrop ───────────────────────────────────────── -->
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
 
-<!-- ✅ FIX: was <aside class="sidebar"> — missing id="sidebar" broke mobile open/close -->
 <div class="sidebar" id="sidebar">
   <a class="sidebar-logo" href="home.html">e<span class="logo-k">K</span>art</a>
 
-  <!-- User chip skeleton -->
   <div class="sidebar-user-skel" id="sidebar-user-skel">
     <div class="skel" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;"></div>
     <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
@@ -317,7 +367,6 @@
       <div class="skel" style="height:8px;width:60%;"></div>
     </div>
   </div>
-  <!-- User chip real -->
   <div class="sidebar-user loading" id="sidebar-user-real" onclick="goToSection('profile')" style="cursor:pointer;" title="View profile">
     <div class="sidebar-avatar" id="nav-avatar">U</div>
     <div class="sidebar-user-info">
@@ -332,7 +381,6 @@
     <button class="btn-logout" onclick="logout()">↩&nbsp; Log out</button>
   </div>
 </div>
-<!-- ✅ FIX: was </aside> -->
 
 <!-- ── Mobile topbar ───────────────────────────────────────────── -->
 <div class="mobile-topbar">
@@ -350,7 +398,6 @@
 <!-- ── Main ───────────────────────────────────────────────────── -->
 <div class="main-wrap">
 
-  <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-left">
       <span class="topbar-title">Account & Billing</span>
@@ -360,7 +407,6 @@
     </div>
   </div>
 
-  <!-- ✅ FIX: Content starts hidden (display:none), revealed after data loads — same as home.html -->
   <div class="content" id="page-content" style="display:none;">
 
     <!-- Summary KPI strip -->
@@ -517,9 +563,18 @@
       <!-- Available plans -->
       <div class="card" id="upgrade-section">
         <div class="card-title">Choose a plan</div>
-        <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">All prices per month, billed yearly. Monthly billing is +50%.</div>
-        <div class="plan-grid" id="plan-cards"><!-- injected by JS --></div>
+
+        <!-- ✅ Billing cycle toggle -->
+        <div class="cycle-toggle-wrap">
+          <div class="cycle-toggle">
+            <button class="cycle-btn active" id="cycle-yearly"  onclick="setBillingCycle('yearly')">Yearly</button>
+            <button class="cycle-btn"        id="cycle-monthly" onclick="setBillingCycle('monthly')">Monthly</button>
+          </div>
+          <div class="cycle-save-pill" id="cycle-save-label">Save 33% with annual billing</div>
+        </div>
+
         <div class="inline-alert" id="plan-alert"></div>
+        <div class="plan-grid" id="plan-cards"><!-- injected by JS --></div>
       </div>
     </div>
 
@@ -582,7 +637,7 @@
       <!-- Top-up packs -->
       <div class="card">
         <div class="card-title">Buy more credits</div>
-        <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">Credits never expire and roll over month to month.</div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:16px;">Credits never expire and roll over month to month. Click any pack to pay instantly.</div>
         <div class="inline-alert" id="topup-alert"></div>
         <div class="topup-grid" id="topup-packs"><!-- injected --></div>
       </div>
@@ -676,7 +731,7 @@
           <label>Message</label>
           <textarea id="ticket-message" placeholder="Describe your issue in detail…"></textarea>
         </div>
-        <button class="btn btn-primary" onclick="submitTicket()">Submit ticket</button>
+        <button class="btn btn-primary" id="submit-ticket-btn" onclick="submitTicket()">Submit ticket</button>
       </div>
 
       <!-- Ticket list -->
@@ -709,16 +764,22 @@
 
 <!-- ── Scripts ─────────────────────────────────────────────────── -->
 <script>
-/* ── State ────────────────────────────────────────────────────── */
-// ✅ FIX: removed `const API = '...'` — already declared in api.js, was causing
-//         "Uncaught SyntaxError: Identifier 'API' has already been declared"
+/* ══════════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════════ */
 let _data              = null   // cached account payload
 let _selectedTier      = 'standard'
 let _selectedPayMethod = 'credits'
 
-/* ──────────────────────────────────────────────
+// ── Payment state ─────────────────────────────────────────────
+let _billingCycle  = 'yearly'   // 'yearly' | 'monthly'
+let _payingPlanKey = null       // currently-opening plan key
+let _payingPackId  = null       // currently-opening topup pack id
+let _payingTicket  = false      // ticket submit in flight
+
+/* ══════════════════════════════════════════════════════════════
    NAVIGATION
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function goToSection(name) {
   document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('active'))
   document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'))
@@ -729,12 +790,19 @@ function goToSection(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    LOAD ACCOUNT DATA
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 async function loadAccount() {
   try {
     _data = await apiFetch('/account')
+
+    // Sync billing cycle from user's current subscription
+    if (_data.subscription?.billing_cycle) {
+      _billingCycle = _data.subscription.billing_cycle
+      updateCycleUI()
+    }
+
     renderProfile()
     renderKPIs()
     renderCredits()
@@ -750,9 +818,9 @@ async function loadAccount() {
   }
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    SIDEBAR CREDIT WIDGET
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function renderSidebarCredit() {
   if (!_data?.credits) return
   const cr   = _data.credits
@@ -761,35 +829,36 @@ function renderSidebarCredit() {
   const rem  = cr.monthly_remaining || 0
   const pct  = Math.min(100, Math.round((used / cap) * 100))
 
-  document.getElementById('credit-badge').textContent = rem + ' left'
+  const badge = document.getElementById('credit-badge')
+  if (badge) badge.textContent = rem + ' left'
   const bar = document.getElementById('credit-bar')
-  bar.style.width = pct + '%'
-  bar.className   = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
-  document.getElementById('credit-sub').textContent = `${used} / ${cap} used this month`
+  if (bar) {
+    bar.style.width = pct + '%'
+    bar.className   = 'progress-fill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '')
+  }
+  const sub = document.getElementById('credit-sub')
+  if (sub) sub.textContent = `${used} / ${cap} used this month`
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    TOP KPI STRIP
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function renderKPIs() {
   if (!_data) return
   const cr   = _data.credits
   const sub  = _data.subscription
   const plan = _data.plan_config
 
-  // Plan
   const planEl = document.getElementById('kpi-plan')
   planEl.textContent = cr?.plan_label || 'Starter'
   planEl.classList.remove('loading')
   document.getElementById('kpi-plan-sub').textContent = cr?.trial_active ? '🟡 Free trial' : (sub?.status || 'active')
 
-  // Credits
   const credEl = document.getElementById('kpi-credits')
-  credEl.textContent = (cr?.monthly_remaining ?? '—').toLocaleString('en-IN')
+  credEl.textContent = (cr?.monthly_remaining ?? '—').toLocaleString?.('en-IN') ?? '—'
   credEl.classList.remove('loading')
   document.getElementById('kpi-credits-sub').textContent = `of ${(cr?.monthly_cap || 0).toLocaleString('en-IN')} monthly cap`
 
-  // Renews
   const renewEl = document.getElementById('kpi-renews')
   const endDate = sub?.current_period_end || cr?.subscription_end
   renewEl.textContent = endDate
@@ -798,7 +867,6 @@ function renderKPIs() {
   renewEl.classList.remove('loading')
   document.getElementById('kpi-renews-sub').textContent = sub?.cancel_at_period_end ? '⚠ Cancels at period end' : 'auto-renews'
 
-  // Stores — fetch separately
   apiFetch('/stores').then(stores => {
     const storesEl = document.getElementById('kpi-stores')
     storesEl.textContent = stores.length
@@ -813,20 +881,18 @@ function renderKPIs() {
   })
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    PROFILE
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function renderProfile() {
   if (!_data?.user) return
   const u  = _data.user
   const cr = _data.credits
 
-  // Fields
   document.getElementById('field-name').value  = u.name  || ''
   document.getElementById('field-email').value = u.email || ''
   if (u.language) document.getElementById('field-lang').value = u.language
 
-  // Hero
   const av = document.getElementById('profile-avatar-wrap')
   if (u.avatar) { av.innerHTML = `<img src="${u.avatar}" alt="">` }
   else { av.textContent = (u.name || 'U')[0].toUpperCase() }
@@ -835,13 +901,11 @@ function renderProfile() {
   document.getElementById('profile-hero-plan').innerHTML    =
     `⚡ ${cr?.plan_label || 'Starter'}${cr?.trial_active ? ' <span style="opacity:.7">(Trial)</span>' : ''}`
 
-  // Sidebar avatar
   const navAv = document.getElementById('nav-avatar')
   if (navAv && u.avatar) {
     navAv.innerHTML = `<img src="${u.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
   }
 
-  // Info grid
   document.getElementById('info-joined').textContent = u.created_at
     ? new Date(u.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—'
   document.getElementById('info-last-login').textContent = u.last_login
@@ -859,7 +923,6 @@ async function saveProfile() {
     showAlert(alertEl, 'Saving…', 'info')
     await apiFetch('/account/profile', { method: 'PUT', body: JSON.stringify({ name, language: lang }) })
     showAlert(alertEl, '✓ Profile updated successfully', 'success')
-    // Update sidebar + hero
     const nameEl = document.getElementById('nav-user-name')
     if (nameEl) nameEl.textContent = name
     document.getElementById('profile-hero-name').textContent = name
@@ -869,19 +932,39 @@ async function saveProfile() {
   }
 }
 
-/* ──────────────────────────────────────────────
-   PLAN
-─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   BILLING CYCLE TOGGLE
+══════════════════════════════════════════════════════════════ */
+function setBillingCycle(cycle) {
+  _billingCycle = cycle
+  updateCycleUI()
+  renderPlanCards()
+}
+
+function updateCycleUI() {
+  const yBtn = document.getElementById('cycle-yearly')
+  const mBtn = document.getElementById('cycle-monthly')
+  const save = document.getElementById('cycle-save-label')
+  if (!yBtn) return
+  yBtn.classList.toggle('active', _billingCycle === 'yearly')
+  mBtn.classList.toggle('active', _billingCycle === 'monthly')
+  if (save) {
+    save.style.display = _billingCycle === 'yearly' ? '' : 'none'
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PLAN SECTION
+══════════════════════════════════════════════════════════════ */
 function renderPlan() {
   if (!_data) return
   const cr      = _data.credits
   const sub     = _data.subscription
   const planCfg = _data.plan_config || {}
-  const planLabel = cr?.plan_label || 'Starter'
 
   // Status badge
   const badge = document.getElementById('plan-status-badge')
-  badge.textContent = cr?.trial_active ? 'Trial' : planLabel
+  badge.textContent = cr?.trial_active ? 'Trial' : (cr?.plan_label || 'Starter')
   badge.className   = 'card-title-badge ' +
     (cr?.trial_active ? 'badge-trial' : sub?.status === 'cancelled' ? 'badge-cancelled' : 'badge-active')
 
@@ -895,7 +978,6 @@ function renderPlan() {
     ? new Date(endDate).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     : '—'
 
-  // Feature pills
   const pills = [
     planCfg.stores >= 1000 || planCfg.stores === undefined ? 'Unlimited stores' : `${planCfg.stores} store${planCfg.stores === 1 ? '' : 's'}`,
     planCfg.products >= 1000 || planCfg.products === undefined ? 'Unlimited products' : `${planCfg.products} products`,
@@ -906,7 +988,6 @@ function renderPlan() {
   document.getElementById('plan-features-row').innerHTML = pills.map(p =>
     `<div class="pill-info"><strong>${p}</strong></div>`).join('')
 
-  // Cancel btn
   if (sub && !sub.cancel_at_period_end) document.getElementById('cancel-btn').style.display = 'inline-flex'
   if (sub?.cancel_at_period_end) {
     document.getElementById('cancel-btn').style.display = 'none'
@@ -915,51 +996,129 @@ function renderPlan() {
     renew.textContent += ' (cancels)'
   }
 
-  // Plan cards
-  const plans = _data.all_plans || []
-  const currentPlan = cr?.plan || 'starter'
-  document.getElementById('plan-cards').innerHTML = plans.map(p => `
-    <div class="plan-card ${p.key === currentPlan ? 'current' : ''}" onclick="upgradePlan('${p.key}')">
-      ${p.key === currentPlan ? '<div class="plan-card-badge">Current</div>' : ''}
-      <div class="plan-name">${p.label}</div>
-      <div class="plan-price">₹${p.price_monthly.toLocaleString('en-IN')}<span>/mo</span></div>
-      <div class="plan-mo">₹${p.price_monthly_mo.toLocaleString('en-IN')}/mo if billed monthly</div>
-      <div class="plan-feat">
-        <strong>⚡ ${p.credits_monthly.toLocaleString('en-IN')} credits/mo</strong><br>
-        ${p.stores} stores · ${p.products} products<br>
-        ${p.support_sla} SLA${p.priority_free ? ' · Priority free' : ''}${p.emergency_free ? ' · Emergency free' : ''}
-      </div>
-    </div>
-  `).join('')
+  renderPlanCards()
 }
 
+// ── Renders plan cards independently (called on cycle toggle too) ─
+function renderPlanCards() {
+  const plans       = _data?.all_plans || []
+  const currentPlan = _data?.credits?.plan || 'starter'
+  const container   = document.getElementById('plan-cards')
+  if (!container) return
+
+  container.innerHTML = plans.map(p => {
+    const price    = _billingCycle === 'yearly' ? p.price_monthly : p.price_monthly_mo
+    const isCurrent = p.key === currentPlan
+    const isPaying  = _payingPlanKey === p.key
+
+    return `
+      <div class="plan-card ${isCurrent ? 'current' : ''} ${isPaying ? 'paying' : ''}"
+           id="plan-card-${p.key}"
+           onclick="${isCurrent ? '' : `upgradePlan('${p.key}')`}">
+        ${isCurrent ? '<div class="plan-card-badge">Current</div>' : ''}
+        <div class="plan-name">${p.label}</div>
+        <div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/mo</span></div>
+        <div class="plan-mo">${_billingCycle === 'yearly' ? 'Billed yearly · Save 33%' : 'Billed monthly'}</div>
+        <div class="plan-feat">
+          <strong>⚡ ${p.credits_monthly.toLocaleString('en-IN')} credits/mo</strong><br>
+          ${p.stores} stores · ${p.products} products<br>
+          ${p.support_sla} SLA${p.priority_free ? ' · Priority free' : ''}${p.emergency_free ? ' · Emergency free' : ''}
+        </div>
+        ${isCurrent
+          ? ''
+          : isPaying
+            ? `<div class="plan-card-spinner"><div class="spin-dot"></div>Setting up…</div>`
+            : `<div class="plan-card-cta">Subscribe for ₹${
+                (_billingCycle === 'yearly' ? price * 12 : price).toLocaleString('en-IN')
+              }/${_billingCycle === 'yearly' ? 'yr' : 'mo'} →</div>`
+        }
+      </div>`
+  }).join('')
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PLAN UPGRADE — full Razorpay subscription flow
+   Mirrors the storefront create-order → open Razorpay → verify pattern
+   but uses Razorpay subscription_id (recurring billing)
+══════════════════════════════════════════════════════════════ */
 async function upgradePlan(planKey) {
   if (!_data) return
+  if (_payingPlanKey) return toast('A payment is already in progress', 'info')
+
   const currentPlan = _data.credits?.plan || 'starter'
   if (planKey === currentPlan) return toast('You are already on this plan', 'info')
+
+  const plan    = _data.all_plans?.find(p => p.key === planKey)
+  const price   = _billingCycle === 'yearly' ? plan.price_monthly : plan.price_monthly_mo
+  const total   = _billingCycle === 'yearly' ? price * 12 : price
   const alertEl = document.getElementById('plan-alert')
-  try {
-    showAlert(alertEl, 'Setting up subscription…', 'info')
-    const result = await apiFetch('/billing/subscribe', {
-      method: 'POST',
-      body: JSON.stringify({ plan: planKey, billing_cycle: _data.credits?.billing_cycle || 'yearly' })
-    })
-    await loadRazorpay()
-    const rzp = new Razorpay({
-      key:             result.razorpay_key,
-      subscription_id: result.subscription_id,
-      name:            'eKart ' + planKey.charAt(0).toUpperCase() + planKey.slice(1),
-      prefill:         { email: _data.user?.email, name: _data.user?.name },
-      theme:           { color: '#7C6FFF' },
-      handler: async function() {
-        toast('✅ Plan upgraded!', 'success')
+
+  // Show confirmation modal
+  showPayConfirm({
+    title:     `Subscribe to ${plan?.label || planKey}`,
+    desc:      `${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} billing · Recurring`,
+    amount:    total,
+    amountSub: _billingCycle === 'yearly'
+      ? `₹${price.toLocaleString('en-IN')}/mo × 12 months`
+      : `₹${price.toLocaleString('en-IN')} per month`,
+    details: [
+      { k: 'Plan',           v: plan?.label || planKey },
+      { k: 'Billing',        v: _billingCycle === 'yearly' ? 'Annual' : 'Monthly' },
+      { k: 'Credits/month',  v: (plan?.credits_monthly || 0).toLocaleString('en-IN') },
+      { k: 'Stores allowed', v: String(plan?.stores ?? '1') },
+    ],
+    ctaLabel: `Pay ₹${total.toLocaleString('en-IN')} →`,
+    onConfirm: async () => {
+      _payingPlanKey = planKey
+      renderPlanCards()
+      showAlert(alertEl, 'Opening payment…', 'info')
+
+      try {
+        const result = await apiFetch('/billing/subscribe', {
+          method: 'POST',
+          body: JSON.stringify({ plan: planKey, billing_cycle: _billingCycle })
+        })
+        await loadRazorpay()
+
+        const rzp = new Razorpay({
+          key:             result.razorpay_key,
+          subscription_id: result.subscription_id,
+          name:            'eKart',
+          description:     `${plan?.label || planKey} · ${_billingCycle === 'yearly' ? 'Annual' : 'Monthly'} · ₹${price}/mo`,
+          image:           '', // optional logo url
+          prefill: {
+            name:    _data.user?.name  || '',
+            email:   _data.user?.email || '',
+            contact: _data.user?.phone || ''
+          },
+          notes: {
+            plan:          planKey,
+            billing_cycle: _billingCycle
+          },
+          theme: { color: '#7C6FFF' },
+          modal: {
+            ondismiss: () => {
+              _payingPlanKey = null
+              renderPlanCards()
+              alertEl.style.display = 'none'
+            }
+          },
+          handler: async function() {
+            toast('✅ Plan upgraded successfully!', 'success')
+            alertEl.style.display = 'none'
+            _payingPlanKey = null
+            await loadAccount()
+          }
+        })
+        rzp.open()
         alertEl.style.display = 'none'
-        await loadAccount()
+      } catch (e) {
+        _payingPlanKey = null
+        renderPlanCards()
+        showAlert(alertEl, e.message || 'Failed to start payment', 'error')
       }
-    })
-    rzp.open()
-    alertEl.style.display = 'none'
-  } catch (e) { showAlert(alertEl, e.message || 'Failed to upgrade', 'error') }
+    }
+  })
 }
 
 async function cancelSubscription() {
@@ -971,9 +1130,9 @@ async function cancelSubscription() {
   } catch (e) { toast(e.message || 'Failed to cancel', 'error') }
 }
 
-/* ──────────────────────────────────────────────
-   AI CREDITS
-─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   AI CREDITS — balance display
+══════════════════════════════════════════════════════════════ */
 function renderCredits() {
   if (!_data?.credits) return
   const cr  = _data.credits
@@ -1003,69 +1162,139 @@ function renderCredits() {
     ? `Free trial (ends ${cr.trial_ends_at ? new Date(cr.trial_ends_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—'})`
     : (cr.subscription_status || 'active')
 
-  // Trial banner
   if (cr.trial_active) {
     document.getElementById('cr-trial-banner').style.display = 'flex'
     document.getElementById('cr-trial-end').textContent = cr.trial_ends_at
       ? new Date(cr.trial_ends_at).toLocaleDateString('en-IN', { day:'numeric', month:'long' }) : '—'
   }
 
-  // Topup packs
-  const packs = _data.topup_packs || []
+  renderTopupPacks()
+}
+
+function renderTopupPacks() {
+  const packs = _data?.topup_packs || []
   document.getElementById('topup-packs').innerHTML = packs.map(p => {
+    const isThis  = _payingPackId === p.id
+    const isOther = _payingPackId && _payingPackId !== p.id
     const saveTag = p.id === 'pack_1000' ? '<div class="topup-save-badge">10% off</div>'
                   : p.id === 'pack_5000' ? '<div class="topup-save-badge">20% off</div>' : ''
     return `
-      <div class="topup-card" onclick="buyTopup('${p.id}')">
+      <div class="topup-card ${isThis ? 'paying-this' : ''} ${isOther ? 'paying-other' : ''}"
+           onclick="buyTopup('${p.id}')">
         <div class="topup-card-label">${p.label}</div>
         <div class="topup-credits">${p.credits.toLocaleString('en-IN')}</div>
         <div class="topup-credits-sub">credits</div>
         <div class="topup-price">₹${p.price.toLocaleString('en-IN')}</div>
         <div class="topup-rate">₹${(p.price / p.credits).toFixed(2)} per credit</div>
         ${saveTag}
+        ${isThis ? `<div class="topup-loading-overlay"><div class="spin-dot"></div><span>Opening…</span></div>` : ''}
       </div>`
   }).join('')
 }
 
+/* ══════════════════════════════════════════════════════════════
+   CREDIT TOP-UP — full Razorpay order flow
+   Same pattern as storefront: create-order → open Razorpay → verify
+══════════════════════════════════════════════════════════════ */
 async function buyTopup(packId) {
+  if (_payingPackId) return  // already in flight
+
+  const pack    = _data?.topup_packs?.find(p => p.id === packId)
+  if (!pack) return toast('Invalid pack', 'error')
+
   const alertEl = document.getElementById('topup-alert')
-  try {
-    showAlert(alertEl, 'Creating order…', 'info')
-    const order = await apiFetch('/credits/topup', { method: 'POST', body: JSON.stringify({ pack_id: packId }) })
-    await loadRazorpay()
-    const rzp = new Razorpay({
-      key:         order.razorpay_key,
-      order_id:    order.razorpay_order_id,
-      amount:      order.amount,
-      currency:    'INR',
-      name:        'eKart AI Credits',
-      description: `${order.pack.credits} credits (${order.pack.label})`,
-      prefill:     { name: order.user_name, email: order.user_email },
-      theme:       { color: '#7C6FFF' },
-      handler: async function(resp) {
-        try {
-          const result = await apiFetch('/credits/topup/verify', {
-            method: 'POST',
-            body: JSON.stringify({
-              razorpay_order_id:   order.razorpay_order_id,
-              razorpay_payment_id: resp.razorpay_payment_id,
-              razorpay_signature:  resp.razorpay_signature
-            })
-          })
-          toast(`✅ ${result.credits_added} credits added!`, 'success')
-          alertEl.style.display = 'none'
-          await loadAccount()
-        } catch (e) { showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error') }
+
+  // Show confirmation modal
+  showPayConfirm({
+    title:     `Buy ${pack.credits.toLocaleString('en-IN')} Credits`,
+    desc:      `${pack.label} credit pack · Never expires`,
+    amount:    pack.price,
+    amountSub: `${pack.credits.toLocaleString('en-IN')} credits · ₹${(pack.price / pack.credits).toFixed(2)} per credit`,
+    details: [
+      { k: 'Pack',     v: pack.label },
+      { k: 'Credits',  v: pack.credits.toLocaleString('en-IN') },
+      { k: 'Amount',   v: `₹${pack.price.toLocaleString('en-IN')}` },
+      { k: 'Rate',     v: `₹${(pack.price / pack.credits).toFixed(2)}/credit` }
+    ],
+    ctaLabel: `Pay ₹${pack.price.toLocaleString('en-IN')} →`,
+    onConfirm: async () => {
+      _payingPackId = packId
+      renderTopupPacks()
+      showAlert(alertEl, 'Creating order…', 'info')
+
+      try {
+        // Step 1: Create Razorpay order on backend (same as checkout create-order)
+        const order = await apiFetch('/credits/topup', {
+          method: 'POST',
+          body: JSON.stringify({ pack_id: packId })
+        })
+
+        await loadRazorpay()
+
+        const resetCards = () => {
+          _payingPackId = null
+          renderTopupPacks()
+        }
+
+        // Step 2: Open Razorpay checkout (same as storefront)
+        const rzp = new Razorpay({
+          key:         order.razorpay_key,
+          order_id:    order.razorpay_order_id,
+          amount:      order.amount,
+          currency:    'INR',
+          name:        'eKart AI Credits',
+          description: `${pack.credits.toLocaleString('en-IN')} credits · ${pack.label} pack`,
+          prefill: {
+            name:    order.user_name  || _data?.user?.name  || '',
+            email:   order.user_email || _data?.user?.email || '',
+            contact: _data?.user?.phone || ''
+          },
+          notes: {
+            pack_id: packId,
+            credits: String(pack.credits)
+          },
+          theme: { color: '#7C6FFF' },
+          modal: {
+            ondismiss: () => {
+              resetCards()
+              alertEl.style.display = 'none'
+            }
+          },
+          // Step 3: Verify payment on success (same as storefront verify-payment)
+          handler: async function(resp) {
+            try {
+              const result = await apiFetch('/credits/topup/verify', {
+                method: 'POST',
+                body: JSON.stringify({
+                  razorpay_order_id:   order.razorpay_order_id,
+                  razorpay_payment_id: resp.razorpay_payment_id,
+                  razorpay_signature:  resp.razorpay_signature
+                })
+              })
+              toast(`✅ ${result.credits_added.toLocaleString('en-IN')} credits added!`, 'success')
+              alertEl.style.display = 'none'
+              resetCards()
+              await loadAccount()
+            } catch (e) {
+              showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
+              resetCards()
+            }
+          }
+        })
+        rzp.open()
+        alertEl.style.display = 'none'
+      } catch (e) {
+        _payingPackId = null
+        renderTopupPacks()
+        showAlert(alertEl, e.message || 'Failed to start payment', 'error')
       }
-    })
-    rzp.open()
-    alertEl.style.display = 'none'
-  } catch (e) { showAlert(alertEl, e.message || 'Failed to start payment', 'error') }
+    }
+  })
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    USAGE
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 const FEATURE_NAMES = {
   ai_assistant:       'AI Assistant',
   ai_website_builder: 'Website Builder',
@@ -1081,7 +1310,6 @@ function renderUsage() {
   if (!_data?.usage_history) return
   const byDate = _data.usage_history || []
 
-  // Aggregate by feature
   const byFeature = {}
   byDate.forEach(d => {
     Object.entries(d.features || {}).forEach(([f, c]) => {
@@ -1091,7 +1319,6 @@ function renderUsage() {
 
   const maxFeature = Math.max(...Object.values(byFeature), 1)
 
-  // Feature bars
   const featEl = document.getElementById('usage-by-feature')
   featEl.innerHTML = Object.keys(byFeature).length
     ? Object.entries(byFeature).sort((a, b) => b[1] - a[1]).map(([f, c]) => `
@@ -1102,7 +1329,6 @@ function renderUsage() {
         </div>`).join('')
     : '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">No AI usage yet this month</div></div>'
 
-  // Daily table
   const dateEl = document.getElementById('usage-by-date')
   dateEl.innerHTML = byDate.length
     ? `<table class="inv-table">
@@ -1121,12 +1347,14 @@ function renderUsage() {
     : '<div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-text">No usage data yet</div></div>'
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    SUPPORT
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function renderSupportTiers() {
   if (!_data) return
   const plan = _data.credits?.plan || 'starter'
+  const pricing = _data.support_pricing || {}
+
   if (plan === 'enterprise') {
     const makeEl = (id, text) => {
       const el = document.getElementById(id)
@@ -1134,6 +1362,11 @@ function renderSupportTiers() {
     }
     makeEl('priority-cost',  'Free (included)')
     makeEl('emergency-cost', 'Free (included)')
+  } else {
+    const pEl = document.getElementById('priority-cost')
+    const eEl = document.getElementById('emergency-cost')
+    if (pEl && pricing.priority)   pEl.textContent = `${pricing.priority.credits} credits or ₹${pricing.priority.cash}`
+    if (eEl && pricing.emergency)  eEl.textContent = `${pricing.emergency.credits} credits or ₹${pricing.emergency.cash}`
   }
 }
 
@@ -1143,7 +1376,6 @@ function selectTier(tier) {
   document.getElementById('tier-' + tier)?.classList.add('selected')
   const pmRow = document.getElementById('payment-method-row')
   pmRow.style.display = (tier === 'standard') ? 'none' : 'block'
-  // Update credits available text
   const cr    = _data?.credits
   const avail = (cr?.monthly_remaining || 0) + (cr?.topup_balance || 0)
   document.getElementById('credits-avail-text').textContent = `${avail} available`
@@ -1153,35 +1385,91 @@ function selectPayMethod(method) {
   _selectedPayMethod = method
   document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('selected'))
   document.getElementById('pay-opt-' + method)?.classList.add('selected')
-  document.querySelector(`input[name="pay-method"][value="${method}"]`).checked = true
+  const radio = document.querySelector(`input[name="pay-method"][value="${method}"]`)
+  if (radio) radio.checked = true
 }
 
+/* ══════════════════════════════════════════════════════════════
+   SUPPORT TICKET SUBMIT — with cash Razorpay flow
+   Same pattern: POST /support/tickets → if payment_required → open Razorpay → verify
+══════════════════════════════════════════════════════════════ */
 async function submitTicket() {
+  if (_payingTicket) return
   const alertEl = document.getElementById('support-alert')
   const subject = document.getElementById('ticket-subject').value.trim()
   const message = document.getElementById('ticket-message').value.trim()
   if (!subject || !message) return showAlert(alertEl, 'Subject and message are required', 'error')
 
   const payMethod = _selectedTier === 'standard' ? 'free' : _selectedPayMethod
+  const pricing   = _data?.support_pricing?.[_selectedTier]
+
+  // For cash payments, show confirmation first
+  if (_selectedTier !== 'standard' && _selectedPayMethod === 'cash' && pricing?.cash) {
+    showPayConfirm({
+      title:     `${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} Support`,
+      desc:      subject,
+      amount:    pricing.cash,
+      amountSub: `${_selectedTier === 'priority' ? '2-hour' : '30-minute'} guaranteed response`,
+      details: [
+        { k: 'Tier',     v: _selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1) },
+        { k: 'SLA',      v: _selectedTier === 'priority' ? '2 hours' : '30 minutes' },
+        { k: 'Payment',  v: 'Razorpay (one-time)' }
+      ],
+      ctaLabel: `Pay ₹${pricing.cash} & Submit →`,
+      onConfirm: () => _doSubmitTicket(alertEl, subject, message, payMethod)
+    })
+    return
+  }
+
+  _doSubmitTicket(alertEl, subject, message, payMethod)
+}
+
+async function _doSubmitTicket(alertEl, subject, message, payMethod) {
+  _payingTicket = true
+  const btn = document.getElementById('submit-ticket-btn')
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…' }
 
   try {
     showAlert(alertEl, 'Submitting ticket…', 'info')
     const resp = await apiFetch('/support/tickets', {
       method: 'POST',
-      body: JSON.stringify({ tier: _selectedTier, subject, message, payment_method: payMethod })
+      body: JSON.stringify({
+        tier:           _selectedTier,
+        subject,
+        message,
+        payment_method: payMethod
+      })
     })
 
+    // Backend returned a Razorpay order → open checkout
     if (resp.payment_required && resp.razorpay_order_id) {
       await loadRazorpay()
+
+      const pricing = _data?.support_pricing?.[_selectedTier]
       const rzp = new Razorpay({
-        key:         resp.razorpay_key,
-        order_id:    resp.razorpay_order_id,
-        amount:      resp.amount,
-        currency:    'INR',
-        name:        'eKart Support',
+        key:      resp.razorpay_key,
+        order_id: resp.razorpay_order_id,
+        amount:   resp.amount,
+        currency: 'INR',
+        name:     'eKart Support',
         description: `${_selectedTier.charAt(0).toUpperCase() + _selectedTier.slice(1)} support ticket`,
-        prefill:     { email: _data?.user?.email, name: _data?.user?.name },
-        theme:       { color: '#7C6FFF' },
+        prefill: {
+          name:    _data?.user?.name  || '',
+          email:   _data?.user?.email || '',
+          contact: _data?.user?.phone || ''
+        },
+        notes: {
+          tier:    _selectedTier,
+          subject: subject.slice(0, 40)
+        },
+        theme: { color: '#7C6FFF' },
+        modal: {
+          ondismiss: () => {
+            _payingTicket = false
+            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
+            showAlert(alertEl, 'Payment cancelled. Your ticket was not submitted.', 'warning')
+          }
+        },
         handler: async function(rzResp) {
           try {
             await apiFetch(`/support/tickets/${resp.ticket_id || 'pending'}/verify-payment`, {
@@ -1192,12 +1480,18 @@ async function submitTicket() {
                 razorpay_signature:  rzResp.razorpay_signature
               })
             })
+            _payingTicket = false
+            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
             toast('✅ Ticket submitted!', 'success')
             document.getElementById('ticket-subject').value = ''
             document.getElementById('ticket-message').value = ''
             alertEl.style.display = 'none'
             await loadAccount()
-          } catch (e) { showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error') }
+          } catch (e) {
+            _payingTicket = false
+            if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
+            showAlert(alertEl, 'Payment verification failed: ' + e.message, 'error')
+          }
         }
       })
       rzp.open()
@@ -1205,15 +1499,20 @@ async function submitTicket() {
       return
     }
 
+    // Free / credits path — done
+    _payingTicket = false
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
     toast('✅ Ticket submitted!', 'success')
     document.getElementById('ticket-subject').value = ''
     document.getElementById('ticket-message').value = ''
     alertEl.style.display = 'none'
     await loadAccount()
   } catch (e) {
+    _payingTicket = false
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit ticket' }
     if (e.message?.includes('insufficient_credits')) {
       showAlert(alertEl,
-        `Not enough credits. Need ${_data.support_pricing?.[_selectedTier]?.credits || '—'} credits. Try paying with cash instead.`,
+        `Not enough credits (need ${_data.support_pricing?.[_selectedTier]?.credits || '—'}). Switch to cash payment instead.`,
         'error')
     } else {
       showAlert(alertEl, e.message || 'Failed to submit ticket', 'error')
@@ -1239,9 +1538,9 @@ function renderTickets() {
     </div>`).join('')
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    INVOICES
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function renderInvoices() {
   const invoices = _data?.invoices || []
   const el       = document.getElementById('invoice-wrap')
@@ -1266,9 +1565,62 @@ function renderInvoices() {
     </table>`
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
+   PAYMENT CONFIRMATION MODAL
+   Shows before opening Razorpay — same flow as storefront
+══════════════════════════════════════════════════════════════ */
+function showPayConfirm({ title, desc, amount, amountSub, details, ctaLabel, onConfirm }) {
+  // Remove any existing modal
+  const existing = document.getElementById('pay-confirm-overlay')
+  if (existing) existing.remove()
+
+  const fmtAmount = `₹${amount.toLocaleString('en-IN')}`
+
+  const overlay = document.createElement('div')
+  overlay.id        = 'pay-confirm-overlay'
+  overlay.className = 'pay-confirm-overlay'
+  overlay.innerHTML = `
+    <div class="pay-confirm-modal">
+      <div class="pcm-title">${escHtml(title)}</div>
+      <div class="pcm-desc">${escHtml(desc)}</div>
+      <div class="pcm-amount">${fmtAmount}</div>
+      <div class="pcm-amount-sub">${escHtml(amountSub)}</div>
+      ${(details || []).map(d => `
+        <div class="pcm-detail-row">
+          <span class="pcm-detail-key">${escHtml(d.k)}</span>
+          <span class="pcm-detail-val">${escHtml(d.v)}</span>
+        </div>`).join('')}
+      <div class="pcm-buttons">
+        <button class="btn btn-secondary" onclick="closePayConfirm()">Cancel</button>
+        <button class="btn btn-primary"   id="pcm-confirm-btn">${escHtml(ctaLabel)}</button>
+      </div>
+      <div class="pcm-rzp-logo">
+        <span>Secured by</span>
+        <img src="https://razorpay.com/favicon.ico" onerror="this.style.display='none'">
+        <strong style="color:var(--text-2);">Razorpay</strong>
+      </div>
+    </div>`
+
+  // Close on overlay click
+  overlay.addEventListener('click', e => { if (e.target === overlay) closePayConfirm() })
+
+  // Wire confirm button
+  overlay.querySelector('#pcm-confirm-btn').addEventListener('click', () => {
+    closePayConfirm()
+    onConfirm()
+  })
+
+  document.body.appendChild(overlay)
+}
+
+function closePayConfirm() {
+  const el = document.getElementById('pay-confirm-overlay')
+  if (el) el.remove()
+}
+
+/* ══════════════════════════════════════════════════════════════
    HELPERS
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function escHtml(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
@@ -1279,9 +1631,9 @@ function showAlert(el, msg, type) {
   el.className   = 'inline-alert show ' + type
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════
    RAZORPAY LAZY LOADER
-─────────────────────────────────────────────── */
+══════════════════════════════════════════════════════════════ */
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve()
   return new Promise((res, rej) => {
@@ -1292,16 +1644,12 @@ function loadRazorpay() {
   })
 }
 
-/* ──────────────────────────────────────────────
-   ✅ FIX: Use DOMContentLoaded event — same pattern as home.html.
-   Was using an IIFE which could run before DOM is ready.
-─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
-  // ✅ FIX: renderNav returns null and redirects if not logged in
   const nav = await renderNav('account')
   if (!nav) return
-
-  // ✅ FIX: reveal content only after data is loaded — same as home.html pattern
   await loadAccount()
   document.getElementById('page-content').style.display = ''
   dismissSkeleton()
