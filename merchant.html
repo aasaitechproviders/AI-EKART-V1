@@ -297,6 +297,48 @@ input:checked+.toggle-track::before{transform:translateX(16px);background:#fff}
 /* ── Misc ─────────────────────────────────────────────────────── */
 .cb{width:14px;height:14px;cursor:pointer;accent-color:var(--accent)}
 
+/* ── Export dropdown ──────────────────────────────────────────── */
+.export-wrap{position:relative;display:inline-flex}
+.export-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 13px;height:34px;border-radius:var(--r-sm);
+  font-family:var(--font);font-size:12.5px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border-md);
+  background:var(--surface);color:var(--text-2);
+  transition:var(--t);white-space:nowrap;
+}
+.export-btn:hover{border-color:rgba(124,111,255,.35);color:var(--accent);background:var(--accent-dim)}
+.export-btn.open{border-color:rgba(124,111,255,.4);color:var(--accent);background:var(--accent-dim)}
+.export-btn .exp-caret{width:9px;height:9px;opacity:.55;transition:transform .18s var(--ease);flex-shrink:0}
+.export-btn.open .exp-caret{transform:rotate(180deg)}
+.export-menu{
+  display:none;position:absolute;top:calc(100% + 7px);right:0;
+  min-width:210px;background:var(--surface);
+  border:1px solid var(--border-md);border-radius:var(--r);
+  box-shadow:var(--sh-lg);z-index:300;overflow:hidden;
+}
+.export-menu.open{display:block;animation:fadeUp .15s var(--ease)}
+.exp-menu-header{
+  padding:9px 14px 6px;
+  font-size:9.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--text-3);
+}
+.exp-menu-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;font-size:13px;font-weight:500;
+  color:var(--text-2);cursor:pointer;
+  transition:background .12s,color .12s;
+  border:none;background:none;width:100%;
+  font-family:var(--font);text-align:left;
+  border-radius:0;
+}
+.exp-menu-item:hover{background:var(--accent-dim);color:var(--accent)}
+.exp-menu-item svg{flex-shrink:0;opacity:.5;transition:opacity .12s}
+.exp-menu-item:hover svg{opacity:1}
+.exp-menu-item .exp-item-sub{font-size:10.5px;color:var(--text-3);margin-left:auto;font-family:var(--mono);}
+.exp-menu-item:hover .exp-item-sub{color:var(--accent);opacity:.7}
+.exp-menu-sep{height:1px;background:var(--border);margin:4px 0}
+
 /* ── UX: icon-aware action buttons ───────────────────────────── */
 /* Green edit button (light tinted, matches green semantic) */
 .btn-edit{
@@ -481,6 +523,38 @@ input:checked+.toggle-track::before{transform:translateX(16px);background:#fff}
       <div class="store-select-wrap" id="store-select-wrap">
         <span class="store-select-label">Store</span>
         <select class="store-selector" id="store-selector"></select>
+      </div>
+      <!-- Export dropdown -->
+      <div class="export-wrap" id="exportWrap">
+        <button class="export-btn" id="exportBtn" onclick="toggleExportMenu(event)" title="Export data">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+          <svg class="exp-caret" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="export-menu" id="exportMenu">
+          <div class="exp-menu-header">Export as CSV</div>
+          <button class="exp-menu-item" onclick="exportProductsCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Products
+            <span class="exp-item-sub" id="expBadgeProducts">0</span>
+          </button>
+          <button class="exp-menu-item" onclick="exportCategoriesCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Categories
+            <span class="exp-item-sub" id="expBadgeCategories">0</span>
+          </button>
+          <div class="exp-menu-sep"></div>
+          <button class="exp-menu-item" onclick="exportCouponsCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Coupons
+            <span class="exp-item-sub" id="expBadgeCoupons">0</span>
+          </button>
+          <button class="exp-menu-item" onclick="exportInvCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            Inventory
+            <span class="exp-item-sub" id="expBadgeInventory">0</span>
+          </button>
+        </div>
       </div>
       <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
     </div>
@@ -1069,7 +1143,101 @@ async function saveSingleStock(id){
 }
 function setInvFilter(f){activeInvFilter=f;['all','low','out'].forEach(k=>{const el=document.getElementById('f'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('active',k===f);});loadInventory();}
 function applyInvSearch(){const q=document.getElementById('invSearch')?.value.toLowerCase()||'';if(!q){renderInvTable(invProducts);return;}renderInvTable(invProducts.filter(p=>p.name.toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q)));}
-function exportInvCSV(){if(!invProducts.length)return toast('No data to export','error');const rows=[['Product','SKU','Stock','Tracked','Status','Low Stock','Out of Stock']];invProducts.forEach(p=>rows.push([p.name,p.sku||'',p.track_inventory?p.stock_qty:'∞',p.track_inventory?'Yes':'No',p.status,p.is_low_stock?'Yes':'No',p.is_out_of_stock?'Yes':'No']));const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`inventory-${new Date().toISOString().slice(0,10)}.csv`;a.click();toast('CSV downloaded!','success');}
+function exportInvCSV(){_closeExportMenu();if(!invProducts.length)return toast('No data to export','error');const rows=[['Product','SKU','Stock','Tracked','Status','Low Stock','Out of Stock']];invProducts.forEach(p=>rows.push([p.name,p.sku||'',p.track_inventory?p.stock_qty:'∞',p.track_inventory?'Yes':'No',p.status,p.is_low_stock?'Yes':'No',p.is_out_of_stock?'Yes':'No']));const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`inventory-${new Date().toISOString().slice(0,10)}.csv`;a.click();toast('CSV downloaded!','success');}
+
+/* ════════════ EXPORT ════════════ */
+function toggleExportMenu(e){
+  e && e.stopPropagation();
+  const btn=document.getElementById('exportBtn');
+  const menu=document.getElementById('exportMenu');
+  const isOpen=menu.classList.contains('open');
+  // Update badge counts in menu before opening
+  const bp=document.getElementById('expBadgeProducts');
+  const bc=document.getElementById('expBadgeCategories');
+  const bk=document.getElementById('expBadgeCoupons');
+  const bi=document.getElementById('expBadgeInventory');
+  if(bp)bp.textContent=allProducts.length;
+  if(bc)bc.textContent=allCategories.length;
+  if(bk)bk.textContent=allCoupons.length;
+  if(bi)bi.textContent=invProducts.length;
+  btn.classList.toggle('open',!isOpen);
+  menu.classList.toggle('open',!isOpen);
+}
+document.addEventListener('click',function(e){
+  const wrap=document.getElementById('exportWrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('exportBtn')?.classList.remove('open');
+    document.getElementById('exportMenu')?.classList.remove('open');
+  }
+});
+function _closeExportMenu(){
+  document.getElementById('exportBtn')?.classList.remove('open');
+  document.getElementById('exportMenu')?.classList.remove('open');
+}
+function _downloadCSV(rows, filename){
+  const csv=rows.map(r=>r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=filename;
+  a.click();
+}
+function exportProductsCSV(){
+  _closeExportMenu();
+  if(!allProducts.length)return toast('No products to export','error');
+  const cur=getCur();
+  const rows=[['Name','SKU','Description','Price','Compare At Price','Category','Stock','Track Inventory','Status','Tags','Variants','Images']];
+  allProducts.forEach(p=>{
+    const catName=catMap[p.category_id]||catMap[p.category_id?.$oid]||'';
+    const variants=(p.variants||[]).map(v=>`${v.label}: ${v.options}`).join(' | ');
+    rows.push([
+      p.name,
+      p.sku||'',
+      p.description||'',
+      p.price,
+      p.compare_at_price||'',
+      catName,
+      p.track_inventory?p.stock_qty:'∞',
+      p.track_inventory?'Yes':'No',
+      p.status,
+      (p.tags||[]).join(', '),
+      variants,
+      (p.images||[]).join(' | ')
+    ]);
+  });
+  _downloadCSV(rows,`products-${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`${allProducts.length} products exported!`,'success');
+}
+function exportCategoriesCSV(){
+  _closeExportMenu();
+  if(!allCategories.length)return toast('No categories to export','error');
+  const rows=[['Name','Slug','Image URL','Product Count']];
+  allCategories.forEach(c=>{
+    const count=allProducts.filter(p=>String(p.category_id)===c._id||p.category_id?.$oid===c._id).length;
+    rows.push([c.name, c.slug||'', c.image_url||'', count]);
+  });
+  _downloadCSV(rows,`categories-${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`${allCategories.length} categories exported!`,'success');
+}
+function exportCouponsCSV(){
+  _closeExportMenu();
+  if(!allCoupons.length)return toast('No coupons to export','error');
+  const cur=getCur();
+  const rows=[['Code','Type','Value','Min Order','Max Uses','Uses','Active','Expires']];
+  allCoupons.forEach(c=>{
+    rows.push([
+      c.code,
+      c.type==='percent'?'Percentage':'Flat Amount',
+      c.type==='percent'?c.value+'%':cur+c.value,
+      c.min_order>0?cur+c.min_order:'No minimum',
+      c.max_uses||'Unlimited',
+      c.uses||0,
+      c.active?'Yes':'No',
+      c.expires_at?new Date(c.expires_at).toLocaleDateString('en-IN'):'Never'
+    ]);
+  });
+  _downloadCSV(rows,`coupons-${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`${allCoupons.length} coupons exported!`,'success');
+}
 
 /* ════════════ DRAWER HELPERS ════════════ */
 function openDrawer(id){const overlay=document.getElementById('drawerOverlay');const drawer=document.getElementById(id);overlay.classList.add('open');drawer.classList.add('open');document.body.style.overflow='hidden';const body=drawer.querySelector('.drawer-body');if(body)body.scrollTop=0;}
