@@ -349,6 +349,7 @@
   .pay-modal-btns { flex-direction:column; }
 }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -1529,11 +1530,14 @@ function fmtDate(d, long) {
 function showAlert(el, msg, type) { el.textContent=msg; el.className='inline-alert show '+type }
 
 function loadRazorpay() {
+  // Script is loaded statically in <head> — mirrors the cart.html pattern.
+  // This function is kept as a safe fallback in case the static tag is cached
+  // away or the page is embedded in a context that strips script tags.
   if (window.Razorpay) return Promise.resolve()
-  return new Promise((res,rej) => {
-    const s=document.createElement('script')
-    s.src='https://checkout.razorpay.com/v1/checkout.js'
-    s.onload=res; s.onerror=rej
+  return new Promise((res, rej) => {
+    const s = document.createElement('script')
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    s.onload = res; s.onerror = () => rej(new Error('Failed to load Razorpay checkout script'))
     document.head.appendChild(s)
   })
 }
